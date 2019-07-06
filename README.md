@@ -41,9 +41,9 @@ const Counter1 = () => {
   }));
   return (
     <div>
-      {Math.random()}
       <span>Count1: {count1}</span>
       <button type="button" onClick={increment}>+1</button>
+      {Math.random()}
     </div>
   );
 };
@@ -57,9 +57,9 @@ const Counter2 = () => {
   }));
   return (
     <div>
-      {Math.random()}
       <span>Count2: {count2}</span>
       <button type="button" onClick={increment}>+1</button>
+      {Math.random()}
     </div>
   );
 };
@@ -92,7 +92,7 @@ to force update when a component needs to re-render.
 
 ## Limitations
 
-- Subscriptions are context-based. So, even if there are multiple context providers in a component tree, all components are subscribed to all providers. This may lead false positives (extra re-renders).
+- Subscriptions are per-context basis. So, even if there are multiple context providers in a component tree, all components are subscribed to all providers. This may lead false positives (extra re-renders).
 - In order to stop propagation, `children` of a context provider has to be either created outside of the provider or memoized with `React.memo`.
 - Context consumers are not supported.
 
