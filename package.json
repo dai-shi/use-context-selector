@@ -7,16 +7,18 @@
     "type": "git",
     "url": "https://github.com/dai-shi/use-context-selector.git"
   },
+  "umd:main": "./dist/index.umd.js",
   "browser": "./dist/index.umd.js",
   "main": "./dist/index.js",
   "module": "./dist/index/module.js",
+  "source": "./src/index.js",
   "types": "./src/index.d.ts",
   "files": [
     "src",
     "dist"
   ],
   "scripts": {
-    "compile": "microbundle build --name useContextSelector --no-compress",
+    "compile": "microbundle build --no-compress",
     "test": "npm run eslint && npm run tsc-test && npm run jest",
     "eslint": "eslint --ext .js,.ts,.tsx --ignore-pattern dist .",
     "jest": "jest",
@@ -53,7 +55,8 @@
     "microbundle": "^0.11.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
-    "typescript": "^3.5.1"
+    "typescript": "^3.5.1",
+    "webpack-dev-server": "3.7.2"
   },
   "peerDependencies": {
     "react": ">=16.8.6"
