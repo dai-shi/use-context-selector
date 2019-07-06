@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-export const createContext: <T = unknown>(defaultValue: T) => React.Context<T>;
+export const createContext: <T>(defaultValue: T) => React.Context<T>;
 
 export const useContextSelector: <T, S>(
   context: React.Context<T>,
