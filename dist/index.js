@@ -1,54 +1,30 @@
-"use strict";
+import React from 'react';
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.useContext = exports.useContextSelector = exports.createContext = void 0;
+var forcedReducer = function (state) { return state + 1; };
 
-var _react = _interopRequireDefault(require("react"));
+var useForceUpdate = function () { return React.useReducer(forcedReducer, 0)[1]; };
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+var calculateChangedBits = function () { return 0; };
 
-// utils
-var forcedReducer = function forcedReducer(state) {
-  return state + 1;
-};
-
-var useForceUpdate = function useForceUpdate() {
-  return _react["default"].useReducer(forcedReducer, 0)[1];
-};
-
-var calculateChangedBits = function calculateChangedBits() {
-  return 0;
-};
-
-var identity = function identity(x) {
-  return x;
-};
+var identity = function (x) { return x; };
 
 var CONTEXT_LISTENERS = Symbol('CONTEXT_LISTENERS');
 
-var createProvider = function createProvider(OrigProvider, listeners) {
-  return _react["default"].memo(function (_ref) {
-    var value = _ref.value,
-        children = _ref.children;
+var createProvider = function (OrigProvider, listeners) { return React.memo(function (ref) {
+  var value = ref.value;
+  var children = ref.children;
 
-    _react["default"].useLayoutEffect(function () {
-      listeners.forEach(function (listener) {
-        return listener(value);
-      });
-    }, [value]);
-
-    return _react["default"].createElement(OrigProvider, {
-      value: value
-    }, children);
-  });
-}; // createContext
+  React.useLayoutEffect(function () {
+    listeners.forEach(function (listener) { return listener(value); });
+  }, [value]);
+  return React.createElement(OrigProvider, {
+    value: value
+  }, children);
+}); }; // createContext
 
 
-var createContext = function createContext(defaultValue) {
-  var context = _react["default"].createContext(defaultValue, calculateChangedBits);
-
+var createContext = function (defaultValue) {
+  var context = React.createContext(defaultValue, calculateChangedBits);
   var listeners = new Set(); // shared listeners (not ideal)
 
   context[CONTEXT_LISTENERS] = listeners; // hacked provider
@@ -59,10 +35,7 @@ var createContext = function createContext(defaultValue) {
   return context;
 }; // useContextSelector
 
-
-exports.createContext = createContext;
-
-var useContextSelector = function useContextSelector(context, selector) {
+var useContextSelector = function (context, selector) {
   var listeners = context[CONTEXT_LISTENERS];
 
   if (!listeners) {
@@ -70,23 +43,18 @@ var useContextSelector = function useContextSelector(context, selector) {
   }
 
   var forceUpdate = useForceUpdate();
-
-  var value = _react["default"].useContext(context);
-
+  var value = React.useContext(context);
   var selected = selector(value);
-
-  var ref = _react["default"].useRef(null);
-
-  _react["default"].useLayoutEffect(function () {
+  var ref = React.useRef(null);
+  React.useLayoutEffect(function () {
     ref.current = {
       selector: selector,
       value: value,
       selected: selected
     };
   });
-
-  _react["default"].useLayoutEffect(function () {
-    var callback = function callback(nextValue) {
+  React.useLayoutEffect(function () {
+    var callback = function (nextValue) {
       try {
         if (ref.current.value === nextValue || Object.is(ref.current.selected, ref.current.selector(nextValue))) {
           return;
@@ -100,18 +68,13 @@ var useContextSelector = function useContextSelector(context, selector) {
 
     listeners.add(callback);
     return function () {
-      listeners["delete"](callback);
+      listeners.delete(callback);
     };
   }, [forceUpdate, listeners]);
-
   return selected;
 }; // useContext
 
+var useContext = function (context) { return useContextSelector(context, identity); };
 
-exports.useContextSelector = useContextSelector;
-
-var useContext = function useContext(context) {
-  return useContextSelector(context, identity);
-};
-
-exports.useContext = useContext;
+export { createContext, useContextSelector, useContext };
+//# sourceMappingURL=index.js.map
