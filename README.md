@@ -13,7 +13,7 @@ however it's known that there's a performance issue.
 When a context value is changed, all components that useContext
 will re-render.
 
-[useContextSelector](https://github.com/gnoff/rfcs/pull/2) is recently proposed.
+[useContextSelector](https://github.com/reactjs/rfcs/pull/119) is recently proposed.
 While waiting for the process, this library provides the API in userland.
 
 ## Install
