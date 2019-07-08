@@ -95,7 +95,7 @@ to force update when a component needs to re-render.
 - Subscriptions are per-context basis. So, even if there are multiple context providers in a component tree, all components are subscribed to all providers. This may lead false positives (extra re-renders).
 - In order to stop propagation, `children` of a context provider has to be either created outside of the provider or memoized with `React.memo`.
 - Context consumers are not supported.
-- The `stale props` issue can't be solved in userland.
+- The "stale props" issue can't be solved in userland. (workaround with try-catch)
 
 ## Examples
 
