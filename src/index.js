@@ -12,9 +12,11 @@ const identity = x => x;
 const CONTEXT_LISTENERS = Symbol('CONTEXT_LISTENERS');
 
 const createProvider = (OrigProvider, listeners) => React.memo(({ value, children }) => {
-  React.useLayoutEffect(() => {
-    listeners.forEach(listener => listener(value));
-  }, [value]);
+  // we call listeners in render intentionally.
+  // listeners are not technically pure, but
+  // otherwise we can't get benefits from concurrent mode.
+  // we make sure to work with double or more invocation of listeners.
+  listeners.forEach(listener => listener(value));
   return React.createElement(OrigProvider, { value }, children);
 });
 
@@ -56,7 +58,6 @@ export const useContextSelector = (context, selector) => {
       } catch (e) {
         // ignored (stale props or some other reason)
       }
-      ref.current.value = nextValue;
       forceUpdate();
     };
     listeners.add(callback);
