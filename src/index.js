@@ -7,8 +7,10 @@ const createProvider = (OrigProvider, listeners) => React.memo(({ value, childre
   // listeners are not technically pure, but
   // otherwise we can't get benefits from concurrent mode.
   // we make sure to work with double or more invocation of listeners.
-  listeners.some(listener => {
-    listener(value)
+  // TODO: lint rule wants us to return a value...
+  // eslint-disable-next-line
+  listeners.forEach((listener) => {
+    listener(value);
   });
   return React.createElement(OrigProvider, { value }, children);
 });
