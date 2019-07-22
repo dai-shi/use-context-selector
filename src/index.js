@@ -1,14 +1,5 @@
 import React from 'react';
 
-// utils
-
-const forcedReducer = state => state + 1;
-const useForceUpdate = () => React.useReducer(forcedReducer, 0)[1];
-
-const calculateChangedBits = () => 0;
-
-const identity = x => x;
-
 const CONTEXT_LISTENERS = Symbol('CONTEXT_LISTENERS');
 
 const createProvider = (OrigProvider, listeners) => React.memo(({ value, children }) => {
@@ -16,19 +7,20 @@ const createProvider = (OrigProvider, listeners) => React.memo(({ value, childre
   // listeners are not technically pure, but
   // otherwise we can't get benefits from concurrent mode.
   // we make sure to work with double or more invocation of listeners.
-  listeners.forEach(listener => listener(value));
+  listeners.some(listener => {
+    listener(value)
+  });
   return React.createElement(OrigProvider, { value }, children);
 });
 
 // createContext
 
 export const createContext = (defaultValue) => {
-  const context = React.createContext(defaultValue, calculateChangedBits);
-  const listeners = new Set();
+  const context = React.createContext(defaultValue, () => 0);
   // shared listeners (not ideal)
-  context[CONTEXT_LISTENERS] = listeners;
+  context[CONTEXT_LISTENERS] = new Set();
   // hacked provider
-  context.Provider = createProvider(context.Provider, listeners);
+  context.Provider = createProvider(context.Provider, context[CONTEXT_LISTENERS]);
   // no support for consumer
   delete context.Consumer;
   return context;
@@ -41,7 +33,7 @@ export const useContextSelector = (context, selector) => {
   if (!listeners) {
     throw new Error('useContextSelector requires special context');
   }
-  const forceUpdate = useForceUpdate();
+  const forceUpdate = React.useReducer(state => state + 1, 0)[1];
   const value = React.useContext(context);
   const selected = selector(value);
   const ref = React.useRef(null);
@@ -70,4 +62,4 @@ export const useContextSelector = (context, selector) => {
 
 // useContext
 
-export const useContext = context => useContextSelector(context, identity);
+export const useContext = context => useContextSelector(context, x => x);
