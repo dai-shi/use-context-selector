@@ -31,7 +31,7 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.tsx'],
     alias: {
-      'use-context-selector': __dirname,
+      'use-context-selector': `${__dirname}/src`,
     },
   },
   devServer: {

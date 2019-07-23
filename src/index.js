@@ -1,14 +1,14 @@
 import React from 'react';
 
-const CONTEXT_LISTENERS = Symbol('CONTEXT_LISTENERS');
+const forcedReducer = state => state + 1;
+
+const CONTEXT_LISTENERS = Symbol('C_L');
 
 const createProvider = (OrigProvider, listeners) => React.memo(({ value, children }) => {
   // we call listeners in render intentionally.
   // listeners are not technically pure, but
   // otherwise we can't get benefits from concurrent mode.
   // we make sure to work with double or more invocation of listeners.
-  // TODO: lint rule wants us to return a value...
-  // eslint-disable-next-line
   listeners.forEach((listener) => {
     listener(value);
   });
@@ -18,6 +18,7 @@ const createProvider = (OrigProvider, listeners) => React.memo(({ value, childre
 // createContext
 
 export const createContext = (defaultValue) => {
+  // make changedBits always zero
   const context = React.createContext(defaultValue, () => 0);
   // shared listeners (not ideal)
   context[CONTEXT_LISTENERS] = new Set();
@@ -35,18 +36,22 @@ export const useContextSelector = (context, selector) => {
   if (!listeners) {
     throw new Error('useContextSelector requires special context');
   }
-  const forceUpdate = React.useReducer(state => state + 1, 0)[1];
+  const forceUpdate = React.useReducer(forcedReducer, 0)[1];
   const value = React.useContext(context);
   const selected = selector(value);
   const ref = React.useRef(null);
   React.useLayoutEffect(() => {
-    ref.current = { selector, value, selected };
+    ref.current = {
+      f: selector, // last selector "f"unction
+      v: value, // last "v"alue
+      s: selected, // last "s"elected value
+    };
   });
   React.useLayoutEffect(() => {
     const callback = (nextValue) => {
       try {
-        if (ref.current.value === nextValue
-          || Object.is(ref.current.selected, ref.current.selector(nextValue))) {
+        if (ref.current.v === nextValue
+          || Object.is(ref.current.s, ref.current.f(nextValue))) {
           return;
         }
       } catch (e) {
@@ -64,4 +69,7 @@ export const useContextSelector = (context, selector) => {
 
 // useContext
 
+// use this instead of React.useContext for consistent behavior.
+// this is not best implemented in performance,
+// but this wouldn't be used very often.
 export const useContext = context => useContextSelector(context, x => x);
