@@ -36,7 +36,7 @@ export const useContextSelector = (context, selector) => {
   if (!listeners) {
     throw new Error('useContextSelector requires special context');
   }
-  const forceUpdate = React.useReducer(forcedReducer, 0)[1];
+  const [, forceUpdate] = React.useReducer(forcedReducer, 0);
   const value = React.useContext(context);
   const selected = selector(value);
   const ref = React.useRef(null);
@@ -63,13 +63,13 @@ export const useContextSelector = (context, selector) => {
     return () => {
       listeners.delete(callback);
     };
-  }, [forceUpdate, listeners]);
+  }, [listeners]);
   return selected;
 };
 
 // useContext
 
 // use this instead of React.useContext for consistent behavior.
-// this is not best implemented in performance,
+// this is not best implemented for performance,
 // but this wouldn't be used very often.
 export const useContext = context => useContextSelector(context, x => x);
