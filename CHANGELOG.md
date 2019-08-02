@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.0.0] - 2019-08-02
+### Changed
+- Fix API v1
+
 ## [0.4.0] - 2019-07-23
 ### Changed
 - Shave bytes (#2)
