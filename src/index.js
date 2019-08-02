@@ -15,8 +15,13 @@ const createProvider = (OrigProvider, listeners) => React.memo(({ value, childre
   return React.createElement(OrigProvider, { value }, children);
 });
 
-// createContext
-
+/**
+ * This create a special context for `useContextSelector`.
+ * @param {*} defaultValue
+ * @returns {React.Context}
+ * @example
+ * const PersonContext = createContext({ firstName: '', familyName: '' });
+ */
 export const createContext = (defaultValue) => {
   // make changedBits always zero
   const context = React.createContext(defaultValue, () => 0);
@@ -29,8 +34,16 @@ export const createContext = (defaultValue) => {
   return context;
 };
 
-// useContextSelector
-
+/**
+ * This hook returns context selected value by selector.
+ * It will only accept context created by `createContext`.
+ * It will trigger re-render if only the selected value is referencially changed.
+ * @param {React.Context} context
+ * @param {Function} selector
+ * @returns {*}
+ * @example
+ * const firstName = useContextSelector(PersonContext, state => state.firstName);
+ */
 export const useContextSelector = (context, selector) => {
   const listeners = context[CONTEXT_LISTENERS];
   if (!listeners) {
@@ -67,9 +80,14 @@ export const useContextSelector = (context, selector) => {
   return selected;
 };
 
-// useContext
-
-// use this instead of React.useContext for consistent behavior.
+/**
+ * This hook returns the entire context value.
+ * Use this instead of React.useContext for consistent behavior.
+ * @param {React.Context} context
+ * @returns {*}
+ * @example
+ * const person = useContext(PersonContext);
+ */
 // this is not best implemented for performance,
 // but this wouldn't be used very often.
 export const useContext = context => useContextSelector(context, x => x);
