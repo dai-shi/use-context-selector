@@ -1,7 +1,5 @@
 import React from 'react';
 
-const forcedReducer = state => state + 1;
-
 const CONTEXT_LISTENERS = Symbol('C_L');
 
 const createProvider = (OrigProvider, listeners) => React.memo(({ value, children }) => {
@@ -49,7 +47,7 @@ export const useContextSelector = (context, selector) => {
   if (!listeners) {
     throw new Error('useContextSelector requires special context');
   }
-  const [, forceUpdate] = React.useReducer(forcedReducer, 0);
+  const [, forceUpdate] = React.useReducer(c => c + 1, 0);
   const value = React.useContext(context);
   const selected = selector(value);
   const ref = React.useRef(null);
