@@ -1,5 +1,3 @@
-/* eslint-env browser */
-
 import React, { useReducer, StrictMode } from 'react';
 import ReactDOM from 'react-dom';
 
