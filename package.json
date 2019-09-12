@@ -45,7 +45,6 @@
     "@typescript-eslint/parser": "^2.2.0",
     "add-text-to-markdown": "^2.0.0",
     "babel-core": "^7.0.0-bridge.0",
-    "babel-eslint": "^10.0.3",
     "babel-loader": "^8.0.6",
     "documentation": "^12.1.2",
     "eslint": "^6.3.0",
