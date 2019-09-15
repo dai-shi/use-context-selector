@@ -14,7 +14,7 @@ const createProvider = (OrigProvider, listeners) => React.memo(({ value, childre
 });
 
 /**
- * This create a special context for `useContextSelector`.
+ * This creates a special context for `useContextSelector`.
  * @param {*} defaultValue
  * @returns {React.Context}
  * @example

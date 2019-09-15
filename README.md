@@ -96,7 +96,7 @@ to force update when a component needs to re-render.
 
 ### createContext
 
-This create a special context for `useContextSelector`.
+This creates a special context for `useContextSelector`.
 
 #### Parameters
 
