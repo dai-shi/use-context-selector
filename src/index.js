@@ -45,7 +45,7 @@ export const createContext = (defaultValue) => {
 export const useContextSelector = (context, selector) => {
   const listeners = context[CONTEXT_LISTENERS];
   if (!listeners) {
-    throw new Error(process.env.NODE_ENV !== 'production' ? 'useContextSelector requires special context' : '');
+    throw (process.env.NODE_ENV !== 'production' ? new Error('useContextSelector requires special context') : new Error());
   }
   const [, forceUpdate] = React.useReducer(c => c + 1, 0);
   const value = React.useContext(context);
