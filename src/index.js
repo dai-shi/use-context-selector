@@ -1,6 +1,6 @@
 import React from 'react';
 
-const CONTEXT_LISTENERS = Symbol('C_L');
+const CONTEXT_LISTENERS = process.env.NODE_ENV !== 'production' ? Symbol('C_L') : Symbol();
 
 const createProvider = (OrigProvider, listeners) => React.memo(({ value, children }) => {
   // we call listeners in render intentionally.
@@ -45,7 +45,7 @@ export const createContext = (defaultValue) => {
 export const useContextSelector = (context, selector) => {
   const listeners = context[CONTEXT_LISTENERS];
   if (!listeners) {
-    throw new Error('useContextSelector requires special context');
+    throw (process.env.NODE_ENV !== 'production' ? new Error('useContextSelector requires special context') : new Error());
   }
   const [, forceUpdate] = React.useReducer(c => c + 1, 0);
   const value = React.useContext(context);
