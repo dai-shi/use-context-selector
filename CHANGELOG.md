@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.0.1] - 2019-09-27
+### Changed
+- Shave more bytes in the production environment (#6)
+
 ## [1.0.0] - 2019-08-02
 ### Changed
 - Fix API v1
