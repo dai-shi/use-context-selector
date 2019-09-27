@@ -1,6 +1,6 @@
 import React from 'react';
 
-const CONTEXT_LISTENERS = Symbol('C_L');
+const CONTEXT_LISTENERS = process.env.NODE_ENV !== 'production' ? Symbol('C_L') : Symbol();
 
 const createProvider = (OrigProvider, listeners) => React.memo(({ value, children }) => {
   // we call listeners in render intentionally.
