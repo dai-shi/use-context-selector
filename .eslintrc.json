@@ -27,7 +27,8 @@
     "react/jsx-one-expression-per-line": "off",
     "import/no-unresolved": ["error", { "ignore": ["use-context-selector"] }],
     "import/no-duplicates": "off",
-    "arrow-parens": ["error", "as-needed", { "requireForBlockBody": true }]
+    "arrow-parens": ["error", "as-needed", { "requireForBlockBody": true }],
+    "symbol-description": "off"
   },
   "overrides": [{
     "files": ["__tests__/**/*"],
