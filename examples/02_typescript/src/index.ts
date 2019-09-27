@@ -7,4 +7,6 @@ import {
 
 import App from './App';
 
-createRoot(document.getElementById('app')).render(React.createElement(App));
+const ele = document.getElementById('app');
+if (!ele) throw new Error('no app');
+createRoot(ele).render(React.createElement(App));
