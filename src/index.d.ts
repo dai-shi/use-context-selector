@@ -1,12 +1,12 @@
-import * as React from 'react';
+import { Context } from 'react';
 
-export const createContext: <T>(defaultValue: T) => React.Context<T>;
+export const createContext: <T>(defaultValue: T) => Context<T>;
 
 export const useContextSelector: <T, S>(
-  context: React.Context<T>,
+  context: Context<T>,
   selector: (value: T) => S,
 ) => S;
 
 export const useContext: <T>(
-  context: React.Context<T>,
+  context: Context<T>,
 ) => T;

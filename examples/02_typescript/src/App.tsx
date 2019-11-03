@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { StrictMode } from 'react';
 
 import { useValue, MyContext } from './state';

@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import {
   // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
   // @ts-ignore
