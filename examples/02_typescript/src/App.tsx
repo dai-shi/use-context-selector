@@ -1,5 +1,4 @@
-import React from 'react';
-import { StrictMode } from 'react';
+import React, { StrictMode } from 'react';
 
 import { useValue, MyContext } from './state';
 import Counter from './Counter';

@@ -17,9 +17,9 @@ describe('basic spec', () => {
     };
     const context = createContext(null);
     const Counter1 = () => {
-      const count1 = useContextSelector(context, v => v[0].count1);
-      const setState = useContextSelector(context, v => v[1]);
-      const increment = () => setState(s => ({
+      const count1 = useContextSelector(context, (v) => v[0].count1);
+      const setState = useContextSelector(context, (v) => v[1]);
+      const increment = () => setState((s) => ({
         ...s,
         count1: s.count1 + 1,
       }));
@@ -34,9 +34,9 @@ describe('basic spec', () => {
       );
     };
     const Counter2 = () => {
-      const count2 = useContextSelector(context, v => v[0].count2);
-      const setState = useContextSelector(context, v => v[1]);
-      const increment = () => setState(s => ({
+      const count2 = useContextSelector(context, (v) => v[0].count2);
+      const setState = useContextSelector(context, (v) => v[1]);
+      const increment = () => setState((s) => ({
         ...s,
         count2: s.count2 + 1,
       }));

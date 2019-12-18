@@ -23,8 +23,8 @@ const reducer = (state, action) => {
 const context = createContext(null);
 
 const Counter = () => {
-  const count = useContextSelector(context, v => v[0].count);
-  const dispatch = useContextSelector(context, v => v[1]);
+  const count = useContextSelector(context, (v) => v[0].count);
+  const dispatch = useContextSelector(context, (v) => v[1]);
   return (
     <div>
       {Math.random()}
@@ -38,14 +38,14 @@ const Counter = () => {
 };
 
 const TextBox = () => {
-  const text = useContextSelector(context, v => v[0].text);
-  const dispatch = useContextSelector(context, v => v[1]);
+  const text = useContextSelector(context, (v) => v[0].text);
+  const dispatch = useContextSelector(context, (v) => v[1]);
   return (
     <div>
       {Math.random()}
       <div>
         <span>Text: {text}</span>
-        <input value={text} onChange={event => dispatch({ type: 'setText', text: event.target.value })} />
+        <input value={text} onChange={(event) => dispatch({ type: 'setText', text: event.target.value })} />
       </div>
     </div>
   );

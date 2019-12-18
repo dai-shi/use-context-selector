@@ -5,8 +5,8 @@ import { useContextSelector } from 'use-context-selector';
 import { MyContext } from './state';
 
 const Counter = () => {
-  const count = useContextSelector(MyContext, v => v[0].count);
-  const dispatch = useContextSelector(MyContext, v => v[1]);
+  const count = useContextSelector(MyContext, (v) => v[0].count);
+  const dispatch = useContextSelector(MyContext, (v) => v[1]);
   return (
     <div>
       {Math.random()}

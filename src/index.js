@@ -55,7 +55,7 @@ export const useContextSelector = (context, selector) => {
       throw new Error();
     }
   }
-  const [, forceUpdate] = React.useReducer(c => c + 1, 0);
+  const [, forceUpdate] = React.useReducer((c) => c + 1, 0);
   const value = React.useContext(context);
   const selected = selector(value);
   const ref = React.useRef(null);
@@ -96,4 +96,4 @@ export const useContextSelector = (context, selector) => {
  */
 // this is not best implemented for performance,
 // but this wouldn't be used very often.
-export const useContext = context => useContextSelector(context, x => x);
+export const useContext = (context) => useContextSelector(context, (x) => x);
