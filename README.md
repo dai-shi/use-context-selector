@@ -100,7 +100,7 @@ This creates a special context for `useContextSelector`.
 
 #### Parameters
 
-- `defaultValue` **any** 
+-   `defaultValue` **any** 
 
 #### Examples
 
@@ -118,8 +118,8 @@ It will trigger re-render if only the selected value is referencially changed.
 
 #### Parameters
 
-- `context` **React.Context** 
-- `selector` **[Function][1]** 
+-   `context` **React.Context** 
+-   `selector` **[Function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function)** 
 
 #### Examples
 
@@ -136,7 +136,7 @@ Use this instead of React.useContext for consistent behavior.
 
 #### Parameters
 
-- `context` **React.Context** 
+-   `context` **React.Context** 
 
 #### Examples
 
@@ -146,14 +146,12 @@ const person = useContext(PersonContext);
 
 Returns **any** 
 
-[1]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function
-
 ## Limitations
 
-- Subscriptions are per-context basis. So, even if there are multiple context providers in a component tree, all components are subscribed to all providers. This may lead false positives (extra re-renders).
-- In order to stop propagation, `children` of a context provider has to be either created outside of the provider or memoized with `React.memo`.
-- Context consumers are not supported.
-- The [stale props](https://react-redux.js.org/api/hooks#stale-props-and-zombie-children) issue can't be solved in userland. (workaround with try-catch)
+-   Subscriptions are per-context basis. So, even if there are multiple context providers in a component tree, all components are subscribed to all providers. This may lead false positives (extra re-renders).
+-   In order to stop propagation, `children` of a context provider has to be either created outside of the provider or memoized with `React.memo`.
+-   Context consumers are not supported.
+-   The [stale props](https://react-redux.js.org/api/hooks#stale-props-and-zombie-children) issue can't be solved in userland. (workaround with try-catch)
 
 ## Examples
 
@@ -172,5 +170,5 @@ You can also try them in codesandbox.io:
 
 ## Related projects
 
-- [react-tracked](https://github.com/dai-shi/react-tracked)
-- [reactive-react-redux](https://github.com/dai-shi/reactive-react-redux)
+-   [react-tracked](https://github.com/dai-shi/react-tracked)
+-   [reactive-react-redux](https://github.com/dai-shi/reactive-react-redux)

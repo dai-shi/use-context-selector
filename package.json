@@ -22,7 +22,7 @@
     "eslint": "eslint --ext .js,.ts,.tsx --ignore-pattern dist .",
     "jest": "jest",
     "tsc-test": "tsc --project . --noEmit",
-    "apidoc": "documentation build --format md --markdown-toc false src/index.js | add-text-to-markdown README.md --section API --write",
+    "apidoc": "documentation readme --section API --markdown-toc false src/index.js",
     "examples:minimal": "DIR=01_minimal EXT=js webpack-dev-server",
     "examples:typescript": "DIR=02_typescript webpack-dev-server"
   },
@@ -43,7 +43,6 @@
     "@types/react-dom": "^16.9.3",
     "@typescript-eslint/eslint-plugin": "^2.6.0",
     "@typescript-eslint/parser": "^2.6.0",
-    "add-text-to-markdown": "^2.0.0",
     "babel-loader": "^8.0.6",
     "documentation": "^12.1.2",
     "eslint": "^6.6.0",
