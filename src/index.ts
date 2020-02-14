@@ -18,10 +18,9 @@ const createProvider = <Value>(OrigProvider: React.Provider<ContextValue<Value>>
     const ref = React.useRef({ value, listeners: new Set<() => void>() });
     ref.current.value = value;
     ref.current.listeners.forEach((listener) => listener());
-    const config = React.useMemo(() => ({
+    const source = React.useMemo(() => createMutableSource(ref, {
       getVersion: () => ref.current.value,
     }), []);
-    const source = React.useMemo(() => createMutableSource(ref, config), [config]);
     const contextValue = React.useMemo(() => ({
       source,
       [SUPPORT_CONTEXT_SELECTOR]: true,
