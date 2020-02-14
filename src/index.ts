@@ -19,7 +19,7 @@ const createProvider = <Value>(OrigProvider: React.Provider<ContextValue<Value>>
     ref.current.value = value;
     ref.current.listeners.forEach((listener) => listener());
     const config = React.useMemo(() => ({
-      getVersion: () => ref.current,
+      getVersion: () => ref.current.value,
     }), []);
     const source = React.useMemo(() => createMutableSource(ref, config), [config]);
     return React.createElement(OrigProvider, {
@@ -97,6 +97,8 @@ export const useContextSelector = <Value, Selected>(
   return useMutableSource(contextValue.source, config);
 };
 
+const identity = <T>(x: T) => x;
+
 /**
  * This hook returns the entire context value.
  *
@@ -104,5 +106,5 @@ export const useContextSelector = <Value, Selected>(
  * const person = useContext(PersonContext);
  */
 export const useContext = <Value>(context: React.Context<Value>) => (
-  useContextSelector(context, (x) => x)
+  useContextSelector(context, identity)
 );
