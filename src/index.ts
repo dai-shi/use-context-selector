@@ -22,9 +22,11 @@ const createProvider = <Value>(OrigProvider: React.Provider<ContextValue<Value>>
       getVersion: () => ref.current.value,
     }), []);
     const source = React.useMemo(() => createMutableSource(ref, config), [config]);
-    return React.createElement(OrigProvider, {
-      value: { source, [SUPPORT_CONTEXT_SELECTOR]: true },
-    }, children);
+    const contextValue = React.useMemo(() => ({
+      source,
+      [SUPPORT_CONTEXT_SELECTOR]: true,
+    }), [source]);
+    return React.createElement(OrigProvider, { value: contextValue }, children);
   };
   return React.memo(Provider);
 };
