@@ -1,6 +1,6 @@
 {
   "name": "use-context-selector",
-  "description": "React useContextSelector hook",
+  "description": "React useContextSelector hook in userland",
   "version": "2.0.0-alpha.0-wip",
   "author": "Daishi Kato",
   "repository": {
