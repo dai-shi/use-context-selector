@@ -5,12 +5,11 @@ import React from 'react';
 const createMutableSource = (React as any).createMutableSource as any;
 const useMutableSource = (React as any).useMutableSource as any;
 
-const SUPPORT_CONTEXT_SELECTOR = Symbol();
+const SOURCE_SYMBOL = Symbol();
 
 // @ts-ignore
 type ContextValue<Value> = {
-  source: any;
-  [SUPPORT_CONTEXT_SELECTOR]: boolean;
+  [SOURCE_SYMBOL]: any;
 };
 
 const createProvider = <Value>(OrigProvider: React.Provider<ContextValue<Value>>) => {
@@ -18,13 +17,12 @@ const createProvider = <Value>(OrigProvider: React.Provider<ContextValue<Value>>
     const ref = React.useRef({ value, listeners: new Set<() => void>() });
     ref.current.value = value;
     ref.current.listeners.forEach((listener) => listener());
-    const source = React.useMemo(() => createMutableSource(ref, {
-      getVersion: () => ref.current.value,
-    }), []);
-    const contextValue = React.useMemo(() => ({
-      source,
-      [SUPPORT_CONTEXT_SELECTOR]: true,
-    }), [source]);
+    const contextValue = React.useMemo(() => {
+      const source = createMutableSource(ref, {
+        getVersion: () => ref.current.value,
+      });
+      return { [SOURCE_SYMBOL]: source };
+    }, []);
     return React.createElement(OrigProvider, { value: contextValue }, children);
   };
   return React.memo(Provider);
@@ -45,7 +43,7 @@ export const createContext = <Value>(defaultValue: Value) => {
     getVersion: () => defaultValue,
   });
   const context = React.createContext(
-    { source, [SUPPORT_CONTEXT_SELECTOR]: true },
+    { [SOURCE_SYMBOL]: source },
   ) as unknown as React.Context<Value>; // HACK typing
   context.Provider = createProvider(
     context.Provider as unknown as React.Provider<ContextValue<Value>>, // HACK typing
@@ -59,9 +57,11 @@ export const createContext = <Value>(defaultValue: Value) => {
  * This hook returns context selected value by selector.
  *
  * It will only accept context created by `createContext`.
- * It will trigger re-render if only the selected value is referencially changed.
+ * It will trigger re-render if only the selected value is referentially changed.
  * The selector must be stable for better performance.
  * Either define selector outside render or use `useCallback`.
+ *
+ * The selector must return referentially equal result for the same input.
  *
  * @example
  * const firstName = useContextSelector(PersonContext, state => state.firstName);
@@ -70,8 +70,10 @@ export const useContextSelector = <Value, Selected>(
   context: React.Context<Value>,
   selector: (value: Value) => Selected,
 ) => {
-  const contextValue = React.useContext(context) as unknown as ContextValue<Value>; // HACK typing
-  if (!contextValue[SUPPORT_CONTEXT_SELECTOR]) {
+  const { [SOURCE_SYMBOL]: source } = React.useContext(
+    context,
+  ) as unknown as ContextValue<Value>; // HACK typing
+  if (!source) {
     throw new Error('useContextSelector requires special context');
   }
   const config = React.useMemo(() => ({
@@ -95,7 +97,7 @@ export const useContextSelector = <Value, Selected>(
       return () => listeners.delete(callback);
     },
   }), [selector]);
-  return useMutableSource(contextValue.source, config);
+  return useMutableSource(source, config);
 };
 
 const identity = <T>(x: T) => x;
