@@ -61,7 +61,7 @@ export const createContext = <Value>(defaultValue: Value) => {
  * The selector must be stable for better performance.
  * Either define selector outside render or use `useCallback`.
  *
- * The selector must return referentially equal result for the same input.
+ * The selector should return referentially equal result for same input for better performance.
  *
  * @example
  * const firstName = useContextSelector(PersonContext, state => state.firstName);
