@@ -18,9 +18,7 @@ const createProvider = <Value>(OrigProvider: React.Provider<ContextValue<Value>>
     ref.current.value = value;
     ref.current.listeners.forEach((listener) => listener());
     const contextValue = React.useMemo(() => {
-      const source = createMutableSource(ref, {
-        getVersion: () => ref.current.value,
-      });
+      const source = createMutableSource(ref, () => ref.current.value);
       return { [SOURCE_SYMBOL]: source };
     }, []);
     return React.createElement(OrigProvider, { value: contextValue }, children);
@@ -76,28 +74,26 @@ export const useContextSelector = <Value, Selected>(
   if (!source) {
     throw new Error('useContextSelector requires special context');
   }
-  const config = React.useMemo(() => ({
-    getSnapshot: (
-      ref: React.MutableRefObject<{ value: Value }>,
-    ) => selector(ref.current.value),
-    subscribe: (
-      ref: React.MutableRefObject<{ value: Value; listeners: Set<() => void> }>,
-      callback: () => void,
-    ) => {
-      let selected = selector(ref.current.value);
-      const listener = () => {
-        const nextSelected = selector(ref.current.value);
-        if (!Object.is(selected, nextSelected)) {
-          callback();
-          selected = nextSelected;
-        }
-      };
-      const { listeners } = ref.current;
-      listeners.add(listener);
-      return () => listeners.delete(callback);
-    },
-  }), [selector]);
-  return useMutableSource(source, config);
+  const getSnapshot = React.useCallback((
+    ref: React.MutableRefObject<{ value: Value }>,
+  ) => selector(ref.current.value), [selector]);
+  const subscribe = React.useCallback((
+    ref: React.MutableRefObject<{ value: Value; listeners: Set<() => void> }>,
+    callback: () => void,
+  ) => {
+    let selected = selector(ref.current.value);
+    const listener = () => {
+      const nextSelected = selector(ref.current.value);
+      if (!Object.is(selected, nextSelected)) {
+        callback();
+        selected = nextSelected;
+      }
+    };
+    const { listeners } = ref.current;
+    listeners.add(listener);
+    return () => listeners.delete(callback);
+  }, [selector]);
+  return useMutableSource(source, getSnapshot, subscribe);
 };
 
 const identity = <T>(x: T) => x;
