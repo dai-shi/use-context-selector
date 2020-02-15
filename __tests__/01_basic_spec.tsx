@@ -1,3 +1,6 @@
+// TODO
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import React, { useRef, useState, StrictMode } from 'react';
 
 import { render, fireEvent, cleanup } from '@testing-library/react';
@@ -15,11 +18,11 @@ describe('basic spec', () => {
       count1: 0,
       count2: 0,
     };
-    const context = createContext(null);
+    const context: any = createContext(null);
     const Counter1 = () => {
-      const count1 = useContextSelector(context, (v) => v[0].count1);
-      const setState = useContextSelector(context, (v) => v[1]);
-      const increment = () => setState((s) => ({
+      const count1 = useContextSelector(context, (v: any) => v[0].count1);
+      const setState = useContextSelector(context, (v: any) => v[1]);
+      const increment = () => setState((s: any) => ({
         ...s,
         count1: s.count1 + 1,
       }));
@@ -34,9 +37,9 @@ describe('basic spec', () => {
       );
     };
     const Counter2 = () => {
-      const count2 = useContextSelector(context, (v) => v[0].count2);
-      const setState = useContextSelector(context, (v) => v[1]);
-      const increment = () => setState((s) => ({
+      const count2 = useContextSelector(context, (v: any) => v[0].count2);
+      const setState = useContextSelector(context, (v: any) => v[1]);
+      const increment = () => setState((s: any) => ({
         ...s,
         count2: s.count2 + 1,
       }));
@@ -50,7 +53,7 @@ describe('basic spec', () => {
         </div>
       );
     };
-    const StateProvider = ({ children }) => {
+    const StateProvider = ({ children }: any) => {
       const [state, setState] = useState(initialState);
       return (
         <context.Provider value={[state, setState]}>
