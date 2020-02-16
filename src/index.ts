@@ -1,9 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/ban-ts-ignore */
 
-import React from 'react';
+import React, {
+  createElement,
+  createContext as createContextOrig,
+  useCallback,
+  useContext as useContextOrig,
+  useMemo,
+  useRef,
+} from 'react';
 
-const createMutableSource = (React as any).createMutableSource as any;
-const useMutableSource = (React as any).useMutableSource as any;
+const createMutableSource = 'NOT_AVAILABLE_YET' as any;
+const useMutableSource = 'NOT_AVAILABLE_YET' as any;
 
 const SOURCE_SYMBOL = Symbol();
 
@@ -12,16 +19,16 @@ type ContextValue<Value> = {
   [SOURCE_SYMBOL]: any;
 };
 
-const createProvider = <Value>(OrigProvider: React.Provider<ContextValue<Value>>) => {
+const createProvider = <Value>(ProviderOrig: React.Provider<ContextValue<Value>>) => {
   const Provider: React.FC<{ value: Value }> = ({ value, children }) => {
-    const ref = React.useRef({ value, listeners: new Set<() => void>() });
+    const ref = useRef({ value, listeners: new Set<() => void>() });
     ref.current.value = value;
     ref.current.listeners.forEach((listener) => listener());
-    const contextValue = React.useMemo(() => {
+    const contextValue = useMemo(() => {
       const source = createMutableSource(ref, () => ref.current.value);
       return { [SOURCE_SYMBOL]: source };
     }, []);
-    return React.createElement(OrigProvider, { value: contextValue }, children);
+    return createElement(ProviderOrig, { value: contextValue }, children);
   };
   return React.memo(Provider);
 };
@@ -40,7 +47,7 @@ export const createContext = <Value>(defaultValue: Value) => {
   const source = createMutableSource({ current: defaultValue }, {
     getVersion: () => defaultValue,
   });
-  const context = React.createContext(
+  const context = createContextOrig(
     { [SOURCE_SYMBOL]: source },
   ) as unknown as React.Context<Value>; // HACK typing
   context.Provider = createProvider(
@@ -68,16 +75,16 @@ export const useContextSelector = <Value, Selected>(
   context: React.Context<Value>,
   selector: (value: Value) => Selected,
 ) => {
-  const { [SOURCE_SYMBOL]: source } = React.useContext(
+  const { [SOURCE_SYMBOL]: source } = useContextOrig(
     context,
   ) as unknown as ContextValue<Value>; // HACK typing
   if (!source) {
     throw new Error('useContextSelector requires special context');
   }
-  const getSnapshot = React.useCallback((
+  const getSnapshot = useCallback((
     ref: React.MutableRefObject<{ value: Value }>,
   ) => selector(ref.current.value), [selector]);
-  const subscribe = React.useCallback((
+  const subscribe = useCallback((
     ref: React.MutableRefObject<{ value: Value; listeners: Set<() => void> }>,
     callback: () => void,
   ) => {
