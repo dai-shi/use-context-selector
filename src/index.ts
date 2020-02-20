@@ -1,8 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/ban-ts-ignore */
 
-import React, {
+import {
+  Context,
+  FC,
+  MutableRefObject,
+  Provider,
   createElement,
   createContext as createContextOrig,
+  memo,
   useCallback,
   useContext as useContextOrig,
   useMemo,
@@ -19,8 +24,8 @@ type ContextValue<Value> = {
   [SOURCE_SYMBOL]: any;
 };
 
-const createProvider = <Value>(ProviderOrig: React.Provider<ContextValue<Value>>) => {
-  const Provider: React.FC<{ value: Value }> = ({ value, children }) => {
+const createProvider = <Value>(ProviderOrig: Provider<ContextValue<Value>>) => {
+  const RefProvider: FC<{ value: Value }> = ({ value, children }) => {
     const ref = useRef({ value, listeners: new Set<() => void>() });
     ref.current.value = value;
     ref.current.listeners.forEach((listener) => listener());
@@ -30,7 +35,7 @@ const createProvider = <Value>(ProviderOrig: React.Provider<ContextValue<Value>>
     }, []);
     return createElement(ProviderOrig, { value: contextValue }, children);
   };
-  return React.memo(Provider);
+  return memo(RefProvider);
 };
 
 /**
@@ -49,12 +54,11 @@ export const createContext = <Value>(defaultValue: Value) => {
   });
   const context = createContextOrig(
     { [SOURCE_SYMBOL]: source },
-  ) as unknown as React.Context<Value>; // HACK typing
+  ) as unknown as Context<Value>; // HACK typing
   context.Provider = createProvider(
-    context.Provider as unknown as React.Provider<ContextValue<Value>>, // HACK typing
-  ) as React.Provider<Value>;
-  // no support for consumer
-  delete context.Consumer;
+    context.Provider as unknown as Provider<ContextValue<Value>>, // HACK typing
+  ) as Provider<Value>;
+  delete context.Consumer; // no support for consumer
   return context;
 };
 
@@ -63,7 +67,7 @@ export const createContext = <Value>(defaultValue: Value) => {
  *
  * It will only accept context created by `createContext`.
  * It will trigger re-render if only the selected value is referentially changed.
- * The selector must be stable for better performance.
+ * The selector should be stable for better performance.
  * Either define selector outside render or use `useCallback`.
  *
  * The selector should return referentially equal result for same input for better performance.
@@ -72,7 +76,7 @@ export const createContext = <Value>(defaultValue: Value) => {
  * const firstName = useContextSelector(PersonContext, state => state.firstName);
  */
 export const useContextSelector = <Value, Selected>(
-  context: React.Context<Value>,
+  context: Context<Value>,
   selector: (value: Value) => Selected,
 ) => {
   const { [SOURCE_SYMBOL]: source } = useContextOrig(
@@ -81,25 +85,18 @@ export const useContextSelector = <Value, Selected>(
   if (!source) {
     throw new Error('useContextSelector requires special context');
   }
-  const getSnapshot = useCallback((
-    ref: React.MutableRefObject<{ value: Value }>,
-  ) => selector(ref.current.value), [selector]);
+  const getSnapshot = useCallback(
+    (ref: MutableRefObject<{ value: Value }>) => selector(ref.current.value),
+    [selector],
+  );
   const subscribe = useCallback((
-    ref: React.MutableRefObject<{ value: Value; listeners: Set<() => void> }>,
+    ref: MutableRefObject<{ value: Value; listeners: Set<() => void> }>,
     callback: () => void,
   ) => {
-    let selected = selector(ref.current.value);
-    const listener = () => {
-      const nextSelected = selector(ref.current.value);
-      if (!Object.is(selected, nextSelected)) {
-        callback();
-        selected = nextSelected;
-      }
-    };
     const { listeners } = ref.current;
-    listeners.add(listener);
+    listeners.add(callback);
     return () => listeners.delete(callback);
-  }, [selector]);
+  }, []);
   return useMutableSource(source, getSnapshot, subscribe);
 };
 
@@ -111,6 +108,6 @@ const identity = <T>(x: T) => x;
  * @example
  * const person = useContext(PersonContext);
  */
-export const useContext = <Value>(context: React.Context<Value>) => (
+export const useContext = <Value>(context: Context<Value>) => (
   useContextSelector(context, identity)
 );
