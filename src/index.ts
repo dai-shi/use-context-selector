@@ -38,17 +38,21 @@ const createProvider = <Value>(ProviderOrig: Provider<ContextValue<Value>>) => {
   return memo(RefProvider);
 };
 
+const identity = <T>(x: T) => x;
+
 /**
- * This creates a special context for `useContextSelector`.
+ * This creates a special context for selector-enabled `useContext`.
  *
  * It doesn't pass its value but a ref of the value.
  * Unlike the original context provider, this context provider
  * expects the context value to be immutable.
  *
  * @example
+ * import { createContext } from 'use-context-selector';
+ *
  * const PersonContext = createContext({ firstName: '', familyName: '' });
  */
-export const createContext = <Value>(defaultValue: Value) => {
+export function createContext<Value>(defaultValue: Value) {
   const source = createMutableSource({ current: defaultValue }, {
     getVersion: () => defaultValue,
   });
@@ -58,12 +62,18 @@ export const createContext = <Value>(defaultValue: Value) => {
   context.Provider = createProvider(
     context.Provider as unknown as Provider<ContextValue<Value>>, // HACK typing
   ) as Provider<Value>;
-  delete context.Consumer; // no support for consumer
+  delete context.Consumer; // no support for Consumer
   return context;
-};
+}
+
+export function useContext<Value>(context: Context<Value>): Value;
+export function useContext<Value, Selected>(
+  context: Context<Value>,
+  selector: (value: Value) => Selected,
+): Selected;
 
 /**
- * This hook returns context selected value by selector.
+ * This hook returns context value with optional selector.
  *
  * It will only accept context created by `createContext`.
  * It will trigger re-render if only the selected value is referentially changed.
@@ -73,12 +83,14 @@ export const createContext = <Value>(defaultValue: Value) => {
  * The selector should return referentially equal result for same input for better performance.
  *
  * @example
- * const firstName = useContextSelector(PersonContext, state => state.firstName);
+ * import { useContext } from 'use-context-selector';
+ *
+ * const firstName = useContext(PersonContext, state => state.firstName);
  */
-export const useContextSelector = <Value, Selected>(
+export function useContext<Value, Selected>(
   context: Context<Value>,
-  selector: (value: Value) => Selected,
-) => {
+  selector: (value: Value) => Selected = identity as (value: Value) => Selected,
+) {
   const { [SOURCE_SYMBOL]: source } = useContextOrig(
     context,
   ) as unknown as ContextValue<Value>; // HACK typing
@@ -98,16 +110,4 @@ export const useContextSelector = <Value, Selected>(
     return () => listeners.delete(callback);
   }, []);
   return useMutableSource(source, getSnapshot, subscribe);
-};
-
-const identity = <T>(x: T) => x;
-
-/**
- * This hook returns the entire context value.
- *
- * @example
- * const person = useContext(PersonContext);
- */
-export const useContext = <Value>(context: Context<Value>) => (
-  useContextSelector(context, identity)
-);
+}
