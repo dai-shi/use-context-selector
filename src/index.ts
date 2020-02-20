@@ -100,15 +100,12 @@ export function useContext<Value, Selected>(
     [selector],
   );
   const subscribe = useCallback((
-    ref: MutableRefObject<{ value: Value; listeners: Set<() => void> }>,
-    handleCallback: (snapshot: Selected) => void,
+    ref: MutableRefObject<{ listeners: Set<() => void> }>,
+    callback: () => void,
   ) => {
-    const listener = () => {
-      handleCallback(getSnapshot(ref));
-    };
     const { listeners } = ref.current;
-    listeners.add(listener);
-    return () => listeners.delete(listener);
-  }, [getSnapshot]);
+    listeners.add(callback);
+    return () => listeners.delete(callback);
+  }, []);
   return useMutableSource(source, getSnapshot, subscribe);
 }
