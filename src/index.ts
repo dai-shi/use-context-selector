@@ -53,9 +53,7 @@ const identity = <T>(x: T) => x;
  * const PersonContext = createContext({ firstName: '', familyName: '' });
  */
 export function createContext<Value>(defaultValue: Value) {
-  const source = createMutableSource({ current: defaultValue }, {
-    getVersion: () => defaultValue,
-  });
+  const source = createMutableSource({ current: defaultValue }, () => defaultValue);
   const context = createContextOrig(
     { [SOURCE_SYMBOL]: source },
   ) as unknown as Context<Value>; // HACK typing
@@ -103,11 +101,14 @@ export function useContext<Value, Selected>(
   );
   const subscribe = useCallback((
     ref: MutableRefObject<{ value: Value; listeners: Set<() => void> }>,
-    callback: () => void,
+    handleCallback: (snapshot: Selected) => void,
   ) => {
+    const listener = () => {
+      handleCallback(getSnapshot(ref));
+    };
     const { listeners } = ref.current;
-    listeners.add(callback);
-    return () => listeners.delete(callback);
-  }, []);
+    listeners.add(listener);
+    return () => listeners.delete(listener);
+  }, [getSnapshot]);
   return useMutableSource(source, getSnapshot, subscribe);
 }
