@@ -7,15 +7,17 @@ import {
   Provider,
   createElement,
   createContext as createContextOrig,
+  // @ts-ignore
+  createMutableSource,
   memo,
   useCallback,
   useContext as useContextOrig,
   useMemo,
+  // @ts-ignore
+  useMutableSource,
   useRef,
 } from 'react';
 
-const createMutableSource = 'NOT_AVAILABLE_YET' as any;
-const useMutableSource = 'NOT_AVAILABLE_YET' as any;
 
 const SOURCE_SYMBOL = Symbol();
 
@@ -75,8 +77,8 @@ export function useContext<Value, Selected>(
  *
  * It will only accept context created by `createContext`.
  * It will trigger re-render if only the selected value is referentially changed.
- * The selector should be stable for better performance.
- * Either define selector outside render or use `useCallback`.
+ * The selector must be stable.
+ * Either define selector outside render or wrap with `useCallback`.
  *
  * The selector should return referentially equal result for same input for better performance.
  *
