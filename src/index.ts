@@ -25,26 +25,37 @@ import {
 
 
 const SOURCE_SYMBOL = Symbol();
+const VALUE_PROP = 'v';
+const LISTENERS_PROP = 'l';
 
-// @ts-ignore
 type ContextValue<Value> = {
   [SOURCE_SYMBOL]: any;
+  [VALUE_PROP]: Value;
 };
+
+const calculateChangedBits = (a: ContextValue<unknown>, b: ContextValue<unknown>) => (
+  a[SOURCE_SYMBOL] === b[SOURCE_SYMBOL] ? 0 : 1
+);
 
 const createProvider = <Value>(ProviderOrig: Provider<ContextValue<Value>>) => {
   const RefProvider: FC<{ value: Value }> = ({ value, children }) => {
-    const ref = useRef({ value, listeners: new Set<() => void>() });
+    const ref = useRef({
+      [VALUE_PROP]: value,
+      [LISTENERS_PROP]: new Set<() => void>(),
+    });
     useLayoutEffect(() => {
       runWithPriority(NormalPriority, () => {
-        ref.current.value = value;
-        ref.current.listeners.forEach((listener) => listener());
+        ref.current[VALUE_PROP] = value;
+        ref.current[LISTENERS_PROP].forEach((listener) => listener());
       });
     });
-    const contextValue = useMemo(() => {
-      const source = createMutableSource(ref, () => ref.current.value);
-      return { [SOURCE_SYMBOL]: source };
-    }, []);
-    return createElement(ProviderOrig, { value: contextValue }, children);
+    const source = useMemo(() => createMutableSource(ref, () => ref.current[VALUE_PROP]), []);
+    return createElement(ProviderOrig, {
+      value: {
+        [SOURCE_SYMBOL]: source,
+        [VALUE_PROP]: value,
+      },
+    }, children);
   };
   return memo(RefProvider);
 };
@@ -56,7 +67,7 @@ const identity = <T>(x: T) => x;
  *
  * It doesn't pass its value but a ref of the value.
  * Unlike the original context provider, this context provider
- * expects the context value to be immutable.
+ * expects the context value to be immutable and stable.
  *
  * @example
  * import { createContext } from 'use-context-selector';
@@ -66,7 +77,8 @@ const identity = <T>(x: T) => x;
 export function createContext<Value>(defaultValue: Value) {
   const source = createMutableSource({ current: defaultValue }, () => defaultValue);
   const context = createContextOrig(
-    { [SOURCE_SYMBOL]: source },
+    { [SOURCE_SYMBOL]: source, [VALUE_PROP]: defaultValue },
+    calculateChangedBits,
   ) as unknown as Context<Value>; // HACK typing
   context.Provider = createProvider(
     context.Provider as unknown as Provider<ContextValue<Value>>, // HACK typing
@@ -74,6 +86,15 @@ export function createContext<Value>(defaultValue: Value) {
   delete context.Consumer; // no support for Consumer
   return context;
 }
+
+const subscribe = (
+  ref: MutableRefObject<{ [LISTENERS_PROP]: Set<() => void> }>,
+  callback: () => void,
+) => {
+  const listeners = ref.current[LISTENERS_PROP];
+  listeners.add(callback);
+  return () => listeners.delete(callback);
+};
 
 export function useContext<Value>(context: Context<Value>): Value;
 export function useContext<Value, Selected>(
@@ -100,23 +121,17 @@ export function useContext<Value, Selected>(
   context: Context<Value>,
   selector: (value: Value) => Selected = identity as (value: Value) => Selected,
 ) {
-  const { [SOURCE_SYMBOL]: source } = useContextOrig(
+  const contextValue = useContextOrig(
     context,
   ) as unknown as ContextValue<Value>; // HACK typing
+  const { [SOURCE_SYMBOL]: source, [VALUE_PROP]: value } = contextValue;
   if (!source) {
-    throw new Error('useContextSelector requires special context');
+    throw new Error('This useContext requires special context');
   }
   const getSnapshot = useCallback(
-    (ref: MutableRefObject<{ value: Value }>) => selector(ref.current.value),
+    (ref: MutableRefObject<{ [VALUE_PROP]: Value }>) => selector(ref.current[VALUE_PROP]),
     [selector],
   );
-  const subscribe = useCallback((
-    ref: MutableRefObject<{ listeners: Set<() => void> }>,
-    callback: () => void,
-  ) => {
-    const { listeners } = ref.current;
-    listeners.add(callback);
-    return () => listeners.delete(callback);
-  }, []);
-  return useMutableSource(source, getSnapshot, subscribe);
+  const sourceValue = useMutableSource(source, getSnapshot, subscribe);
+  return selector ? selector(value) : sourceValue;
 }
