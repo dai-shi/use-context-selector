@@ -34,9 +34,9 @@ type ContextValue<Value> = {
 const createProvider = <Value>(ProviderOrig: Provider<ContextValue<Value>>) => {
   const RefProvider: FC<{ value: Value }> = ({ value, children }) => {
     const ref = useRef({ value, listeners: new Set<() => void>() });
-    ref.current.value = value;
     useLayoutEffect(() => {
       runWithPriority(NormalPriority, () => {
+        ref.current.value = value;
         ref.current.listeners.forEach((listener) => listener());
       });
     });
