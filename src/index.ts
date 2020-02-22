@@ -12,11 +12,16 @@ import {
   memo,
   useCallback,
   useContext as useContextOrig,
+  useLayoutEffect,
   useMemo,
   // @ts-ignore
   useMutableSource,
   useRef,
 } from 'react';
+import {
+  unstable_NormalPriority as NormalPriority,
+  unstable_runWithPriority as runWithPriority,
+} from 'scheduler';
 
 
 const SOURCE_SYMBOL = Symbol();
@@ -30,7 +35,11 @@ const createProvider = <Value>(ProviderOrig: Provider<ContextValue<Value>>) => {
   const RefProvider: FC<{ value: Value }> = ({ value, children }) => {
     const ref = useRef({ value, listeners: new Set<() => void>() });
     ref.current.value = value;
-    ref.current.listeners.forEach((listener) => listener());
+    useLayoutEffect(() => {
+      runWithPriority(NormalPriority, () => {
+        ref.current.listeners.forEach((listener) => listener());
+      });
+    });
     const contextValue = useMemo(() => {
       const source = createMutableSource(ref, () => ref.current.value);
       return { [SOURCE_SYMBOL]: source };

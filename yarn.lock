@@ -1419,6 +1419,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/scheduler@^0.16.1":
+  version "0.16.1"
+  resolved "https://registry.yarnpkg.com/@types/scheduler/-/scheduler-0.16.1.tgz#18845205e86ff0038517aab7a18a62a6b9f71275"
+  integrity sha512-EaCxbanVeyxDRTQBkdLb3Bvl/HK7PBK6UJjsSixB0iHKoWxE5uu2Q/DgtpOhPIojN0Zl1whvOd7PoHs2P0s5eA==
+
 "@types/stack-utils@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@types/stack-utils/-/stack-utils-1.0.1.tgz#0a851d3bd96498fa25c33ab7278ed3bd65f06c3e"
@@ -8929,6 +8934,14 @@ scheduler@0.0.0-experimental-241c4467e:
   version "0.0.0-experimental-241c4467e"
   resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.0.0-experimental-241c4467e.tgz#641472045de28ba1e7c1be8c113a06262c5e48d9"
   integrity sha512-fHXMM5hNcuamwKplv4QVYqNx5KNU6xtSYvm6TImMvscpn+XWFKspu+5s9Aci8F8EGQMlee85zDalKZupfPSaQw==
+  dependencies:
+    loose-envify "^1.1.0"
+    object-assign "^4.1.1"
+
+scheduler@experimental:
+  version "0.0.0-experimental-5de5b6150"
+  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.0.0-experimental-5de5b6150.tgz#b57d3f00d274aacec6ff15844487cd3b4008e995"
+  integrity sha512-0AqvaS/AcQaRazSYAAA+NgMaFD3JGrX7gWvRVsKNfN4Dq5P4pLZ0X81+Toy9PTSFTfr7lhV3jeutRvohOmZNTw==
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
