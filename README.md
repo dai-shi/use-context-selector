@@ -114,7 +114,7 @@ Returns **React.Context**
 
 This hook returns context selected value by selector.
 It will only accept context created by `createContext`.
-It will trigger re-render if only the selected value is referencially changed.
+It will trigger re-render if only the selected value is referentially changed.
 
 #### Parameters
 
@@ -150,6 +150,7 @@ Returns **any**
 
 -   Subscriptions are per-context basis. So, even if there are multiple context providers in a component tree, all components are subscribed to all providers. This may lead false positives (extra re-renders).
 -   In order to stop propagation, `children` of a context provider has to be either created outside of the provider or memoized with `React.memo`.
+-   Provider trigger re-renders only if the context value is referentially changed.
 -   Context consumers are not supported.
 -   The [stale props](https://react-redux.js.org/api/hooks#stale-props-and-zombie-children) issue can't be solved in userland. (workaround with try-catch)
 
