@@ -1,12 +1,12 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
-import { useContextSelector } from 'use-context-selector';
+import { useContext } from 'use-context-selector';
 
 import { MyContext } from './state';
 
 const Person = () => {
-  const person = useContextSelector(MyContext, (v) => v[0].person);
-  const dispatch = useContextSelector(MyContext, (v) => v[1]);
+  const person = useContext(MyContext, useCallback((v) => v[0].person, []));
+  const dispatch = useContext(MyContext, useCallback((v) => v[1], []));
   return (
     <div>
       {Math.random()}

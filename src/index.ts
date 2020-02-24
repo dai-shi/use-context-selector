@@ -113,6 +113,5 @@ export function useContext<Value, Selected>(
     (ref: MutableRefObject<{ [VALUE_PROP]: Value }>) => selector(ref.current[VALUE_PROP]),
     [selector],
   );
-  const sourceValue = useMutableSource(source, getSnapshot, subscribe);
-  return sourceValue;
+  return useMutableSource(source, getSnapshot, subscribe);
 }
