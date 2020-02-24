@@ -12,30 +12,20 @@ import {
   memo,
   useCallback,
   useContext as useContextOrig,
-  useLayoutEffect,
   useMemo,
   // @ts-ignore
   useMutableSource,
   useRef,
 } from 'react';
-import {
-  unstable_NormalPriority as NormalPriority,
-  unstable_runWithPriority as runWithPriority,
-} from 'scheduler';
-
 
 const SOURCE_SYMBOL = Symbol();
 const VALUE_PROP = 'v';
 const LISTENERS_PROP = 'l';
 
+// @ts-ignore
 type ContextValue<Value> = {
   [SOURCE_SYMBOL]: any;
-  [VALUE_PROP]: Value;
 };
-
-const calculateChangedBits = (a: ContextValue<unknown>, b: ContextValue<unknown>) => (
-  a[SOURCE_SYMBOL] === b[SOURCE_SYMBOL] ? 0 : 1
-);
 
 const createProvider = <Value>(ProviderOrig: Provider<ContextValue<Value>>) => {
   const RefProvider: FC<{ value: Value }> = ({ value, children }) => {
@@ -43,19 +33,12 @@ const createProvider = <Value>(ProviderOrig: Provider<ContextValue<Value>>) => {
       [VALUE_PROP]: value,
       [LISTENERS_PROP]: new Set<() => void>(),
     });
-    useLayoutEffect(() => {
-      runWithPriority(NormalPriority, () => {
-        ref.current[VALUE_PROP] = value;
-        ref.current[LISTENERS_PROP].forEach((listener) => listener());
-      });
-    });
-    const source = useMemo(() => createMutableSource(ref, () => ref.current[VALUE_PROP]), []);
-    return createElement(ProviderOrig, {
-      value: {
-        [SOURCE_SYMBOL]: source,
-        [VALUE_PROP]: value,
-      },
-    }, children);
+    ref.current[VALUE_PROP] = value;
+    ref.current[LISTENERS_PROP].forEach((listener) => listener());
+    const contextValue = useMemo(() => ({
+      [SOURCE_SYMBOL]: createMutableSource(ref, () => ref.current[VALUE_PROP]),
+    }), []);
+    return createElement(ProviderOrig, { value: contextValue }, children);
   };
   return memo(RefProvider);
 };
@@ -78,7 +61,6 @@ export function createContext<Value>(defaultValue: Value) {
   const source = createMutableSource({ current: defaultValue }, () => defaultValue);
   const context = createContextOrig(
     { [SOURCE_SYMBOL]: source, [VALUE_PROP]: defaultValue },
-    calculateChangedBits,
   ) as unknown as Context<Value>; // HACK typing
   context.Provider = createProvider(
     context.Provider as unknown as Provider<ContextValue<Value>>, // HACK typing
@@ -121,10 +103,9 @@ export function useContext<Value, Selected>(
   context: Context<Value>,
   selector: (value: Value) => Selected = identity as (value: Value) => Selected,
 ) {
-  const contextValue = useContextOrig(
+  const { [SOURCE_SYMBOL]: source } = useContextOrig(
     context,
   ) as unknown as ContextValue<Value>; // HACK typing
-  const { [SOURCE_SYMBOL]: source, [VALUE_PROP]: value } = contextValue;
   if (!source) {
     throw new Error('This useContext requires special context');
   }
@@ -133,5 +114,5 @@ export function useContext<Value, Selected>(
     [selector],
   );
   const sourceValue = useMutableSource(source, getSnapshot, subscribe);
-  return selector ? selector(value) : sourceValue;
+  return sourceValue;
 }
