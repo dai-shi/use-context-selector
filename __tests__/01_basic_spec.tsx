@@ -1,13 +1,17 @@
-// TODO
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-import React, { useRef, useState, StrictMode } from 'react';
+import React, {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useRef,
+  useState,
+  StrictMode,
+} from 'react';
 
 import { render, fireEvent, cleanup } from '@testing-library/react';
 
 import {
   createContext,
-  useContextSelector,
+  useContext,
 } from '../src/index';
 
 describe('basic spec', () => {
@@ -18,11 +22,14 @@ describe('basic spec', () => {
       count1: 0,
       count2: 0,
     };
-    const context: any = createContext(null);
+    type State = typeof initialState;
+    const context = createContext<[State, Dispatch<SetStateAction<State>>]>(
+      [initialState, () => null],
+    );
     const Counter1 = () => {
-      const count1 = useContextSelector(context, (v: any) => v[0].count1);
-      const setState = useContextSelector(context, (v: any) => v[1]);
-      const increment = () => setState((s: any) => ({
+      const count1 = useContext(context, useCallback((v) => v[0].count1, []));
+      const setState = useContext(context, useCallback((v) => v[1], []));
+      const increment = () => setState((s) => ({
         ...s,
         count1: s.count1 + 1,
       }));
@@ -37,9 +44,9 @@ describe('basic spec', () => {
       );
     };
     const Counter2 = () => {
-      const count2 = useContextSelector(context, (v: any) => v[0].count2);
-      const setState = useContextSelector(context, (v: any) => v[1]);
-      const increment = () => setState((s: any) => ({
+      const count2 = useContext(context, useCallback((v) => v[0].count2, []));
+      const setState = useContext(context, useCallback((v) => v[1], []));
+      const increment = () => setState((s) => ({
         ...s,
         count2: s.count2 + 1,
       }));
@@ -53,7 +60,7 @@ describe('basic spec', () => {
         </div>
       );
     };
-    const StateProvider = ({ children }: any) => {
+    const StateProvider: React.FC = ({ children }) => {
       const [state, setState] = useState(initialState);
       return (
         <context.Provider value={[state, setState]}>
