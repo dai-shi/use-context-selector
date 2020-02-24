@@ -160,7 +160,7 @@ The [examples](examples) folder contains working examples.
 You can run one of them with
 
 ```bash
-PORT=8080 npm run examples:minimal
+PORT=8080 npm run examples:01_minimal
 ```
 
 and open <http://localhost:8080> in your web browser.

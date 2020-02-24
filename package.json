@@ -1,7 +1,7 @@
 {
   "name": "use-context-selector",
   "description": "React useContextSelector hook in userland",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "author": "Daishi Kato",
   "repository": {
     "type": "git",
@@ -23,8 +23,8 @@
     "jest": "jest",
     "tsc-test": "tsc --project . --noEmit",
     "apidoc": "documentation readme --section API --markdown-toc false src/index.js",
-    "examples:minimal": "DIR=01_minimal EXT=js webpack-dev-server",
-    "examples:typescript": "DIR=02_typescript webpack-dev-server"
+    "examples:01_minimal": "DIR=01_minimal EXT=js webpack-dev-server",
+    "examples:02_typescript": "DIR=02_typescript webpack-dev-server"
   },
   "keywords": [
     "react",
