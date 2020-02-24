@@ -9,6 +9,7 @@ const createProvider = (OrigProvider, listeners) => React.memo(({ value, childre
   if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
     // we use layout effect to eliminate warnings.
     // but, this leads tearing with startTransition.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     React.useLayoutEffect(() => {
       listeners.forEach((listener) => {
         listener(value);
