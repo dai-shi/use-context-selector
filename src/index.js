@@ -6,13 +6,24 @@ const CONTEXT_LISTENERS = (
 );
 
 const createProvider = (OrigProvider, listeners) => React.memo(({ value, children }) => {
-  // we call listeners in render intentionally.
-  // listeners are not technically pure, but
-  // otherwise we can't get benefits from concurrent mode.
-  // we make sure to work with double or more invocation of listeners.
-  listeners.forEach((listener) => {
-    listener(value);
-  });
+  if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
+    // we use layout effect to eliminate warnings.
+    // but, this leads tearing with startTransition.
+    React.useLayoutEffect(() => {
+      listeners.forEach((listener) => {
+        listener(value);
+      });
+    });
+  } else {
+    // we call listeners in render for optimization.
+    // although this is not a recommended pattern,
+    // so far this is only the way to make it as expected.
+    // we are looking for better solutions.
+    // https://github.com/dai-shi/use-context-selector/pull/12
+    listeners.forEach((listener) => {
+      listener(value);
+    });
+  }
   return React.createElement(OrigProvider, { value }, children);
 });
 
@@ -38,7 +49,7 @@ export const createContext = (defaultValue) => {
 /**
  * This hook returns context selected value by selector.
  * It will only accept context created by `createContext`.
- * It will trigger re-render if only the selected value is referencially changed.
+ * It will trigger re-render if only the selected value is referentially changed.
  * @param {React.Context} context
  * @param {Function} selector
  * @returns {*}
@@ -47,12 +58,9 @@ export const createContext = (defaultValue) => {
  */
 export const useContextSelector = (context, selector) => {
   const listeners = context[CONTEXT_LISTENERS];
-  if (!listeners) {
-    if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== 'production') {
+    if (!listeners) {
       throw new Error('useContextSelector requires special context');
-    } else {
-      // for production
-      throw new Error();
     }
   }
   const [, forceUpdate] = React.useReducer((c) => c + 1, 0);
