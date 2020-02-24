@@ -112,7 +112,7 @@ Returns **React.Context**
 
 This hook returns context selected value by selector.
 It will only accept context created by `createContext`.
-It will trigger re-render if only the selected value is referencially changed.
+It will trigger re-render if only the selected value is referentially changed.
 
 #### Parameters
 
@@ -147,6 +147,7 @@ Returns **any**
 ## Limitations
 
 -   In order to stop propagation, `children` of a context provider has to be either created outside of the provider or memoized with `React.memo`.
+-   Provider trigger re-renders only if the context value is referentially changed.
 -   Context consumers are not supported.
 -   TODO check this later: The [stale props](https://react-redux.js.org/api/hooks#stale-props-and-zombie-children) issue can't be solved in userland. (workaround with try-catch)
 
@@ -156,7 +157,7 @@ The [examples](examples) folder contains working examples.
 You can run one of them with
 
 ```bash
-PORT=8080 npm run examples:minimal
+PORT=8080 npm run examples:01_minimal
 ```
 
 and open <http://localhost:8080> in your web browser.
