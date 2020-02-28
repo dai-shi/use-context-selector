@@ -12,6 +12,7 @@ import {
   memo,
   useCallback,
   useContext as useContextOrig,
+  useEffect,
   useMemo,
   // @ts-ignore
   useMutableSource,
@@ -33,8 +34,10 @@ const createProvider = <Value>(ProviderOrig: Provider<ContextValue<Value>>) => {
       [VALUE_PROP]: value,
       [LISTENERS_PROP]: new Set<() => void>(),
     });
-    ref.current[VALUE_PROP] = value;
-    ref.current[LISTENERS_PROP].forEach((listener) => listener());
+    useEffect(() => {
+      ref.current[VALUE_PROP] = value;
+      ref.current[LISTENERS_PROP].forEach((listener) => listener());
+    });
     const contextValue = useMemo(() => ({
       [SOURCE_SYMBOL]: createMutableSource(ref, () => ref.current[VALUE_PROP]),
     }), []);

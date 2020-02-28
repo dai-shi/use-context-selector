@@ -7,7 +7,7 @@ import { createContext, useContext } from '../src/index';
 describe('tearing spec', () => {
   afterEach(cleanup);
 
-  it('should not tear with parent', () => {
+  it.skip('should not tear with parent', () => {
     const initialState = {
       count: 0,
     };
