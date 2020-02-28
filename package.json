@@ -23,7 +23,7 @@
     "eslint": "eslint --ext .js,.ts,.tsx --ignore-pattern dist .",
     "jest": "jest --config '{\"preset\":\"ts-jest/presets/js-with-ts\"}' __tests__/*.tsx",
     "tsc-test": "tsc --project . --noEmit",
-    "apidoc": "documentation readme --section API --markdown-toc false src/index.ts",
+    "apidoc": "documentation readme --section API --markdown-toc false --parse-extension ts src/*.ts",
     "examples:01_minimal": "DIR=01_minimal EXT=js webpack-dev-server",
     "examples:02_typescript": "DIR=02_typescript webpack-dev-server"
   },

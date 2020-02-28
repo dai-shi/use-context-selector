@@ -63,7 +63,7 @@ const identity = <T>(x: T) => x;
 export function createContext<Value>(defaultValue: Value) {
   const source = createMutableSource({ current: defaultValue }, () => defaultValue);
   const context = createContextOrig(
-    { [SOURCE_SYMBOL]: source, [VALUE_PROP]: defaultValue },
+    { [SOURCE_SYMBOL]: source },
   ) as unknown as Context<Value>; // HACK typing
   context.Provider = createProvider(
     context.Provider as unknown as Provider<ContextValue<Value>>, // HACK typing

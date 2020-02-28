@@ -94,61 +94,53 @@ ReactDOM.render(<App />, document.getElementById('app'));
 
 ### createContext
 
-This creates a special context for `useContextSelector`.
+This creates a special context for selector-enabled `useContext`.
+
+It doesn't pass its value but a ref of the value.
+Unlike the original context provider, this context provider
+expects the context value to be immutable and stable.
 
 #### Parameters
 
--   `defaultValue` **any** 
+-   `defaultValue` **Value** 
 
 #### Examples
 
 ```javascript
+import { createContext } from 'use-context-selector';
+
 const PersonContext = createContext({ firstName: '', familyName: '' });
 ```
 
-Returns **React.Context** 
-
-### useContextSelector
-
-This hook returns context selected value by selector.
-It will only accept context created by `createContext`.
-It will trigger re-render if only the selected value is referentially changed.
-
-#### Parameters
-
--   `context` **React.Context** 
--   `selector` **[Function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function)** 
-
-#### Examples
-
-```javascript
-const firstName = useContextSelector(PersonContext, state => state.firstName);
-```
-
-Returns **any** 
-
 ### useContext
 
-This hook returns the entire context value.
-Use this instead of React.useContext for consistent behavior.
+This hook returns context value with optional selector.
+
+It will only accept context created by `createContext`.
+It will trigger re-render if only the selected value is referentially changed.
+The selector must be stable.
+Either define selector outside render or wrap with `useCallback`.
+
+The selector should return referentially equal result for same input for better performance.
 
 #### Parameters
 
--   `context` **React.Context** 
+-   `context` **Context&lt;Value>** 
+-   `selector` **function (value: Value): Selected**  (optional, default `identity as(value:Value)=>Selected`)
 
 #### Examples
 
 ```javascript
-const person = useContext(PersonContext);
-```
+import { useContext } from 'use-context-selector';
 
-Returns **any** 
+const firstName = useContext(PersonContext, state => state.firstName);
+```
 
 ## Limitations
 
 -   In order to stop propagation, `children` of a context provider has to be either created outside of the provider or memoized with `React.memo`.
 -   Provider trigger re-renders only if the context value is referentially changed.
--   Context consumers are not supported.
+-   Neither context consumers or class components are supported.
 -   TODO check this later: The [stale props](https://react-redux.js.org/api/hooks#stale-props-and-zombie-children) issue can't be solved in userland. (workaround with try-catch)
 -   Tearing is only avoided within the Provider tree. A value outside the Provider will tear. (`02_tearing_spec` fails)
 
