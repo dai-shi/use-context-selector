@@ -109,8 +109,10 @@ export function useContext<Value, Selected>(
   const { [SOURCE_SYMBOL]: source } = useContextOrig(
     context,
   ) as unknown as ContextValue<Value>; // HACK typing
-  if (!source) {
-    throw new Error('This useContext requires special context');
+  if (process.env.NODE_ENV !== 'production') {
+    if (!source) {
+      throw new Error('This useContext requires special context for selector support');
+    }
   }
   const getSnapshot = useCallback(
     (ref: MutableRefObject<{ [VALUE_PROP]: Value }>) => selector(ref.current[VALUE_PROP]),
