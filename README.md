@@ -4,7 +4,7 @@
 [![npm version](https://badge.fury.io/js/use-context-selector.svg)](https://badge.fury.io/js/use-context-selector)
 [![bundle size](https://badgen.net/bundlephobia/minzip/use-context-selector)](https://bundlephobia.com/result?p=use-context-selector)
 
-React useContextSelector hook in userland
+React useContext with selector support in userland
 
 ## Introduction
 
@@ -15,7 +15,9 @@ will re-render.
 
 To solve this issue,
 [useContextSelector](https://github.com/reactjs/rfcs/pull/119)
-is proposed.
+is proposed and later proposed
+[Speculative Mode](https://github.com/reactjs/rfcs/pull/150)
+with context selector support.
 This library provides the API in userland.
 
 v1 uses `calculateChangedBits=()=>0` technique to stop propagation,
