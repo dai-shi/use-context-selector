@@ -6,7 +6,7 @@ const CONTEXT_LISTENERS = (
 );
 
 const createProvider = (OrigProvider, listeners) => React.memo(({ value, children }) => {
-  if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
+  if (process.env.NODE_ENV !== 'production') {
     // we use layout effect to eliminate warnings.
     // but, this leads tearing with startTransition.
     // eslint-disable-next-line react-hooks/rules-of-hooks

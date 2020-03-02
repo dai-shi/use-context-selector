@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- Avoid React render warning in test (#15)
 
 ## [1.1.0] - 2020-02-24
 ### Changed
