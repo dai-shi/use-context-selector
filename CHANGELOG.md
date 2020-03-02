@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.1.1] - 2020-03-02
+### Changed
+- Avoid React render warning in test (#15)
+
 ## [1.1.0] - 2020-02-24
 ### Changed
 - A workaround for React render warning (#13)
