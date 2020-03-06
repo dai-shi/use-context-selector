@@ -5,6 +5,7 @@ import React, {
   useRef,
   useState,
   StrictMode,
+  useMemo,
 } from 'react';
 
 import { render, fireEvent, cleanup } from '@testing-library/react';
@@ -23,12 +24,17 @@ describe('basic spec', () => {
       count2: 0,
     };
     type State = typeof initialState;
-    const context = createContext<[State, Dispatch<SetStateAction<State>>]>(
-      [initialState, () => null],
+    const context = createContext<[
+      State,
+      Dispatch<SetStateAction<State>>,
+      { setState: Dispatch<SetStateAction<State>> }
+    ]>(
+      [initialState, () => null, { setState: () => null }],
     );
     const Counter1 = () => {
       const count1 = useContext(context, useCallback((v) => v[0].count1, []));
-      const setState = useContext(context, useCallback((v) => v[1], []));
+      // const setState = useContext(context, useCallback((v) => v[1], []));
+      const { setState } = useContext(context, useCallback((v) => v[2], []));
       const increment = () => setState((s) => ({
         ...s,
         count1: s.count1 + 1,
@@ -45,7 +51,8 @@ describe('basic spec', () => {
     };
     const Counter2 = () => {
       const count2 = useContext(context, useCallback((v) => v[0].count2, []));
-      const setState = useContext(context, useCallback((v) => v[1], []));
+      // const setState = useContext(context, useCallback((v) => v[1], []));
+      const { setState } = useContext(context, useCallback((v) => v[2], []));
       const increment = () => setState((s) => ({
         ...s,
         count2: s.count2 + 1,
@@ -62,8 +69,9 @@ describe('basic spec', () => {
     };
     const StateProvider: React.FC = ({ children }) => {
       const [state, setState] = useState(initialState);
+      const setStateHolder = useMemo(() => ({ setState }), []);
       return (
-        <context.Provider value={[state, setState]}>
+        <context.Provider value={[state, setState, setStateHolder]}>
           {children}
         </context.Provider>
       );
