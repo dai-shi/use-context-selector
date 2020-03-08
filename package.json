@@ -21,7 +21,7 @@
     "compile": "microbundle build --format cjs,es,umd",
     "test": "run-s eslint tsc-test jest",
     "eslint": "eslint --ext .js,.ts,.tsx --ignore-pattern dist .",
-    "jest": "jest --config '{\"preset\":\"ts-jest/presets/js-with-ts\"}' __tests__/*.tsx",
+    "jest": "jest --preset ts-jest/presets/js-with-ts __tests__/*.tsx",
     "tsc-test": "tsc --project . --noEmit",
     "apidoc": "documentation readme --section API --markdown-toc false --parse-extension ts src/*.ts",
     "examples:01_minimal": "DIR=01_minimal EXT=js webpack-dev-server",
