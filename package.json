@@ -1,7 +1,7 @@
 {
   "name": "use-context-selector",
   "description": "React useContext with selector support in userland",
-  "version": "2.0.0-alpha.0-wip",
+  "version": "2.0.0-alpha.1",
   "author": "Daishi Kato",
   "repository": {
     "type": "git",
@@ -62,6 +62,6 @@
     "webpack-dev-server": "^3.10.3"
   },
   "peerDependencies": {
-    "react": "experimental"
+    "react": ">=16.14.0"
   }
 }

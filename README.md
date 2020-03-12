@@ -158,7 +158,7 @@ const firstName = useContext(PersonContext, state => state.firstName);
 -   In order to stop propagation, `children` of a context provider has to be either created outside of the provider or memoized with `React.memo`.
 -   Provider trigger re-renders only if the context value is referentially changed.
 -   Neither context consumers or class components are supported.
--   TODO check this later: The [stale props](https://react-redux.js.org/api/hooks#stale-props-and-zombie-children) issue can't be solved in userland. (workaround with try-catch)
+-   The [stale props](https://react-redux.js.org/api/hooks#stale-props-and-zombie-children) issue isn't solved.
 -   Due to the current useMutableSource limitation, a selector can't return a function. (See `02_basic_spec` wrapping setState)
 -   Tearing is only avoided within the Provider tree. A value outside the Provider will tear. (`02_tearing_spec` fails)
 

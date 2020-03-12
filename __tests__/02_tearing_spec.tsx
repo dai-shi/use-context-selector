@@ -4,10 +4,10 @@ import { render, fireEvent, cleanup } from '@testing-library/react';
 
 import { createContext, useContext } from '../src/index';
 
-describe('tearing spec', () => {
+describe.skip('tearing spec', () => {
   afterEach(cleanup);
 
-  it.skip('should not tear with parent', () => {
+  it('should not tear with parent', () => {
     const initialState = {
       count: 0,
     };
