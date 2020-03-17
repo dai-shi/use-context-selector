@@ -2,6 +2,9 @@
   "name": "use-context-selector",
   "description": "React useContext with selector support in userland",
   "version": "2.0.0-alpha.1",
+  "publishConfig": {
+    "tag": "next"
+  },
   "author": "Daishi Kato",
   "repository": {
     "type": "git",
