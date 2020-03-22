@@ -6,7 +6,7 @@
     "react": "experimental",
     "react-dom": "experimental",
     "use-context-selector": "latest",
-    "react-scripts": "^2.1.1"
+    "react-scripts": "latest"
   },
   "scripts": {
     "start": "react-scripts start",
