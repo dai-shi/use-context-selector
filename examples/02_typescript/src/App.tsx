@@ -12,6 +12,7 @@ const Provider: React.FC = ({ children }) => {
     </MyContext.Provider>
   );
 };
+
 const App = () => (
   <StrictMode>
     <Provider>
