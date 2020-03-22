@@ -3,13 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@types/react": "^16.7.6",
-    "@types/react-dom": "^16.0.9",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
     "react": "experimental",
     "react-dom": "experimental",
     "use-context-selector": "latest",
-    "react-scripts": "^2.1.1",
-    "typescript": "^3.1.6"
+    "react-scripts": "latest",
+    "typescript": "latest"
   },
   "scripts": {
     "start": "react-scripts start",
