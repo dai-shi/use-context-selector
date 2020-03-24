@@ -98,11 +98,11 @@ const subscribe = (
   return () => listeners.delete(callback);
 };
 
-export function useContext<Value>(context: Context<Value>): Value;
+export function useContext<Value>(context: Context<Value>): Value
 export function useContext<Value, Selected>(
   context: Context<Value>,
   selector: (value: Value) => Selected,
-): Selected;
+): Selected
 
 /**
  * This hook returns context value with optional selector.
