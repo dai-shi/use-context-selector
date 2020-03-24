@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/ban-ts-ignore */
+/* eslint-disable @typescript-eslint/ban-ts-ignore */
 
 import {
   Context,
@@ -136,7 +136,6 @@ export function useContext<Value, Selected>(
   return useMutableSource(source, getSnapshot, subscribe);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyCallback = (...args: any) => any;
 
 /**
@@ -151,7 +150,7 @@ type AnyCallback = (...args: any) => any;
  * const wrappedCallback = wrapCallbackWithPriority(callback);
  */
 export function wrapCallbackWithPriority<Callback extends AnyCallback>(callback: Callback) {
-  const callbackWithPriority = (...args: Parameters<typeof callback>) => (
+  const callbackWithPriority = (...args: any) => (
     runWithPriority(UserBlockingPriority, () => callback(...args))
   );
   return callbackWithPriority as Callback;
