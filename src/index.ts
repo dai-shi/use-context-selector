@@ -12,12 +12,25 @@ import {
   memo,
   useCallback,
   useContext as useContextOrig,
+  useLayoutEffect,
   useEffect,
   useMemo,
   // @ts-ignore
   useMutableSource,
   useRef,
 } from 'react';
+import {
+  unstable_UserBlockingPriority as UserBlockingPriority,
+  unstable_NormalPriority as NormalPriority,
+  unstable_runWithPriority as runWithPriority,
+} from 'scheduler';
+
+const isClient = (
+  typeof window !== 'undefined'
+  && !/ServerSideRendering/.test(window.navigator && window.navigator.userAgent)
+);
+
+const useIsomorphicLayoutEffect = isClient ? useLayoutEffect : useEffect;
 
 const SOURCE_SYMBOL = Symbol();
 const VALUE_PROP = 'v';
@@ -34,9 +47,11 @@ const createProvider = <Value>(ProviderOrig: Provider<ContextValue<Value>>) => {
       [VALUE_PROP]: value,
       [LISTENERS_PROP]: new Set<() => void>(),
     });
-    useEffect(() => {
+    useIsomorphicLayoutEffect(() => {
       ref.current[VALUE_PROP] = value;
-      ref.current[LISTENERS_PROP].forEach((listener) => listener());
+      runWithPriority(NormalPriority, () => {
+        ref.current[LISTENERS_PROP].forEach((listener) => listener());
+      });
     });
     const contextValue = useMemo(() => ({
       [SOURCE_SYMBOL]: createMutableSource(ref, () => ref.current[VALUE_PROP]),
@@ -119,4 +134,25 @@ export function useContext<Value, Selected>(
     [selector],
   );
   return useMutableSource(source, getSnapshot, subscribe);
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyCallback = (...args: any) => any;
+
+/**
+ * A utility function to wrap a callback function with higher priority
+ *
+ * Use this for a callback that will change a value,
+ * which will be fed into context provider.
+ *
+ * @example
+ * import { wrapCallbackWithPriority } from 'use-context-selector';
+ *
+ * const wrappedCallback = wrapCallbackWithPriority(callback);
+ */
+export function wrapCallbackWithPriority<Callback extends AnyCallback>(callback: Callback) {
+  const callbackWithPriority = (...args: Parameters<typeof callback>) => (
+    runWithPriority(UserBlockingPriority, () => callback(...args))
+  );
+  return callbackWithPriority as Callback;
 }
