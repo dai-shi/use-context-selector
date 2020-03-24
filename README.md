@@ -99,6 +99,7 @@ useContextSelector(context, state => state.count);
 ```
 
 In v2:
+
 ```js
 useContext(context, useCallback(state => state.count, []));
 ```
@@ -151,6 +152,25 @@ The selector should return referentially equal result for same input for better 
 import { useContext } from 'use-context-selector';
 
 const firstName = useContext(PersonContext, state => state.firstName);
+```
+
+### wrapCallbackWithPriority
+
+A utility function to wrap a callback function with higher priority
+
+Use this for a callback that will change a value,
+which will be fed into context provider.
+
+#### Parameters
+
+-   `callback` **Callback** 
+
+#### Examples
+
+```javascript
+import { wrapCallbackWithPriority } from 'use-context-selector';
+
+const wrappedCallback = wrapCallbackWithPriority(callback);
 ```
 
 ## Limitations
