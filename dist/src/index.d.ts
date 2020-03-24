@@ -1,4 +1,10 @@
-import { Context } from 'react';
+import { ComponentType } from 'react';
+export interface Context<Value> {
+    Provider: ComponentType<{
+        value: Value;
+    }>;
+    displayName?: string;
+}
 /**
  * This creates a special context for selector-enabled `useContext`.
  *

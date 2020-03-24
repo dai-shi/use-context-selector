@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-ts-ignore */
 
 import {
-  Context,
+  ComponentType,
+  Context as ContextOrig,
   FC,
   MutableRefObject,
   Provider,
@@ -41,6 +42,11 @@ type ContextValue<Value> = {
   [SOURCE_SYMBOL]: any;
 };
 
+export interface Context<Value> {
+  Provider: ComponentType<{ value: Value }>;
+  displayName?: string;
+}
+
 const createProvider = <Value>(ProviderOrig: Provider<ContextValue<Value>>) => {
   const RefProvider: FC<{ value: Value }> = ({ value, children }) => {
     const ref = useRef({
@@ -77,14 +83,10 @@ const identity = <T>(x: T) => x;
  */
 export function createContext<Value>(defaultValue: Value) {
   const source = createMutableSource({ current: defaultValue }, () => defaultValue);
-  const context = createContextOrig(
-    { [SOURCE_SYMBOL]: source },
-  ) as unknown as Context<Value>; // HACK typing
-  context.Provider = createProvider(
-    context.Provider as unknown as Provider<ContextValue<Value>>, // HACK typing
-  ) as Provider<Value>;
+  const context = createContextOrig({ [SOURCE_SYMBOL]: source });
+  (context as unknown as Context<Value>).Provider = createProvider(context.Provider);
   delete context.Consumer; // no support for Consumer
-  return context;
+  return context as unknown as Context<Value>;
 }
 
 const subscribe = (
@@ -122,8 +124,8 @@ export function useContext<Value, Selected>(
   selector: (value: Value) => Selected = identity as (value: Value) => Selected,
 ) {
   const { [SOURCE_SYMBOL]: source } = useContextOrig(
-    context,
-  ) as unknown as ContextValue<Value>; // HACK typing
+    context as unknown as ContextOrig<ContextValue<Value>>,
+  );
   if (process.env.NODE_ENV !== 'production') {
     if (!source) {
       throw new Error('This useContext requires special context for selector support');
