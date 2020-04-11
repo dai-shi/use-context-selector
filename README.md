@@ -178,7 +178,7 @@ const wrappedCallback = wrapCallbackWithPriority(callback);
 -   In order to stop propagation, `children` of a context provider has to be either created outside of the provider or memoized with `React.memo`.
 -   Provider trigger re-renders only if the context value is referentially changed.
 -   Neither context consumers or class components are supported.
--   The [stale props](https://react-redux.js.org/api/hooks#stale-props-and-zombie-children) issue isn't solved.
+-   The [stale props](https://react-redux.js.org/api/hooks#stale-props-and-zombie-children) issue can't be solved in userland.
 -   Due to the current useMutableSource limitation, a selector can't return a function. (See `01_basic_spec` wrapping setState)
 -   Tearing is only avoided within the Provider tree. A value outside the Provider will tear. (`02_tearing_spec` fails)
 
