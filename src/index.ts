@@ -37,6 +37,10 @@ const SOURCE_SYMBOL = Symbol();
 const VALUE_PROP = 'v';
 const LISTENERS_PROP = 'l';
 
+const FUNCTION_SYNBOL = Symbol();
+// eslint-disable-next-line @typescript-eslint/ban-types
+const functionMap = new WeakMap<Function, { [FUNCTION_SYNBOL]: Function }>();
+
 // @ts-ignore
 type ContextValue<Value> = {
   [SOURCE_SYMBOL]: any;
@@ -132,10 +136,25 @@ export function useContext<Value, Selected>(
     }
   }
   const getSnapshot = useCallback(
-    (ref: MutableRefObject<{ [VALUE_PROP]: Value }>) => selector(ref.current[VALUE_PROP]),
+    (ref: MutableRefObject<{ [VALUE_PROP]: Value }>) => {
+      const selected = selector(ref.current[VALUE_PROP]);
+      if (typeof selected === 'function') {
+        if (functionMap.has(selected)) {
+          return functionMap.get(selected);
+        }
+        const wrappedFunction = { [FUNCTION_SYNBOL]: selected };
+        functionMap.set(selected, wrappedFunction);
+        return wrappedFunction;
+      }
+      return selected;
+    },
     [selector],
   );
-  return useMutableSource(source, getSnapshot, subscribe);
+  const snapshot = useMutableSource(source, getSnapshot, subscribe);
+  if (snapshot && (snapshot as { [FUNCTION_SYNBOL]: unknown })[FUNCTION_SYNBOL]) {
+    return snapshot[FUNCTION_SYNBOL];
+  }
+  return snapshot;
 }
 
 type AnyCallback = (...args: any) => any;
