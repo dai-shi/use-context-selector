@@ -1,8 +1,8 @@
 # use-context-selector
 
-[![Build Status](https://travis-ci.com/dai-shi/use-context-selector.svg?branch=master)](https://travis-ci.com/dai-shi/use-context-selector)
-[![npm version](https://badge.fury.io/js/use-context-selector.svg)](https://badge.fury.io/js/use-context-selector)
-[![bundle size](https://badgen.net/bundlephobia/minzip/use-context-selector)](https://bundlephobia.com/result?p=use-context-selector)
+[![CI](https://img.shields.io/github/workflow/status/dai-shi/use-context-selector/CI)](https://github.com/dai-shi/use-context-selector/actions?query=workflow%3ACI)
+[![npm](https://img.shields.io/npm/v/use-context-selector)](https://www.npmjs.com/package/use-context-selector)
+[![size](https://img.shields.io/bundlephobia/minzip/use-context-selector)](https://bundlephobia.com/result?p=use-context-selector)
 
 React useContextSelector hook in userland
 
