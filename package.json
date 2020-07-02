@@ -7,17 +7,17 @@
     "type": "git",
     "url": "https://github.com/dai-shi/use-context-selector.git"
   },
-  "main": "./dist/index.js",
-  "module": "./dist/index.esm.js",
-  "browser": "./dist/index.umd.js",
   "source": "./src/index.js",
+  "main": "./dist/index.umd.js",
+  "module": "./dist/index.modern.js",
   "types": "./src/index.d.ts",
+  "sideEffects": false,
   "files": [
     "src",
     "dist"
   ],
   "scripts": {
-    "compile": "microbundle build --format cjs,es,umd",
+    "compile": "microbundle build -f modern,umd",
     "test": "run-s eslint tsc-test jest",
     "eslint": "eslint --ext .js,.ts,.tsx --ignore-pattern dist .",
     "jest": "jest",
