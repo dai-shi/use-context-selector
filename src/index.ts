@@ -9,7 +9,7 @@ import {
   createElement,
   createContext as createContextOrig,
   // @ts-ignore
-  createMutableSource,
+  unstable_createMutableSource as createMutableSource,
   memo,
   useCallback,
   useContext as useContextOrig,
@@ -17,7 +17,7 @@ import {
   useEffect,
   useMemo,
   // @ts-ignore
-  useMutableSource,
+  unstable_useMutableSource as useMutableSource,
   useRef,
 } from 'react';
 import {
