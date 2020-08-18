@@ -37,9 +37,9 @@ const SOURCE_SYMBOL = Symbol();
 const VALUE_PROP = 'v';
 const LISTENERS_PROP = 'l';
 
-const FUNCTION_SYNBOL = Symbol();
+const FUNCTION_SYMBOL = Symbol();
 // eslint-disable-next-line @typescript-eslint/ban-types
-const functionMap = new WeakMap<Function, { [FUNCTION_SYNBOL]: Function }>();
+const functionMap = new WeakMap<Function, { [FUNCTION_SYMBOL]: Function }>();
 
 // @ts-ignore
 type ContextValue<Value> = {
@@ -142,7 +142,7 @@ export function useContext<Value, Selected>(
         if (functionMap.has(selected)) {
           return functionMap.get(selected);
         }
-        const wrappedFunction = { [FUNCTION_SYNBOL]: selected };
+        const wrappedFunction = { [FUNCTION_SYMBOL]: selected };
         functionMap.set(selected, wrappedFunction);
         return wrappedFunction;
       }
@@ -151,8 +151,8 @@ export function useContext<Value, Selected>(
     [selector],
   );
   const snapshot = useMutableSource(source, getSnapshot, subscribe);
-  if (snapshot && (snapshot as { [FUNCTION_SYNBOL]: unknown })[FUNCTION_SYNBOL]) {
-    return snapshot[FUNCTION_SYNBOL];
+  if (snapshot && (snapshot as { [FUNCTION_SYMBOL]: unknown })[FUNCTION_SYMBOL]) {
+    return snapshot[FUNCTION_SYMBOL];
   }
   return snapshot;
 }
