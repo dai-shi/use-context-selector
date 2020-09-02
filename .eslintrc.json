@@ -29,7 +29,8 @@
     "react/jsx-one-expression-per-line": "off",
     "import/extensions": ["error", "never"],
     "import/no-unresolved": ["error", { "ignore": ["use-context-selector"] }],
-    "symbol-description": "off"
+    "symbol-description": "off",
+    "no-underscore-dangle": "off"
   },
   "overrides": [{
     "files": ["__tests__/**/*"],
