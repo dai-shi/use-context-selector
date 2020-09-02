@@ -86,7 +86,13 @@ const identity = <T>(x: T) => x;
  * const PersonContext = createContext({ firstName: '', familyName: '' });
  */
 export function createContext<Value>(defaultValue: Value) {
-  const source = createMutableSource({ current: defaultValue }, () => defaultValue);
+  const defaultRef = {
+    current: {
+      [VALUE_PROP]: defaultValue,
+      [LISTENERS_PROP]: new Set<() => void>(),
+    },
+  };
+  const source = createMutableSource(defaultRef, () => defaultValue);
   const context = createContextOrig({ [SOURCE_SYMBOL]: source });
   (context as unknown as Context<Value>).Provider = createProvider(context.Provider);
   delete context.Consumer; // no support for Consumer
