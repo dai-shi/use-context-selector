@@ -1,16 +1,20 @@
 import React from 'react';
 
-const CONTEXT_LISTENERS = (
-  process.env.NODE_ENV !== 'production' ? Symbol('CONTEXT_LISTENERS')
-  /* for production */ : Symbol()
-);
+const CONTEXT_LISTENERS = Symbol();
+
+const isSSR = typeof window === 'undefined'
+  || /ServerSideRendering/.test(window.navigator && window.navigator.userAgent);
+
+export const useIsoLayoutEffect = isSSR
+  ? (fn) => fn()
+  : React.useLayoutEffect;
 
 const createProvider = (OrigProvider, listeners) => React.memo(({ value, children }) => {
   if (process.env.NODE_ENV !== 'production') {
     // we use layout effect to eliminate warnings.
     // but, this leads tearing with startTransition.
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    React.useLayoutEffect(() => {
+    useIsoLayoutEffect(() => {
       listeners.forEach((listener) => {
         listener(value);
       });
@@ -68,14 +72,14 @@ export const useContextSelector = (context, selector) => {
   const value = React.useContext(context);
   const selected = selector(value);
   const ref = React.useRef(null);
-  React.useLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     ref.current = {
       f: selector, // last selector "f"unction
       v: value, // last "v"alue
       s: selected, // last "s"elected value
     };
   });
-  React.useLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     const callback = (nextValue) => {
       try {
         if (ref.current.v === nextValue
