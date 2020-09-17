@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.1.3] - 2020-09-17
+### Changed
+- useIsoLayoutEffect for SSR
+
 ## [1.1.2] - 2020-07-02
 ### Changed
 - Modern build
