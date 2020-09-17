@@ -1,7 +1,7 @@
 {
   "name": "use-context-selector",
   "description": "React useContext with selector support in userland",
-  "version": "2.0.0-alpha.6",
+  "version": "2.0.0-alpha.7",
   "publishConfig": {
     "tag": "next"
   },
