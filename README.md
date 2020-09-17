@@ -154,23 +154,23 @@ import { useContext } from 'use-context-selector';
 const firstName = useContext(PersonContext, state => state.firstName);
 ```
 
-### wrapCallbackWithPriority
+### useContextUpdate
 
-A utility function to wrap a callback function with higher priority
+This hook returns an update function that accepts a thunk function
 
-Use this for a callback that will change a value,
-which will be fed into context provider.
+Use this for a function that will change a value.
 
 #### Parameters
 
--   `callback` **Callback** 
+-   `context` **Context&lt;any>** 
 
 #### Examples
 
 ```javascript
-import { wrapCallbackWithPriority } from 'use-context-selector';
+import { useContextUpdate } from 'use-context-selector';
 
-const wrappedCallback = wrapCallbackWithPriority(callback);
+const update = useContextUpdate();
+update(() => setState(...));
 ```
 
 ## Limitations

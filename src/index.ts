@@ -20,9 +20,10 @@ import {
   useRef,
 } from 'react';
 import {
-  unstable_UserBlockingPriority as UserBlockingPriority,
+  unstable_ImmediatePriority as ImmediatePriority,
   unstable_NormalPriority as NormalPriority,
   unstable_runWithPriority as runWithPriority,
+  unstable_getCurrentPriorityLevel as getCurrentPriorityLevel,
 } from 'scheduler';
 
 const isClient = (
@@ -33,6 +34,7 @@ const isClient = (
 const useIsomorphicLayoutEffect = isClient ? useLayoutEffect : useEffect;
 
 const SOURCE_SYMBOL = Symbol();
+const UPDATE_SYMBOL = Symbol();
 
 const FUNCTION_SYMBOL = Symbol();
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -41,6 +43,7 @@ const functionMap = new WeakMap<Function, { [FUNCTION_SYMBOL]: Function }>();
 // @ts-ignore
 type ContextValue<Value> = {
   [SOURCE_SYMBOL]: any;
+  [UPDATE_SYMBOL]: <T>(thunk: () => T) => T;
 };
 
 type RefValue<Value> = MutableRefObject<{
@@ -63,19 +66,25 @@ const createProvider = <Value>(ProviderOrig: Provider<ContextValue<Value>>) => {
       s: value, // "s" = secondary value
       l: new Set<() => void>(), // "l" = listeners
     });
+    const priorityRef = useRef(NormalPriority);
     const contextValue = useMemo(() => ({
       [SOURCE_SYMBOL]: createMutableSource(ref, () => ref.current.v),
+      [UPDATE_SYMBOL]: <T>(thunk: () => T) => {
+        priorityRef.current = getCurrentPriorityLevel();
+        return runWithPriority(ImmediatePriority, thunk);
+      },
     }), []);
     useIsomorphicLayoutEffect(() => {
-      ref.current.v += 1; // increment version
       if (contextValue[SOURCE_SYMBOL]._workInProgressVersionSecondary !== null) {
         ref.current.s = value; // update secondary value
       } else {
         ref.current.p = value; // update primary value
       }
-      runWithPriority(NormalPriority, () => {
+      ref.current.v += 1; // increment version
+      runWithPriority(priorityRef.current, () => {
         ref.current.l.forEach((listener) => listener());
       });
+      priorityRef.current = NormalPriority;
     });
     return createElement(ProviderOrig, { value: contextValue }, children);
   };
@@ -111,6 +120,7 @@ const createDefaultSource = <Value>(defaultValue: Value) => {
 export function createContext<Value>(defaultValue: Value) {
   const context = createContextOrig<ContextValue<Value>>({
     [SOURCE_SYMBOL]: createDefaultSource(defaultValue),
+    [UPDATE_SYMBOL]: (thunk) => thunk(),
   });
   (context as unknown as Context<Value>).Provider = createProvider(context.Provider);
   delete context.Consumer; // no support for Consumer
@@ -161,7 +171,9 @@ export function useContext<Value, Selected>(
   }
   const getSnapshot = useCallback(
     (ref: RefValue<Value>) => {
-      const value = source._workInProgressVersionSecondary !== null ? ref.current.s : ref.current.p;
+      const value = source._workInProgressVersionSecondary !== null
+        ? ref.current.s // "s" = secondary value
+        : ref.current.p; // "p" = primary value
       const selected = selector(value);
       if (typeof selected === 'function') {
         if (functionMap.has(selected)) {
@@ -182,22 +194,27 @@ export function useContext<Value, Selected>(
   return snapshot;
 }
 
-type AnyCallback = (...args: any) => any;
-
 /**
- * A utility function to wrap a callback function with higher priority
+ * This hook returns an update function that accepts a thunk function
  *
- * Use this for a callback that will change a value,
- * which will be fed into context provider.
+ * Use this for a function that will change a value.
  *
  * @example
- * import { wrapCallbackWithPriority } from 'use-context-selector';
+ * import { useContextUpdate } from 'use-context-selector';
  *
- * const wrappedCallback = wrapCallbackWithPriority(callback);
+ * const update = useContextUpdate();
+ * update(() => setState(...));
  */
-export function wrapCallbackWithPriority<Callback extends AnyCallback>(callback: Callback) {
-  const callbackWithPriority = (...args: any) => (
-    runWithPriority(UserBlockingPriority, () => callback(...args))
+export function useContextUpdate(
+  context: Context<unknown>,
+) {
+  const { [UPDATE_SYMBOL]: update } = useContextOrig(
+    context as unknown as ContextOrig<ContextValue<unknown>>,
   );
-  return callbackWithPriority as Callback;
+  if (process.env.NODE_ENV !== 'production') {
+    if (!update) {
+      throw new Error('This useContext requires special context for selector support');
+    }
+  }
+  return update;
 }
