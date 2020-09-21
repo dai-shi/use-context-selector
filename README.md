@@ -146,6 +146,32 @@ const person = useContext(PersonContext);
 
 Returns **any** 
 
+### BridgeProvider
+
+This is a Provider component for bridging multiple react roots
+
+#### Parameters
+
+-   `props` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
+    -   `props.context` **React.Context** 
+    -   `props.value` **any** 
+    -   `props.children` **React.ReactNote** 
+
+#### Examples
+
+```javascript
+const valueToBridge = useContext(PersonContext);
+return (
+  <Renderer>
+    <BridgeProvider context={PersonContext} value={valueToBridge}>
+      {children}
+    </Bidge>
+  </Renderer>
+);
+```
+
+Returns **React.ReactElement** 
+
 ## Limitations
 
 -   Subscriptions are per-context basis. So, even if there are multiple context providers in a component tree, all components are subscribed to all providers. This may lead false positives (extra re-renders).

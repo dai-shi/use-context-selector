@@ -1,4 +1,4 @@
-import { Context } from 'react';
+import { Context, FC } from 'react';
 
 export const createContext: <T>(defaultValue: T) => Context<T>;
 
@@ -10,3 +10,5 @@ export const useContextSelector: <T, S>(
 export const useContext: <T>(
   context: Context<T>,
 ) => T;
+
+export const BridgeProvider: FC<{ context: Context<unknown>; value: unknown }>;

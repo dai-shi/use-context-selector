@@ -1,6 +1,7 @@
 import React from 'react';
 
 const CONTEXT_LISTENERS = Symbol();
+const ORIGINAL_PROVIDER = Symbol();
 
 const isSSR = typeof window === 'undefined'
   || /ServerSideRendering/.test(window.navigator && window.navigator.userAgent);
@@ -44,6 +45,8 @@ export const createContext = (defaultValue) => {
   const context = React.createContext(defaultValue, () => 0);
   // shared listeners (not ideal)
   context[CONTEXT_LISTENERS] = new Set();
+  // original provider
+  context[ORIGINAL_PROVIDER] = context.Provider;
   // hacked provider
   context.Provider = createProvider(context.Provider, context[CONTEXT_LISTENERS]);
   // no support for consumer
@@ -107,6 +110,50 @@ export const useContextSelector = (context, selector) => {
  * @example
  * const person = useContext(PersonContext);
  */
-// this is not best implemented for performance,
-// but this wouldn't be used very often.
-export const useContext = (context) => useContextSelector(context, (x) => x);
+export const useContext = (context) => {
+  const listeners = context[CONTEXT_LISTENERS];
+  if (process.env.NODE_ENV !== 'production') {
+    if (!listeners) {
+      throw new Error('useContext requires special context');
+    }
+  }
+  const [, forceUpdate] = React.useReducer((c) => c + 1, 0);
+  const value = React.useContext(context);
+  useIsoLayoutEffect(() => {
+    const callback = () => {
+      forceUpdate();
+    };
+    listeners.add(callback);
+    return () => {
+      listeners.delete(callback);
+    };
+  }, [listeners]);
+  return value;
+};
+
+/**
+ * This is a Provider component for bridging multiple react roots
+ * @param props
+ * @param {React.Context} props.context
+ * @param {*} props.value
+ * @param {React.ReactNote} props.children
+ * @returns {React.ReactElement}
+ * @example
+ * const valueToBridge = useContext(PersonContext);
+ * return (
+ *   <Renderer>
+ *     <BridgeProvider context={PersonContext} value={valueToBridge}>
+ *       {children}
+ *     </Bidge>
+ *   </Renderer>
+ * );
+ */
+export const BridgeProvider = ({ context, value, children }) => {
+  const { [ORIGINAL_PROVIDER]: Provider } = context;
+  if (process.env.NODE_ENV !== 'production') {
+    if (!Provider) {
+      throw new Error('BridgeProvider requires special context');
+    }
+  }
+  return React.createElement(Provider, { value }, children);
+};
