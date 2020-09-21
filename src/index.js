@@ -102,6 +102,8 @@ export const useContextSelector = (context, selector) => {
   return selected;
 };
 
+const identity = (x) => x;
+
 /**
  * This hook returns the entire context value.
  * Use this instead of React.useContext for consistent behavior.
@@ -110,26 +112,7 @@ export const useContextSelector = (context, selector) => {
  * @example
  * const person = useContext(PersonContext);
  */
-export const useContext = (context) => {
-  const listeners = context[CONTEXT_LISTENERS];
-  if (process.env.NODE_ENV !== 'production') {
-    if (!listeners) {
-      throw new Error('useContext requires special context');
-    }
-  }
-  const [, forceUpdate] = React.useReducer((c) => c + 1, 0);
-  const value = React.useContext(context);
-  useIsoLayoutEffect(() => {
-    const callback = () => {
-      forceUpdate();
-    };
-    listeners.add(callback);
-    return () => {
-      listeners.delete(callback);
-    };
-  }, [listeners]);
-  return value;
-};
+export const useContext = (context) => useContextSelector(context, identity);
 
 /**
  * This is a Provider component for bridging multiple react roots

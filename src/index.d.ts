@@ -11,4 +11,5 @@ export const useContext: <T>(
   context: Context<T>,
 ) => T;
 
-export const BridgeProvider: FC<{ context: Context<unknown>; value: unknown }>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const BridgeProvider: FC<{ context: Context<any>; value: any }>;
