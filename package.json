@@ -1,10 +1,7 @@
 {
   "name": "use-context-selector",
   "description": "React useContextSelector hook in userland",
-  "version": "1.1.4-beta.2",
-  "publishConfig": {
-    "tag": "beta"
-  },
+  "version": "1.1.4",
   "author": "Daishi Kato",
   "repository": {
     "type": "git",
