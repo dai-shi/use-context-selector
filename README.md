@@ -165,7 +165,7 @@ return (
   <Renderer>
     <BridgeProvider context={PersonContext} value={valueToBridge}>
       {children}
-    </Bidge>
+    </BridgeProvider>
   </Renderer>
 );
 ```
