@@ -127,7 +127,7 @@ export const useContext = (context) => useContextSelector(context, identity);
  *   <Renderer>
  *     <BridgeProvider context={PersonContext} value={valueToBridge}>
  *       {children}
- *     </Bidge>
+ *     </BridgeProvider>
  *   </Renderer>
  * );
  */
