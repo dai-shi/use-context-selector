@@ -19,7 +19,7 @@ import {
   useRef,
 } from 'react';
 import {
-  unstable_ImmediatePriority as ImmediatePriority,
+  unstable_UserBlockingPriority as UserBlockingPriority,
   unstable_NormalPriority as NormalPriority,
   unstable_runWithPriority as runWithPriority,
   unstable_getCurrentPriorityLevel as getCurrentPriorityLevel,
@@ -72,7 +72,7 @@ const createProvider = <Value>(ProviderOrig: Provider<ContextValue<Value>>) => {
       [SOURCE_SYMBOL]: createMutableSource(ref, () => ref.current.v),
       [UPDATE_SYMBOL]: <T>(thunk: () => T) => {
         priorityRef.current = getCurrentPriorityLevel();
-        return runWithPriority(ImmediatePriority, thunk);
+        return runWithPriority(UserBlockingPriority, thunk);
       },
     }), []);
     useIsoLayoutEffect(() => {
