@@ -173,6 +173,32 @@ const update = useContextUpdate();
 update(() => setState(...));
 ```
 
+### BridgeProvider
+
+This is a Provider component for bridging multiple react roots
+
+#### Parameters
+
+-   `props` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
+    -   `props.context` **React.Context** 
+    -   `props.value` **any** 
+    -   `props.children` **React.ReactNote** 
+
+#### Examples
+
+```javascript
+const valueToBridge = useContext(PersonContext);
+return (
+  <Renderer>
+    <BridgeProvider context={PersonContext} value={valueToBridge}>
+      {children}
+    </BridgeProvider>
+  </Renderer>
+);
+```
+
+Returns **React.ReactElement** 
+
 ## Limitations
 
 -   In order to stop propagation, `children` of a context provider has to be either created outside of the provider or memoized with `React.memo`.

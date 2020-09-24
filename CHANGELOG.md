@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.1.4] - 2020-09-22
+### Added
+- BridgeProvider for multiple react roots
+
 ## [1.1.3] - 2020-09-17
 ### Changed
 - useIsoLayoutEffect for SSR
