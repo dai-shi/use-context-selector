@@ -39,6 +39,8 @@ const FUNCTION_SYMBOL = Symbol();
 // eslint-disable-next-line @typescript-eslint/ban-types
 const functionMap = new WeakMap<Function, { [FUNCTION_SYMBOL]: Function }>();
 
+const ORIGINAL_PROVIDER = Symbol();
+
 // @ts-ignore
 type ContextValue<Value> = {
   [SOURCE_SYMBOL]: any;
@@ -121,6 +123,9 @@ export function createContext<Value>(defaultValue: Value) {
     [SOURCE_SYMBOL]: createDefaultSource(defaultValue),
     [UPDATE_SYMBOL]: (thunk) => thunk(),
   });
+  (context as unknown as {
+    [ORIGINAL_PROVIDER]: Provider<ContextValue<Value>>;
+  })[ORIGINAL_PROVIDER] = context.Provider;
   (context as unknown as Context<Value>).Provider = createProvider(context.Provider);
   delete context.Consumer; // no support for Consumer
   return context as unknown as Context<Value>;
@@ -217,3 +222,31 @@ export function useContextUpdate(
   }
   return update;
 }
+
+/**
+ * This is a Provider component for bridging multiple react roots
+ *
+ * @example
+ * const valueToBridge = useContext(PersonContext);
+ * return (
+ *   <Renderer>
+ *     <BridgeProvider context={PersonContext} value={valueToBridge}>
+ *       {children}
+ *     </BridgeProvider>
+ *   </Renderer>
+ * );
+ */
+export const BridgeProvider: React.FC<{
+  context: Context<any>;
+  value: any;
+}> = ({ context, value, children }) => {
+  const { [ORIGINAL_PROVIDER]: ProviderOrig } = context as unknown as {
+    [ORIGINAL_PROVIDER]: Provider<unknown>;
+  };
+  if (process.env.NODE_ENV !== 'production') {
+    if (!ProviderOrig) {
+      throw new Error('BridgeProvider requires special context');
+    }
+  }
+  return createElement(ProviderOrig, { value }, children);
+};

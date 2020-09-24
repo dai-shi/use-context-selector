@@ -177,12 +177,14 @@ update(() => setState(...));
 
 This is a Provider component for bridging multiple react roots
 
+Type: React.FC&lt;{context: Context&lt;any>, value: any}>
+
 #### Parameters
 
--   `props` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
-    -   `props.context` **React.Context** 
-    -   `props.value` **any** 
-    -   `props.children` **React.ReactNote** 
+-   `$0` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
+    -   `$0.context`  
+    -   `$0.value`  
+    -   `$0.children`  
 
 #### Examples
 
@@ -196,8 +198,6 @@ return (
   </Renderer>
 );
 ```
-
-Returns **React.ReactElement** 
 
 ## Limitations
 
