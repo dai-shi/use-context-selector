@@ -13,7 +13,6 @@ import {
   useCallback,
   useContext as useContextOrig,
   useLayoutEffect,
-  useEffect,
   useMemo,
   // @ts-ignore
   unstable_useMutableSource as useMutableSource,
@@ -26,12 +25,12 @@ import {
   unstable_getCurrentPriorityLevel as getCurrentPriorityLevel,
 } from 'scheduler';
 
-const isClient = (
-  typeof window !== 'undefined'
-  && !/ServerSideRendering/.test(window.navigator && window.navigator.userAgent)
-);
+const isSSR = typeof window === 'undefined'
+  || /ServerSideRendering/.test(window.navigator && window.navigator.userAgent);
 
-const useIsomorphicLayoutEffect = isClient ? useLayoutEffect : useEffect;
+const useIsoLayoutEffect = isSSR
+  ? (fn: () => void) => fn()
+  : useLayoutEffect;
 
 const SOURCE_SYMBOL = Symbol();
 const UPDATE_SYMBOL = Symbol();
@@ -74,7 +73,7 @@ const createProvider = <Value>(ProviderOrig: Provider<ContextValue<Value>>) => {
         return runWithPriority(ImmediatePriority, thunk);
       },
     }), []);
-    useIsomorphicLayoutEffect(() => {
+    useIsoLayoutEffect(() => {
       if (contextValue[SOURCE_SYMBOL]._workInProgressVersionSecondary !== null) {
         ref.current.s = value; // update secondary value
       } else {
