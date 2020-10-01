@@ -34,7 +34,7 @@ const createProvider = (OrigProvider) => (
         versionRef.current += 1;
         setVersion(versionRef.current);
         listeners.current.forEach((listener) => listener(versionRef.current));
-        return thunk();
+        thunk();
       });
     }, []);
     useIsoLayoutEffect(() => {
