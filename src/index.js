@@ -1,6 +1,17 @@
 import React from 'react';
+import {
+  unstable_NormalPriority as NormalPriority,
+  unstable_runWithPriority as runWithPriority,
+} from 'scheduler';
 
-const CONTEXT_LISTENERS = Symbol();
+import { batchedUpdates } from './batchedUpdates';
+
+const VALUE_PROP = 'v';
+const VERSION_PROP = 'p';
+const LISTENERS_PROP = 'l';
+const UPDATE_PROP = 'u';
+
+const CONTEXT_VALUE = Symbol();
 const ORIGINAL_PROVIDER = Symbol();
 
 const isSSR = typeof window === 'undefined'
@@ -10,28 +21,44 @@ export const useIsoLayoutEffect = isSSR
   ? (fn) => fn()
   : React.useLayoutEffect;
 
-const createProvider = (OrigProvider, listeners) => React.memo(({ value, children }) => {
-  if (process.env.NODE_ENV !== 'production') {
-    // we use layout effect to eliminate warnings.
-    // but, this leads tearing with startTransition.
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useIsoLayoutEffect(() => {
-      listeners.forEach((listener) => {
-        listener(value);
+const createProvider = (OrigProvider) => (
+  React.memo(({ value, children }) => {
+    const [version, setVersion] = React.useState(0);
+    const versionRef = React.useRef(0);
+    const listeners = React.useRef();
+    if (!listeners.current) {
+      listeners.current = new Set();
+    }
+    const update = React.useCallback((thunk) => {
+      batchedUpdates(() => {
+        versionRef.current += 1;
+        setVersion(versionRef.current);
+        listeners.current.forEach((listener) => listener(versionRef.current));
+        return thunk();
       });
-    });
-  } else {
-    // we call listeners in render for optimization.
-    // although this is not a recommended pattern,
-    // so far this is only the way to make it as expected.
-    // we are looking for better solutions.
-    // https://github.com/dai-shi/use-context-selector/pull/12
-    listeners.forEach((listener) => {
-      listener(value);
-    });
-  }
-  return React.createElement(OrigProvider, { value }, children);
-});
+    }, []);
+    useIsoLayoutEffect(() => {
+      versionRef.current += 1;
+      setVersion(versionRef.current);
+      runWithPriority(NormalPriority, () => {
+        listeners.current.forEach((listener) => {
+          listener(versionRef.current, value);
+        });
+      });
+    }, [value]);
+    const contextValue = {
+      [VALUE_PROP]: value,
+      [VERSION_PROP]: version,
+      [LISTENERS_PROP]: listeners.current,
+      [UPDATE_PROP]: update,
+    };
+    return React.createElement(
+      OrigProvider,
+      { value: { [CONTEXT_VALUE]: contextValue } },
+      children,
+    );
+  })
+);
 
 /**
  * This creates a special context for `useContextSelector`.
@@ -43,12 +70,10 @@ const createProvider = (OrigProvider, listeners) => React.memo(({ value, childre
 export const createContext = (defaultValue) => {
   // make changedBits always zero
   const context = React.createContext(defaultValue, () => 0);
-  // shared listeners (not ideal)
-  context[CONTEXT_LISTENERS] = new Set();
   // original provider
   context[ORIGINAL_PROVIDER] = context.Provider;
   // hacked provider
-  context.Provider = createProvider(context.Provider, context[CONTEXT_LISTENERS]);
+  context.Provider = createProvider(context.Provider);
   // no support for consumer
   delete context.Consumer;
   return context;
@@ -65,14 +90,17 @@ export const createContext = (defaultValue) => {
  * const firstName = useContextSelector(PersonContext, state => state.firstName);
  */
 export const useContextSelector = (context, selector) => {
-  const listeners = context[CONTEXT_LISTENERS];
+  const contextValue = React.useContext(context)[CONTEXT_VALUE];
   if (process.env.NODE_ENV !== 'production') {
-    if (!listeners) {
+    if (!contextValue) {
       throw new Error('useContextSelector requires special context');
     }
   }
-  const [, forceUpdate] = React.useReducer((c) => c + 1, 0);
-  const value = React.useContext(context);
+  const {
+    [VALUE_PROP]: value,
+    [VERSION_PROP]: version,
+    [LISTENERS_PROP]: listeners,
+  } = contextValue;
   const selected = selector(value);
   const ref = React.useRef(null);
   useIsoLayoutEffect(() => {
@@ -82,8 +110,22 @@ export const useContextSelector = (context, selector) => {
       s: selected, // last "s"elected value
     };
   });
+  const [, checkUpdate] = React.useReducer((c, v) => {
+    if (version < v) {
+      return c + 1; // schedule update
+    }
+    try {
+      if (ref.current.v === value
+        || Object.is(ref.current.s, ref.current.f(value))) {
+        return c; // bail out
+      }
+    } catch (e) {
+      // ignored (stale props or some other reason)
+    }
+    return c + 1;
+  }, 0);
   useIsoLayoutEffect(() => {
-    const callback = (nextValue) => {
+    const callback = (nextVersion, nextValue) => {
       try {
         if (ref.current.v === nextValue
           || Object.is(ref.current.s, ref.current.f(nextValue))) {
@@ -92,7 +134,7 @@ export const useContextSelector = (context, selector) => {
       } catch (e) {
         // ignored (stale props or some other reason)
       }
-      forceUpdate();
+      checkUpdate(nextVersion);
     };
     listeners.add(callback);
     return () => {
@@ -113,6 +155,28 @@ const identity = (x) => x;
  * const person = useContext(PersonContext);
  */
 export const useContext = (context) => useContextSelector(context, identity);
+
+/**
+ * This hook returns an update function that accepts a thunk function
+ *
+ * Use this for a function that will change a value.
+ *
+ * @example
+ * import { useContextUpdate } from 'use-context-selector';
+ *
+ * const update = useContextUpdate();
+ * update(() => setState(...));
+ */
+export const useContextUpdate = (context) => {
+  const contextValue = React.useContext(context)[CONTEXT_VALUE];
+  if (process.env.NODE_ENV !== 'production') {
+    if (!contextValue) {
+      throw new Error('useContextUpdate requires special context');
+    }
+  }
+  const { [UPDATE_PROP]: update } = contextValue;
+  return update;
+};
 
 /**
  * This is a Provider component for bridging multiple react roots

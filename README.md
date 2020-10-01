@@ -146,6 +146,25 @@ const person = useContext(PersonContext);
 
 Returns **any** 
 
+### useContextUpdate
+
+This hook returns an update function that accepts a thunk function
+
+Use this for a function that will change a value.
+
+#### Parameters
+
+-   `context`  
+
+#### Examples
+
+```javascript
+import { useContextUpdate } from 'use-context-selector';
+
+const update = useContextUpdate();
+update(() => setState(...));
+```
+
 ### BridgeProvider
 
 This is a Provider component for bridging multiple react roots
