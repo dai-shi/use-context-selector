@@ -30,7 +30,8 @@
     "import/extensions": ["error", "never"],
     "import/no-unresolved": ["error", { "ignore": ["use-context-selector"] }],
     "symbol-description": "off",
-    "no-underscore-dangle": "off"
+    "no-underscore-dangle": "off",
+    "no-use-before-define": "off"
   },
   "overrides": [{
     "files": ["__tests__/**/*"],

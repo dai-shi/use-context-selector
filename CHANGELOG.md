@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.2.0] - 2020-10-01
+### Added
+- useContextUpdate for state branching support
+
 ## [1.1.4] - 2020-09-22
 ### Added
 - BridgeProvider for multiple react roots
