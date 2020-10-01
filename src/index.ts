@@ -41,11 +41,13 @@ const functionMap = new WeakMap<Function, { [FUNCTION_SYMBOL]: Function }>();
 
 const ORIGINAL_PROVIDER = Symbol();
 
+/* eslint-disable no-unused-vars, @typescript-eslint/no-unused-vars */
 // @ts-ignore
 type ContextValue<Value> = {
   [SOURCE_SYMBOL]: any;
   [UPDATE_SYMBOL]: <T>(thunk: () => T) => T;
 };
+/* eslint-enable no-unused-vars, @typescript-eslint/no-unused-vars */
 
 type RefValue<Value> = MutableRefObject<{
   v: number; // "v" = version
@@ -127,7 +129,7 @@ export function createContext<Value>(defaultValue: Value) {
     [ORIGINAL_PROVIDER]: Provider<ContextValue<Value>>;
   })[ORIGINAL_PROVIDER] = context.Provider;
   (context as unknown as Context<Value>).Provider = createProvider(context.Provider);
-  delete context.Consumer; // no support for Consumer
+  delete (context as any).Consumer; // no support for Consumer
   return context as unknown as Context<Value>;
 }
 
@@ -140,11 +142,11 @@ const subscribe = (
   return () => listeners.delete(callback);
 };
 
-export function useContext<Value>(context: Context<Value>): Value
+export function useContext<Value>(context: Context<Value>): Value;
 export function useContext<Value, Selected>(
   context: Context<Value>,
   selector: (value: Value) => Selected,
-): Selected
+): Selected;
 
 /**
  * This hook returns context value with optional selector.
@@ -236,7 +238,7 @@ export function useContextUpdate(
  *   </Renderer>
  * );
  */
-export const BridgeProvider: React.FC<{
+export const BridgeProvider: FC<{
   context: Context<any>;
   value: any;
 }> = ({ context, value, children }) => {
