@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.2.2] - 2020-10-02
+### Added
+- useIsomorphicLayoutEffect for SSR (#25)
+
 ## [1.2.1] - 2020-10-01
 ### Added
 - Type definition for useContextUpdate
