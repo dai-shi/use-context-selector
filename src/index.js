@@ -14,12 +14,12 @@ const UPDATE_PROP = 'u';
 const CONTEXT_VALUE = Symbol();
 const ORIGINAL_PROVIDER = Symbol();
 
-const isSSR = typeof window === 'undefined'
-  || /ServerSideRendering/.test(window.navigator && window.navigator.userAgent);
+const isClient = (
+  typeof window !== 'undefined'
+  && !/ServerSideRendering/.test(window.navigator && window.navigator.userAgent)
+);
 
-export const useIsoLayoutEffect = isSSR
-  ? (fn) => fn()
-  : React.useLayoutEffect;
+const useIsomorphicLayoutEffect = isClient ? React.useLayoutEffect : React.useEffect;
 
 const createProvider = (OrigProvider) => (
   React.memo(({ value, children }) => {
@@ -37,7 +37,7 @@ const createProvider = (OrigProvider) => (
         thunk();
       });
     }, []);
-    useIsoLayoutEffect(() => {
+    useIsomorphicLayoutEffect(() => {
       versionRef.current += 1;
       setVersion(versionRef.current);
       runWithPriority(NormalPriority, () => {
@@ -103,7 +103,7 @@ export const useContextSelector = (context, selector) => {
   } = contextValue;
   const selected = selector(value);
   const ref = React.useRef(null);
-  useIsoLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     ref.current = {
       f: selector, // last selector "f"unction
       v: value, // last "v"alue
@@ -124,7 +124,7 @@ export const useContextSelector = (context, selector) => {
     }
     return c + 1;
   }, 0);
-  useIsoLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     const callback = (nextVersion, nextValue) => {
       try {
         if (ref.current.v === nextValue
