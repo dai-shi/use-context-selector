@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+## [1.2.5] - 2020-10-03
+### Changed
+- Again fix bundle for React Native (#27)
+
+## [1.2.4] - 2020-10-03
+### Changed
+- Fix bundle for React Native (#26)
+
+## [1.2.3] - 2020-10-03
+### Changed
+- Fix back porting bug in v1.2.0-v1.2.2
+
 ## [1.2.2] - 2020-10-02
 ### Added
 - useIsomorphicLayoutEffect for SSR (#25)
