@@ -13,7 +13,7 @@ however it's known that there's a performance issue.
 When a context value is changed, all components that useContext
 will re-render.
 
-[useContextSelector](https://github.com/reactjs/rfcs/pull/119) is recently proposed.
+[useContextSelector](https://github.com/reactjs/rfcs/pull/119) is proposed.
 While waiting for the process, this library provides the API in userland.
 
 ## Install
@@ -193,7 +193,6 @@ Returns **React.ReactElement**
 
 ## Limitations
 
--   Subscriptions are per-context basis. So, even if there are multiple context providers in a component tree, all components are subscribed to all providers. This may lead false positives (extra re-renders).
 -   In order to stop propagation, `children` of a context provider has to be either created outside of the provider or memoized with `React.memo`.
 -   Provider trigger re-renders only if the context value is referentially changed.
 -   Context consumers are not supported.
