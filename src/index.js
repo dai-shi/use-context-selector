@@ -127,8 +127,8 @@ export const useContextSelector = (context, selector) => {
   useIsomorphicLayoutEffect(() => {
     const callback = (nextVersion, nextValue) => {
       try {
-        if (ref.current.v === nextValue
-          || Object.is(ref.current.s, ref.current.f(nextValue))) {
+        if (nextValue && (ref.current.v === nextValue
+          || Object.is(ref.current.s, ref.current.f(nextValue)))) {
           return;
         }
       } catch (e) {
