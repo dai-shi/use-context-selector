@@ -17,7 +17,8 @@
     "dist"
   ],
   "scripts": {
-    "compile": "microbundle build -f modern,umd",
+    "compile": "microbundle build -f modern,umd --external ./batchedUpdates",
+    "postcompile": "cp src/batchedUpdates*.js dist",
     "test": "run-s eslint tsc-test jest",
     "eslint": "eslint --ext .js,.ts,.tsx --ignore-pattern dist .",
     "jest": "jest",
