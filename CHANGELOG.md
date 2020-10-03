@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## [1.2.3] - 2020-10-03
 ### Changed
 ## Fix back porting bug in v1.2.0-v1.2.2
 
