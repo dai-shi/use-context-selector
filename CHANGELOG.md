@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.2.5] - 2020-10-03
+### Changed
+- Again fix bundle for React Native (#27)
+
 ## [1.2.4] - 2020-10-03
 ### Changed
 - Fix bundle for React Native (#26)
