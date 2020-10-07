@@ -17,3 +17,7 @@ export const useContextUpdate: <T>(
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const BridgeProvider: FC<{ context: Context<any>; value: any }>;
+
+export const useBridgeValue: <T>(
+  context: Context<T>,
+) => unknown;

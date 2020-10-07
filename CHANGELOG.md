@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.2.7] - 2020-10-08
+### Changed
+- Fix missing useBridgeValue type
+
 ## [1.2.6] - 2020-10-08
 ### Added
 - useBridgeValue for BridgeProvider
