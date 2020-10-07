@@ -179,7 +179,7 @@ This is a Provider component for bridging multiple react roots
 #### Examples
 
 ```javascript
-const valueToBridge = useContext(PersonContext);
+const valueToBridge = useBridgeValue(PersonContext);
 return (
   <Renderer>
     <BridgeProvider context={PersonContext} value={valueToBridge}>
@@ -190,6 +190,16 @@ return (
 ```
 
 Returns **React.ReactElement** 
+
+### useBridgeValue
+
+This hook return a value for BridgeProvider
+
+#### Parameters
+
+-   `context` **React.Context** 
+
+Returns **any** 
 
 ## Limitations
 

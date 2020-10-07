@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- useBridgeValue for BridgeProvider
 
 ## [1.2.5] - 2020-10-03
 ### Changed

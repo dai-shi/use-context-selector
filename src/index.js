@@ -186,7 +186,7 @@ export const useContextUpdate = (context) => {
  * @param {React.ReactNote} props.children
  * @returns {React.ReactElement}
  * @example
- * const valueToBridge = useContext(PersonContext);
+ * const valueToBridge = useBridgeValue(PersonContext);
  * return (
  *   <Renderer>
  *     <BridgeProvider context={PersonContext} value={valueToBridge}>
@@ -203,4 +203,19 @@ export const BridgeProvider = ({ context, value, children }) => {
     }
   }
   return React.createElement(Provider, { value }, children);
+};
+
+/**
+ * This hook return a value for BridgeProvider
+ * @param {React.Context} context
+ * @returns {*}
+ */
+export const useBridgeValue = (context) => {
+  if (process.env.NODE_ENV !== 'production') {
+    const { [ORIGINAL_PROVIDER]: Provider } = context;
+    if (!Provider) {
+      throw new Error('useBridgeValue requires special context');
+    }
+  }
+  return React.useContext(context);
 };
