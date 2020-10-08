@@ -211,11 +211,22 @@ export const BridgeProvider = ({ context, value, children }) => {
  * @returns {*}
  */
 export const useBridgeValue = (context) => {
+  const bridgeValue = React.useContext(context);
+  const contextValue = bridgeValue[CONTEXT_VALUE];
   if (process.env.NODE_ENV !== 'production') {
-    const { [ORIGINAL_PROVIDER]: Provider } = context;
-    if (!Provider) {
+    if (!contextValue) {
       throw new Error('useBridgeValue requires special context');
     }
   }
-  return React.useContext(context);
+  const {
+    [LISTENERS_PROP]: listeners,
+  } = contextValue;
+  const [, forceUpdate] = React.useReducer((c) => c + 1, 0);
+  useIsomorphicLayoutEffect(() => {
+    listeners.add(forceUpdate);
+    return () => {
+      listeners.delete(forceUpdate);
+    };
+  }, [listeners]);
+  return bridgeValue;
 };

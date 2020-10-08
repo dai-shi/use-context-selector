@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- Fix incomplete useBridgeValue implementation
 
 ## [1.2.7] - 2020-10-08
 ### Changed
