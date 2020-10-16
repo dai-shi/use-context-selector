@@ -19,8 +19,10 @@
   ],
   "scripts": {
     "compile": "run-s compile:*",
-    "compile:dom": "microbundle build -f modern,umd --define REACT_NATIVE=false",
-    "compile:native": "microbundle build -f modern,umd -o ./dist/index.native.js --define REACT_NATIVE=true",
+    "compile:dom": "microbundle build -f modern,umd",
+    "precompile:native": "mkdir src/native && cp src/index.js src/native/index.js && cp src/batchedUpdates.native.js src/native/batchedUpdates.js",
+    "compile:native": "microbundle build -f modern,umd -i ./src/native/index.js -o ./dist/index.native.js",
+    "postcompile:native": "rm -r src/native",
     "test": "run-s eslint tsc-test jest",
     "eslint": "eslint --ext .js,.ts,.tsx --ignore-pattern dist .",
     "jest": "jest",
@@ -75,11 +77,6 @@
   "peerDependenciesMeta": {
     "react-dom": {
       "optional": true
-    }
-  },
-  "jest": {
-    "globals": {
-      "REACT_NATIVE": false
     }
   },
   "babel": {
