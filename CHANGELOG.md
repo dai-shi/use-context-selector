@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.2.9] - 2020-10-16
+### Changed
+- Fix compile script for ESM build
+
 ## [1.2.8] - 2020-10-08
 ### Changed
 - Fix incomplete useBridgeValue implementation
