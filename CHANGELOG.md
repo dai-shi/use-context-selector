@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.2.10] - 2020-10-17
+### Added
+- Peer dependencies for React Native
+
 ## [1.2.9] - 2020-10-16
 ### Changed
 - Fix compile script for ESM build

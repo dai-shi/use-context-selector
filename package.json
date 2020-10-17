@@ -1,7 +1,7 @@
 {
   "name": "use-context-selector",
   "description": "React useContextSelector hook in userland",
-  "version": "1.2.9",
+  "version": "1.2.10",
   "author": "Daishi Kato",
   "repository": {
     "type": "git",
@@ -72,10 +72,14 @@
   "peerDependencies": {
     "react": ">=16.8.0",
     "scheduler": ">=0.19.0",
-    "react-dom": "*"
+    "react-dom": "*",
+    "react-native": "*"
   },
   "peerDependenciesMeta": {
     "react-dom": {
+      "optional": true
+    },
+    "react-native": {
       "optional": true
     }
   },
