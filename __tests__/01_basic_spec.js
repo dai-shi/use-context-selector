@@ -42,7 +42,7 @@ describe('basic spec', () => {
       return (
         <div>
           <span>{count2}</span>
-          <button type="button">+2</button>
+          <button type="button">+1</button>
           <span data-testid="counter2">{renderCount.current}</span>
         </div>
       );
