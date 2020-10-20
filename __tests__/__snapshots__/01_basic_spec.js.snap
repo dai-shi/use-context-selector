@@ -19,11 +19,6 @@ exports[`basic spec counter 1`] = `
     <span>
       0
     </span>
-    <button
-      type="button"
-    >
-      +1
-    </button>
     <span
       data-testid="counter2"
     >
@@ -52,11 +47,6 @@ exports[`basic spec counter 2`] = `
     <span>
       0
     </span>
-    <button
-      type="button"
-    >
-      +1
-    </button>
     <span
       data-testid="counter2"
     >

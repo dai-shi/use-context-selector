@@ -42,7 +42,6 @@ describe('basic spec', () => {
       return (
         <div>
           <span>{count2}</span>
-          <button type="button">+1</button>
           <span data-testid="counter2">{renderCount.current}</span>
         </div>
       );
@@ -63,9 +62,9 @@ describe('basic spec', () => {
         </StateProvider>
       </StrictMode>
     );
-    const { getAllByText, container } = render(<App />);
+    const { container } = render(<App />);
     expect(container).toMatchSnapshot();
-    fireEvent.click(getAllByText('+1')[0]);
+    fireEvent.click(screen.getByRole('button'));
     expect(screen.getByTestId('counter2').textContent).toEqual('1');
     expect(container).toMatchSnapshot();
   });
