@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+## [1.2.11] - 2020-11-09
 ### Changed
 - Fix default context value
 
