@@ -208,7 +208,7 @@ Type: React.FC&lt;{context: Context&lt;any>, value: any}>
 #### Examples
 
 ```javascript
-const valueToBridge = useContext(PersonContext);
+const valueToBridge = useBridgeValue(PersonContext);
 return (
   <Renderer>
     <BridgeProvider context={PersonContext} value={valueToBridge}>
@@ -217,6 +217,8 @@ return (
   </Renderer>
 );
 ```
+
+Returns **React.ReactElement** 
 
 ## Limitations
 

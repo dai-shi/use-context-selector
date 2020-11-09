@@ -7,7 +7,9 @@ import React, {
   StrictMode,
 } from 'react';
 
-import { render, fireEvent, cleanup } from '@testing-library/react';
+import {
+  render, fireEvent, cleanup, screen,
+} from '@testing-library/react';
 
 import {
   createContext,
@@ -48,18 +50,12 @@ describe('basic spec', () => {
     };
     const Counter2 = () => {
       const count2 = useContext(context, useCallback((v) => v[0].count2, []));
-      const setState = useContext(context, useCallback((v) => v[1], []));
-      const increment = () => setState((s) => ({
-        ...s,
-        count2: s.count2 + 1,
-      }));
       const renderCount = useRef(0);
       renderCount.current += 1;
       return (
         <div>
           <span>{count2}</span>
-          <button type="button" onClick={increment}>+1</button>
-          <span>{renderCount.current}</span>
+          <span data-testid="counter2">{renderCount.current}</span>
         </div>
       );
     };
@@ -79,9 +75,10 @@ describe('basic spec', () => {
         </StateProvider>
       </StrictMode>
     );
-    const { getAllByText, container } = render(<App />);
+    const { container } = render(<App />);
     expect(container).toMatchSnapshot();
-    fireEvent.click(getAllByText('+1')[0]);
+    fireEvent.click(screen.getByRole('button'));
+    expect(screen.getByTestId('counter2').textContent).toEqual('1');
     expect(container).toMatchSnapshot();
   });
 });

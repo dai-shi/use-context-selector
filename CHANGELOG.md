@@ -2,6 +2,30 @@
 
 ## [Unreleased]
 
+## [1.2.11] - 2020-11-09
+### Changed
+- Fix default context value
+
+## [1.2.10] - 2020-10-17
+### Added
+- Peer dependencies for React Native
+
+## [1.2.9] - 2020-10-16
+### Changed
+- Fix compile script for ESM build
+
+## [1.2.8] - 2020-10-08
+### Changed
+- Fix incomplete useBridgeValue implementation
+
+## [1.2.7] - 2020-10-08
+### Changed
+- Fix missing useBridgeValue type
+
+## [1.2.6] - 2020-10-08
+### Added
+- useBridgeValue for BridgeProvider
+
 ## [1.2.5] - 2020-10-03
 ### Changed
 - Again fix bundle for React Native (#27)
