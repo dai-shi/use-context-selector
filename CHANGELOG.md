@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Changed
+- Fix default context value
+
 ## [1.2.10] - 2020-10-17
 ### Added
 - Peer dependencies for React Native

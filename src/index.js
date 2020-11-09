@@ -69,7 +69,14 @@ const createProvider = (OrigProvider) => (
  */
 export const createContext = (defaultValue) => {
   // make changedBits always zero
-  const context = React.createContext(defaultValue, () => 0);
+  const context = React.createContext({
+    [CONTEXT_VALUE]: {
+      [VALUE_PROP]: defaultValue,
+      [VERSION_PROP]: -1,
+      [LISTENERS_PROP]: new Set(),
+      [UPDATE_PROP]: (f) => f(),
+    },
+  }, () => 0);
   // original provider
   context[ORIGINAL_PROVIDER] = context.Provider;
   // hacked provider
