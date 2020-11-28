@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- Re-implemente without latest ref for value/selected to fix edge cases
 
 ## [1.2.11] - 2020-11-09
 ### Changed

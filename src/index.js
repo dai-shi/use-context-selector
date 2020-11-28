@@ -23,6 +23,7 @@ const useIsomorphicLayoutEffect = isClient ? React.useLayoutEffect : React.useEf
 
 const createProvider = (OrigProvider) => (
   React.memo(({ value, children }) => {
+    const lastValueRef = React.useRef(value);
     const [version, setVersion] = React.useState(0);
     const versionRef = React.useRef(0);
     const listeners = React.useRef();
@@ -33,18 +34,21 @@ const createProvider = (OrigProvider) => (
       batchedUpdates(() => {
         versionRef.current += 1;
         setVersion(versionRef.current);
-        listeners.current.forEach((listener) => listener(versionRef.current));
+        listeners.current.forEach((listener) => listener([versionRef.current]));
         thunk();
       });
     }, []);
     useIsomorphicLayoutEffect(() => {
-      versionRef.current += 1;
-      setVersion(versionRef.current);
-      runWithPriority(NormalPriority, () => {
-        listeners.current.forEach((listener) => {
-          listener(versionRef.current, value);
+      if (!Object.is(lastValueRef.current, value)) {
+        lastValueRef.current = value;
+        versionRef.current += 1;
+        setVersion(versionRef.current);
+        runWithPriority(NormalPriority, () => {
+          listeners.current.forEach((listener) => {
+            listener([versionRef.current, value]);
+          });
         });
-      });
+      }
     }, [value]);
     const contextValue = {
       [VALUE_PROP]: value,
@@ -109,43 +113,37 @@ export const useContextSelector = (context, selector) => {
     [LISTENERS_PROP]: listeners,
   } = contextValue;
   const selected = selector(value);
-  const ref = React.useRef(null);
+  const selectorRef = React.useRef(selector);
   useIsomorphicLayoutEffect(() => {
-    ref.current = {
-      f: selector, // last selector "f"unction
-      v: value, // last "v"alue
-      s: selected, // last "s"elected value
-    };
+    selectorRef.current = selector;
   });
-  const [, checkUpdate] = React.useReducer((c, v) => {
-    if (version < v) {
-      return c + 1; // schedule update
-    }
+  const [, checkUpdate] = React.useReducer((prev, next /* [nextVersion, nextValue] */) => {
     try {
-      if (ref.current.v === value
-        || Object.is(ref.current.s, ref.current.f(value))) {
-        return c; // bail out
+      if (next.length === 2 && prev.version !== version && (
+        Object.is(prev.value, next[1])
+        || Object.is(prev.selected, selectorRef.current(next[1])))) {
+        return prev; // bail out
       }
     } catch (e) {
       // ignored (stale props or some other reason)
     }
-    return c + 1;
-  }, 0);
-  useIsomorphicLayoutEffect(() => {
-    const callback = (nextVersion, nextValue) => {
-      try {
-        if (nextValue && (ref.current.v === nextValue
-          || Object.is(ref.current.s, ref.current.f(nextValue)))) {
-          return;
-        }
-      } catch (e) {
-        // ignored (stale props or some other reason)
+    if (version < next[0]) {
+      return { ...prev }; // schedule update
+    }
+    try {
+      if (Object.is(prev.value, value)
+        || Object.is(prev.selected, selected)) {
+        return prev; // bail out
       }
-      checkUpdate(nextVersion);
-    };
-    listeners.add(callback);
+    } catch (e) {
+      // ignored (stale props or some other reason)
+    }
+    return { value, selected, version };
+  }, { value, selected, version });
+  useIsomorphicLayoutEffect(() => {
+    listeners.add(checkUpdate);
     return () => {
-      listeners.delete(callback);
+      listeners.delete(checkUpdate);
     };
   }, [listeners]);
   return selected;
