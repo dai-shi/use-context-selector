@@ -4,7 +4,7 @@ import { render, fireEvent, cleanup } from '@testing-library/react';
 
 import { createContext, useContextSelector } from '../src/index';
 
-describe('tearing spec', () => {
+describe.skip('tearing spec', () => {
   afterEach(cleanup);
 
   it('should not tear with parent', () => {

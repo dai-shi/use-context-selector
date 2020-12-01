@@ -13,14 +13,28 @@ however it's known that there's a performance issue.
 When a context value is changed, all components that useContext
 will re-render.
 
-[useContextSelector](https://github.com/reactjs/rfcs/pull/119) is proposed.
-While waiting for the process, this library provides the API in userland.
+To solve this issue,
+[useContextSelector](https://github.com/reactjs/rfcs/pull/119)
+is proposed and later proposed
+[Speculative Mode](https://github.com/reactjs/rfcs/pull/150)
+with context selector support.
+This library provides the API in userland.
+
+Prior to v1.3, it uses `changedBits=0` feature to stop propagation,
+v1.3 no longer depends on this undocumented feature.
 
 ## Install
 
 ```bash
 npm install use-context-selector
 ```
+
+## Technical memo
+
+To make it work like original React context, it uses
+[useReducer cheat mode](https://overreacted.io/a-complete-guide-to-useeffect/#why-usereducer-is-the-cheat-mode-of-hooks) intentionally.
+It also requires `useContextUpdate` to behave better in Concurrent Mode.
+(You don't need to use it in Legacy Mode.)
 
 ## Usage
 
@@ -82,13 +96,6 @@ const App = () => (
 
 ReactDOM.render(<App />, document.getElementById('app'));
 ```
-
-## Technical memo
-
-React context by nature triggers propagation of component re-rendering
-if a value is changed. To avoid this, this library uses undocumented
-feature of `calculateChangedBits`. It then uses a subscription model
-to force update when a component needs to re-render.
 
 ## API
 
@@ -205,8 +212,9 @@ Returns **any**
 
 -   In order to stop propagation, `children` of a context provider has to be either created outside of the provider or memoized with `React.memo`.
 -   Provider trigger re-renders only if the context value is referentially changed.
--   Context consumers are not supported.
--   The [stale props](https://react-redux.js.org/api/hooks#stale-props-and-zombie-children) issue can't be solved in userland. (workaround with try-catch)
+-   Neither context consumers or class components are supported.
+-   The [stale props](https://react-redux.js.org/api/hooks#stale-props-and-zombie-children) issue can't be solved in userland.
+-   Tearing is only avoided within the Provider tree. A value outside the Provider will tear. (`02_tearing_spec` fails)
 
 ## Examples
 

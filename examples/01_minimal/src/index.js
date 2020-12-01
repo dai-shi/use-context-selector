@@ -63,12 +63,14 @@ const Provider = ({ children }) => {
 const App = () => (
   <StrictMode>
     <Provider>
-      <h1>Counter</h1>
-      <Counter />
-      <Counter />
-      <h1>TextBox</h1>
-      <TextBox />
-      <TextBox />
+      <div>
+        <h1>Counter</h1>
+        <Counter />
+        <Counter />
+        <h1>TextBox</h1>
+        <TextBox />
+        <TextBox />
+      </div>
     </Provider>
   </StrictMode>
 );
