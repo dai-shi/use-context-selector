@@ -17,19 +17,7 @@ module.exports = {
   ],
   module: {
     rules: [{
-      test: /\.jsx?$/,
-      exclude: /node_modules/,
-      use: [{
-        loader: 'babel-loader',
-        options: {
-          presets: [
-            '@babel/preset-env',
-            '@babel/preset-react',
-          ],
-        },
-      }],
-    }, {
-      test: /\.tsx?$/,
+      test: /\.[jt]sx?$/,
       exclude: /node_modules/,
       loader: 'ts-loader',
       options: {

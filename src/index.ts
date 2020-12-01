@@ -1,4 +1,18 @@
-import React from 'react';
+import {
+  ComponentType,
+  Context as ContextOrig,
+  FC,
+  MutableRefObject,
+  Provider,
+  createElement,
+  createContext as createContextOrig,
+  memo,
+  useContext as useContextOrig,
+  useEffect,
+  useLayoutEffect,
+  useReducer,
+  useRef,
+} from 'react';
 import {
   unstable_NormalPriority as NormalPriority,
   unstable_runWithPriority as runWithPriority,
@@ -14,21 +28,33 @@ const UPDATE_PROP = 'u';
 const CONTEXT_VALUE = Symbol();
 const ORIGINAL_PROVIDER = Symbol();
 
-const isClient = (
-  typeof window !== 'undefined'
-  && !/ServerSideRendering/.test(window.navigator && window.navigator.userAgent)
-);
+const isSSR = typeof window === 'undefined'
+  || /ServerSideRendering/.test(window.navigator && window.navigator.userAgent);
 
-const useIsomorphicLayoutEffect = isClient ? React.useLayoutEffect : React.useEffect;
+const useIsomorphicLayoutEffect = isSSR ? useEffect : useLayoutEffect;
 
-const createProvider = (OrigProvider) => (
-  React.memo(({ value, children }) => {
-    const valueRef = React.useRef(value);
-    const versionRef = React.useRef(0);
-    const contextValue = React.useRef();
+type ContextValue<Value> = {
+  [CONTEXT_VALUE]: {
+    [VALUE_PROP]: MutableRefObject<Value>;
+    [VERSION_PROP]: MutableRefObject<number>;
+    [LISTENERS_PROP]: Set<(action: [number] | [number, Value]) => void>;
+    [UPDATE_PROP]: <T>(thunk: () => T) => void;
+  };
+};
+
+export interface Context<Value> {
+  Provider: ComponentType<{ value: Value }>;
+  displayName?: string;
+}
+
+const createProvider = <Value>(ProviderOrig: Provider<ContextValue<Value>>) => (
+  memo<{ value: Value }>(({ value, children }) => {
+    const valueRef = useRef(value);
+    const versionRef = useRef(0);
+    const contextValue = useRef<ContextValue<Value>>();
     if (!contextValue.current) {
-      const listeners = new Set();
-      const update = (thunk) => {
+      const listeners = new Set<(action: [number] | [number, Value]) => void>();
+      const update = (thunk: () => void) => {
         batchedUpdates(() => {
           versionRef.current += 1;
           listeners.forEach((listener) => listener([versionRef.current]));
@@ -49,29 +75,34 @@ const createProvider = (OrigProvider) => (
         valueRef.current = value;
         versionRef.current += 1;
         runWithPriority(NormalPriority, () => {
-          contextValue.current[CONTEXT_VALUE][LISTENERS_PROP].forEach((listener) => {
+          (contextValue.current as ContextValue<Value>)[
+            CONTEXT_VALUE
+          ][LISTENERS_PROP].forEach((listener) => {
             listener([versionRef.current, value]);
           });
         });
       }
     }, [value]);
-    return React.createElement(
-      OrigProvider,
+    return createElement(
+      ProviderOrig,
       { value: contextValue.current },
       children,
     );
   })
 );
 
+const identity = <T>(x: T) => x;
+
 /**
  * This creates a special context for `useContextSelector`.
- * @param {*} defaultValue
- * @returns {React.Context}
+ *
  * @example
+ * import { createContext } from 'use-context-selector';
+ *
  * const PersonContext = createContext({ firstName: '', familyName: '' });
  */
-export const createContext = (defaultValue) => {
-  const context = React.createContext({
+export function createContext<Value>(defaultValue: Value) {
+  const context = createContextOrig<ContextValue<Value>>({
     [CONTEXT_VALUE]: {
       [VALUE_PROP]: { current: defaultValue },
       [VERSION_PROP]: { current: -1 },
@@ -79,27 +110,34 @@ export const createContext = (defaultValue) => {
       [UPDATE_PROP]: (f) => f(),
     },
   });
-  // original provider
-  context[ORIGINAL_PROVIDER] = context.Provider;
-  // hacked provider
-  context.Provider = createProvider(context.Provider);
-  // no support for consumer
-  delete context.Consumer;
-  return context;
-};
+  (context as unknown as {
+    [ORIGINAL_PROVIDER]: Provider<ContextValue<Value>>;
+  })[ORIGINAL_PROVIDER] = context.Provider;
+  (context as unknown as Context<Value>).Provider = createProvider(context.Provider);
+  delete (context as any).Consumer; // no support for Consumer
+  return context as unknown as Context<Value>;
+}
 
 /**
  * This hook returns context selected value by selector.
+ *
  * It will only accept context created by `createContext`.
  * It will trigger re-render if only the selected value is referentially changed.
- * @param {React.Context} context
- * @param {Function} selector
- * @returns {*}
+ *
+ * The selector should return referentially equal result for same input for better performance.
+ *
  * @example
+ * import { useContextSelector } from 'use-context-selector';
+ *
  * const firstName = useContextSelector(PersonContext, state => state.firstName);
  */
-export const useContextSelector = (context, selector) => {
-  const contextValue = React.useContext(context)[CONTEXT_VALUE];
+export function useContextSelector<Value, Selected>(
+  context: Context<Value>,
+  selector: (value: Value) => Selected,
+) {
+  const contextValue = useContextOrig(
+    context as unknown as ContextOrig<ContextValue<Value>>,
+  )[CONTEXT_VALUE];
   if (process.env.NODE_ENV !== 'production') {
     if (!contextValue) {
       throw new Error('useContextSelector requires special context');
@@ -111,7 +149,10 @@ export const useContextSelector = (context, selector) => {
     [LISTENERS_PROP]: listeners,
   } = contextValue;
   const selected = selector(value);
-  const [, dispatch] = React.useReducer((prev, next /* [nextVersion, nextValue] */) => {
+  const [, dispatch] = useReducer((
+    prev: { value: Value, selected: Selected },
+    next: [number] | [number, Value],
+  ) => {
     if (version < next[0]) {
       try {
         if (next.length === 2 && (
@@ -137,19 +178,20 @@ export const useContextSelector = (context, selector) => {
     };
   }, [listeners]);
   return selected;
-};
-
-const identity = (x) => x;
+}
 
 /**
  * This hook returns the entire context value.
  * Use this instead of React.useContext for consistent behavior.
- * @param {React.Context} context
- * @returns {*}
+ *
  * @example
+ * import { useContext } from 'use-context-selector';
+ *
  * const person = useContext(PersonContext);
  */
-export const useContext = (context) => useContextSelector(context, identity);
+export function useContext<Value>(context: Context<Value>) {
+  return useContextSelector(context, identity);
+}
 
 /**
  * This hook returns an update function that accepts a thunk function
@@ -162,8 +204,12 @@ export const useContext = (context) => useContextSelector(context, identity);
  * const update = useContextUpdate();
  * update(() => setState(...));
  */
-export const useContextUpdate = (context) => {
-  const contextValue = React.useContext(context)[CONTEXT_VALUE];
+export function useContextUpdate<Value>(
+  context: Context<Value>,
+) {
+  const contextValue = useContextOrig(
+    context as unknown as ContextOrig<ContextValue<Value>>,
+  )[CONTEXT_VALUE];
   if (process.env.NODE_ENV !== 'production') {
     if (!contextValue) {
       throw new Error('useContextUpdate requires special context');
@@ -171,15 +217,11 @@ export const useContextUpdate = (context) => {
   }
   const { [UPDATE_PROP]: update } = contextValue;
   return update;
-};
+}
 
 /**
  * This is a Provider component for bridging multiple react roots
- * @param props
- * @param {React.Context} props.context
- * @param {*} props.value
- * @param {React.ReactNote} props.children
- * @returns {React.ReactElement}
+ *
  * @example
  * const valueToBridge = useBridgeValue(PersonContext);
  * return (
@@ -190,23 +232,28 @@ export const useContextUpdate = (context) => {
  *   </Renderer>
  * );
  */
-export const BridgeProvider = ({ context, value, children }) => {
-  const { [ORIGINAL_PROVIDER]: Provider } = context;
+export const BridgeProvider: FC<{
+  context: Context<any>;
+  value: any;
+}> = ({ context, value, children }) => {
+  const { [ORIGINAL_PROVIDER]: ProviderOrig } = context as unknown as {
+    [ORIGINAL_PROVIDER]: Provider<unknown>;
+  };
   if (process.env.NODE_ENV !== 'production') {
-    if (!Provider) {
+    if (!ProviderOrig) {
       throw new Error('BridgeProvider requires special context');
     }
   }
-  return React.createElement(Provider, { value }, children);
+  return createElement(ProviderOrig, { value }, children);
 };
 
 /**
  * This hook return a value for BridgeProvider
- * @param {React.Context} context
- * @returns {*}
  */
-export const useBridgeValue = (context) => {
-  const bridgeValue = React.useContext(context);
+export const useBridgeValue = (context: Context<any>) => {
+  const bridgeValue = useContextOrig(
+    context as unknown as ContextOrig<ContextValue<unknown>>,
+  );
   const contextValue = bridgeValue[CONTEXT_VALUE];
   if (process.env.NODE_ENV !== 'production') {
     if (!contextValue) {
@@ -216,7 +263,7 @@ export const useBridgeValue = (context) => {
   const {
     [LISTENERS_PROP]: listeners,
   } = contextValue;
-  const [, forceUpdate] = React.useReducer((c) => c + 1, 0);
+  const [, forceUpdate] = useReducer((c) => c + 1, 0);
   useIsomorphicLayoutEffect(() => {
     listeners.add(forceUpdate);
     return () => {

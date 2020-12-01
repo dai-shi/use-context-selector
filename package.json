@@ -7,11 +7,11 @@
     "type": "git",
     "url": "https://github.com/dai-shi/use-context-selector.git"
   },
-  "source": "./src/index.js",
+  "source": "./src/index.ts",
   "main": "./dist/index.umd.js",
   "module": "./dist/index.modern.js",
   "react-native": "./dist/index.native.modern.js",
-  "types": "./src/index.d.ts",
+  "types": "./dist/src/index.d.ts",
   "sideEffects": false,
   "files": [
     "src",
@@ -20,14 +20,14 @@
   "scripts": {
     "compile": "run-s compile:*",
     "compile:dom": "microbundle build -f modern,umd",
-    "precompile:native": "mkdir src/native && cp src/index.js src/native/index.js && cp src/batchedUpdates.native.js src/native/batchedUpdates.js",
-    "compile:native": "microbundle build -f modern,umd -i ./src/native/index.js -o ./dist/index.native.js",
+    "precompile:native": "mkdir src/native && cp src/index.ts src/native/index.ts && cp src/batchedUpdates.native.ts src/native/batchedUpdates.ts",
+    "compile:native": "microbundle build -f modern,umd -i ./src/native/index.ts -o ./dist/index.native.js",
     "postcompile:native": "rm -r src/native",
     "test": "run-s eslint tsc-test jest",
     "eslint": "eslint --ext .js,.ts,.tsx --ignore-pattern dist .",
-    "jest": "jest",
+    "jest": "jest --preset ts-jest/presets/js-with-ts __tests__/*.tsx",
     "tsc-test": "tsc --project . --noEmit",
-    "apidoc": "documentation readme --section API --markdown-toc false src/index.js",
+    "apidoc": "documentation readme --section API --markdown-toc false --parse-extension ts src/*.ts",
     "examples:01_minimal": "DIR=01_minimal EXT=js webpack-dev-server",
     "examples:02_typescript": "DIR=02_typescript webpack-dev-server"
   },
@@ -39,16 +39,13 @@
   "license": "MIT",
   "dependencies": {},
   "devDependencies": {
-    "@babel/cli": "^7.12.1",
-    "@babel/core": "^7.12.3",
-    "@babel/preset-env": "^7.12.1",
-    "@babel/preset-react": "^7.12.5",
     "@testing-library/react": "^11.1.1",
+    "@types/jest": "^26.0.15",
     "@types/react": "^16.9.56",
     "@types/react-dom": "^16.9.9",
+    "@types/scheduler": "^0.16.1",
     "@typescript-eslint/eslint-plugin": "^4.6.1",
     "@typescript-eslint/parser": "^4.6.1",
-    "babel-loader": "^8.1.0",
     "documentation": "^13.1.0",
     "eslint": "^7.13.0",
     "eslint-config-airbnb": "^18.2.1",
@@ -63,6 +60,7 @@
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "scheduler": "^0.19.1",
+    "ts-jest": "^26.4.4",
     "ts-loader": "^8.0.10",
     "typescript": "^4.0.5",
     "webpack": "^4.44.2",
@@ -71,9 +69,9 @@
   },
   "peerDependencies": {
     "react": ">=16.8.0",
-    "scheduler": ">=0.19.0",
     "react-dom": "*",
-    "react-native": "*"
+    "react-native": "*",
+    "scheduler": ">=0.19.0"
   },
   "peerDependenciesMeta": {
     "react-dom": {
@@ -82,16 +80,5 @@
     "react-native": {
       "optional": true
     }
-  },
-  "babel": {
-    "presets": [
-      [
-        "@babel/preset-env",
-        {
-          "targets": "> 0.2%, not dead"
-        }
-      ],
-      "@babel/preset-react"
-    ]
   }
 }
