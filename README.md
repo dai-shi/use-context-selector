@@ -107,34 +107,37 @@ This creates a special context for `useContextSelector`.
 
 #### Parameters
 
--   `defaultValue` **any** 
+-   `defaultValue` **Value** 
 
 #### Examples
 
 ```javascript
+import { createContext } from 'use-context-selector';
+
 const PersonContext = createContext({ firstName: '', familyName: '' });
 ```
-
-Returns **React.Context** 
 
 ### useContextSelector
 
 This hook returns context selected value by selector.
+
 It will only accept context created by `createContext`.
 It will trigger re-render if only the selected value is referentially changed.
 
+The selector should return referentially equal result for same input for better performance.
+
 #### Parameters
 
--   `context` **React.Context** 
--   `selector` **[Function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function)** 
+-   `context` **Context&lt;Value>** 
+-   `selector` **function (value: Value): Selected** 
 
 #### Examples
 
 ```javascript
+import { useContextSelector } from 'use-context-selector';
+
 const firstName = useContextSelector(PersonContext, state => state.firstName);
 ```
-
-Returns **any** 
 
 ### useContext
 
@@ -143,15 +146,15 @@ Use this instead of React.useContext for consistent behavior.
 
 #### Parameters
 
--   `context` **React.Context** 
+-   `context` **Context&lt;Value>** 
 
 #### Examples
 
 ```javascript
+import { useContext } from 'use-context-selector';
+
 const person = useContext(PersonContext);
 ```
-
-Returns **any** 
 
 ### useContextUpdate
 
@@ -161,7 +164,7 @@ Use this for a function that will change a value.
 
 #### Parameters
 
--   `context`  
+-   `context` **Context&lt;Value>** 
 
 #### Examples
 
@@ -176,12 +179,14 @@ update(() => setState(...));
 
 This is a Provider component for bridging multiple react roots
 
+Type: FC&lt;{context: Context&lt;any>, value: any}>
+
 #### Parameters
 
--   `props` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
-    -   `props.context` **React.Context** 
-    -   `props.value` **any** 
-    -   `props.children` **React.ReactNote** 
+-   `$0` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
+    -   `$0.context`  
+    -   `$0.value`  
+    -   `$0.children`  
 
 #### Examples
 
@@ -196,17 +201,13 @@ return (
 );
 ```
 
-Returns **React.ReactElement** 
-
 ### useBridgeValue
 
 This hook return a value for BridgeProvider
 
 #### Parameters
 
--   `context` **React.Context** 
-
-Returns **any** 
+-   `context` **Context&lt;any>** 
 
 ## Limitations
 

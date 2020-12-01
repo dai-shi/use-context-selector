@@ -5,6 +5,7 @@
 ### Changed
 - No longer depends on changedBits=0 behavior
   - Tearing with parent can't be avoided
+- Migrate to TypeScript
 
 ## [1.2.12] - 2020-11-29
 ### Changed
