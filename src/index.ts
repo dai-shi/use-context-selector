@@ -211,11 +211,11 @@ export function useContext<Value, Selected>(
  * const update = useContextUpdate();
  * update(() => setState(...));
  */
-export function useContextUpdate(
-  context: Context<unknown>,
+export function useContextUpdate<Value>(
+  context: Context<Value>,
 ) {
   const { [UPDATE_SYMBOL]: update } = useContextOrig(
-    context as unknown as ContextOrig<ContextValue<unknown>>,
+    context as unknown as ContextOrig<ContextValue<Value>>,
   );
   if (process.env.NODE_ENV !== 'production') {
     if (!update) {

@@ -32,7 +32,8 @@
     "symbol-description": "off",
     "no-underscore-dangle": "off",
     "no-use-before-define": "off",
-    "no-redeclare": "off"
+    "no-redeclare": "off",
+    "no-unused-vars": "off"
   },
   "overrides": [{
     "files": ["__tests__/**/*"],

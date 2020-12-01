@@ -2,10 +2,11 @@
 /// <reference types="react-dom/experimental" />
 
 import React from 'react';
-import { unstable_createRoot as createRoot } from 'react-dom';
+// import { unstable_createRoot as createRoot } from 'react-dom';
+import { render } from 'react-dom';
 
 import App from './App';
 
 const ele = document.getElementById('app');
 if (!ele) throw new Error('no app');
-createRoot(ele).render(React.createElement(App));
+render(React.createElement(App), ele);

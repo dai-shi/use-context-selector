@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## [1.3.0] - 2020-12-01
+### Changed
+- No longer depends on changedBits=0 behavior
+  - Tearing with parent can't be avoided
+- Migrate to TypeScript
+
+## [1.2.12] - 2020-11-29
+### Changed
+- Re-implement without latest ref for value/selected to fix edge cases
+
 ## [1.2.11] - 2020-11-09
 ### Changed
 - Fix default context value

@@ -20,14 +20,22 @@ is proposed and later proposed
 with context selector support.
 This library provides the API in userland.
 
-v1 uses `calculateChangedBits=()=>0` technique to stop propagation,
-while v2 uses `useMutableSource`.
+Prior to v1.3, it uses `changedBits=0` feature to stop propagation,
+v1.3 no longer depends on this undocumented feature.
+v2 uses `useMutableSource`.
 
 ## Install
 
 ```bash
 npm install use-context-selector
 ```
+
+## Technical memo
+
+To make it work like original React context, it uses
+[useReducer cheat mode](https://overreacted.io/a-complete-guide-to-useeffect/#why-usereducer-is-the-cheat-mode-of-hooks) intentionally.
+It also requires `useContextUpdate` to behave better in Concurrent Mode.
+(You don't need to use it in Legacy Mode.)
 
 ## Usage
 
@@ -162,26 +170,7 @@ Use this for a function that will change a value.
 
 #### Parameters
 
--   `context` **Context&lt;any>** 
-
-#### Examples
-
-```javascript
-import { useContextUpdate } from 'use-context-selector';
-
-const update = useContextUpdate();
-update(() => setState(...));
-```
-
-### useContextUpdate
-
-This hook returns an update function that accepts a thunk function
-
-Use this for a function that will change a value.
-
-#### Parameters
-
--   `context`  
+-   `context` **Context&lt;Value>** 
 
 #### Examples
 
@@ -196,7 +185,7 @@ update(() => setState(...));
 
 This is a Provider component for bridging multiple react roots
 
-Type: React.FC&lt;{context: Context&lt;any>, value: any}>
+Type: FC&lt;{context: Context&lt;any>, value: any}>
 
 #### Parameters
 
@@ -208,7 +197,7 @@ Type: React.FC&lt;{context: Context&lt;any>, value: any}>
 #### Examples
 
 ```javascript
-const valueToBridge = useBridgeValue(PersonContext);
+const valueToBridge = useContext(PersonContext);
 return (
   <Renderer>
     <BridgeProvider context={PersonContext} value={valueToBridge}>
@@ -217,8 +206,6 @@ return (
   </Renderer>
 );
 ```
-
-Returns **React.ReactElement** 
 
 ## Limitations
 
