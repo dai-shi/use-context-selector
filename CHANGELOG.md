@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+## [1.3.0] - 2020-12-01
 ### Changed
 - No longer depends on changedBits=0 behavior
   - Tearing with parent can't be avoided
