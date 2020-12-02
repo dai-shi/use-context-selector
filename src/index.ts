@@ -6,7 +6,6 @@ import {
   Provider,
   createElement,
   createContext as createContextOrig,
-  memo,
   useContext as useContextOrig,
   useEffect,
   useLayoutEffect,
@@ -42,8 +41,9 @@ export interface Context<Value> {
   displayName?: string;
 }
 
-const createProvider = <Value>(ProviderOrig: Provider<ContextValue<Value>>) => (
-  memo<{ value: Value }>(({ value, children }) => {
+const createProvider = <Value>(
+  ProviderOrig: Provider<ContextValue<Value>>,
+): FC<{ value: Value }> => ({ value, children }) => {
     const valueRef = useRef(value);
     const versionRef = useRef(0);
     const contextValue = useRef<ContextValue<Value>>();
@@ -77,14 +77,13 @@ const createProvider = <Value>(ProviderOrig: Provider<ContextValue<Value>>) => (
           });
         });
       }
-    }, [value]);
+    });
     return createElement(
       ProviderOrig,
       { value: contextValue.current },
       children,
     );
-  })
-);
+  };
 
 const identity = <T>(x: T) => x;
 
