@@ -20,11 +20,6 @@ import {
 
 import { batchedUpdates } from './batchedUpdates';
 
-const VALUE_PROP = 'v';
-const VERSION_PROP = 'p';
-const LISTENERS_PROP = 'l';
-const UPDATE_PROP = 'u';
-
 const CONTEXT_VALUE = Symbol();
 const ORIGINAL_PROVIDER = Symbol();
 
@@ -35,10 +30,10 @@ const useIsomorphicLayoutEffect = isSSR ? useEffect : useLayoutEffect;
 
 type ContextValue<Value> = {
   [CONTEXT_VALUE]: {
-    [VALUE_PROP]: MutableRefObject<Value>;
-    [VERSION_PROP]: MutableRefObject<number>;
-    [LISTENERS_PROP]: Set<(action: [number] | [number, Value]) => void>;
-    [UPDATE_PROP]: <T>(thunk: () => T) => void;
+    /* "v"alue     */ v: MutableRefObject<Value>;
+    /* versio"n"   */ n: MutableRefObject<number>;
+    /* "l"isteners */ l: Set<(action: [number] | [number, Value]) => void>;
+    /* "u"pdate    */ u: <T>(thunk: () => T) => void;
   };
 };
 
@@ -63,10 +58,10 @@ const createProvider = <Value>(ProviderOrig: Provider<ContextValue<Value>>) => (
       };
       contextValue.current = {
         [CONTEXT_VALUE]: {
-          [VALUE_PROP]: valueRef,
-          [VERSION_PROP]: versionRef,
-          [LISTENERS_PROP]: listeners,
-          [UPDATE_PROP]: update,
+          /* "v"alue     */ v: valueRef,
+          /* versio"n"   */ n: versionRef,
+          /* "l"isteners */ l: listeners,
+          /* "u"pdate    */ u: update,
         },
       };
     }
@@ -77,7 +72,7 @@ const createProvider = <Value>(ProviderOrig: Provider<ContextValue<Value>>) => (
         runWithPriority(NormalPriority, () => {
           (contextValue.current as ContextValue<Value>)[
             CONTEXT_VALUE
-          ][LISTENERS_PROP].forEach((listener) => {
+          ].l.forEach((listener) => {
             listener([versionRef.current, value]);
           });
         });
@@ -104,10 +99,10 @@ const identity = <T>(x: T) => x;
 export function createContext<Value>(defaultValue: Value) {
   const context = createContextOrig<ContextValue<Value>>({
     [CONTEXT_VALUE]: {
-      [VALUE_PROP]: { current: defaultValue },
-      [VERSION_PROP]: { current: -1 },
-      [LISTENERS_PROP]: new Set(),
-      [UPDATE_PROP]: (f) => f(),
+      /* "v"alue     */ v: { current: defaultValue },
+      /* versio"n"   */ n: { current: -1 },
+      /* "l"isteners */ l: new Set(),
+      /* "u"pdate    */ u: (f) => f(),
     },
   });
   (context as unknown as {
@@ -144,9 +139,9 @@ export function useContextSelector<Value, Selected>(
     }
   }
   const {
-    [VALUE_PROP]: { current: value },
-    [VERSION_PROP]: { current: version },
-    [LISTENERS_PROP]: listeners,
+    /* "v"alue     */ v: { current: value },
+    /* versio"n"   */ n: { current: version },
+    /* "l"isteners */ l: listeners,
   } = contextValue;
   const selected = selector(value);
   const [, dispatch] = useReducer((
@@ -215,7 +210,7 @@ export function useContextUpdate<Value>(
       throw new Error('useContextUpdate requires special context');
     }
   }
-  const { [UPDATE_PROP]: update } = contextValue;
+  const { u: update } = contextValue;
   return update;
 }
 
@@ -261,7 +256,7 @@ export const useBridgeValue = (context: Context<any>) => {
     }
   }
   const {
-    [LISTENERS_PROP]: listeners,
+    l: listeners,
   } = contextValue;
   const [, forceUpdate] = useReducer((c) => c + 1, 0);
   useIsomorphicLayoutEffect(() => {
