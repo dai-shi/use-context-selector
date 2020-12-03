@@ -4,6 +4,7 @@
 
 ### Changed
 - Refactor for efficiency and bundle size
+- Check typeof process for `NODE_ENV`
 
 ## [1.3.0] - 2020-12-01
 ### Changed
