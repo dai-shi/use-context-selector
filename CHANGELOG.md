@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+## [1.3.1] - 2020-12-03
 ### Changed
 - Refactor for efficiency and bundle size
 - Check typeof process for `NODE_ENV`
