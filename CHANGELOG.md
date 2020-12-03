@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Changed
+- Refactor for efficiency and bundle size
+
 ## [1.3.0] - 2020-12-01
 ### Changed
 - No longer depends on changedBits=0 behavior
