@@ -58,7 +58,7 @@ const createProvider = <Value>(
       };
       contextValue.current = {
         [CONTEXT_VALUE]: {
-        /* "v"alue     */ v: valueRef,
+          /* "v"alue     */ v: valueRef,
           /* versio"n"   */ n: versionRef,
           /* "l"isteners */ l: listeners,
           /* "u"pdate    */ u: update,
@@ -96,12 +96,12 @@ export function createContext<Value>(defaultValue: Value) {
       /* "u"pdate    */ u: (f) => f(),
     },
   });
-  ((context as unknown) as {
+  (context as unknown as {
     [ORIGINAL_PROVIDER]: Provider<ContextValue<Value>>;
   })[ORIGINAL_PROVIDER] = context.Provider;
-  ((context as unknown) as Context<Value>).Provider = createProvider(context.Provider);
+  (context as unknown as Context<Value>).Provider = createProvider(context.Provider);
   delete (context as any).Consumer; // no support for Consumer
-  return (context as unknown) as Context<Value>;
+  return context as unknown as Context<Value>;
 }
 
 /**
@@ -121,9 +121,9 @@ export function useContextSelector<Value, Selected>(
   context: Context<Value>,
   selector: (value: Value) => Selected,
 ) {
-  const contextValue = useContextOrig((context as unknown) as ContextOrig<ContextValue<Value>>)[
-    CONTEXT_VALUE
-  ];
+  const contextValue = useContextOrig(
+    context as unknown as ContextOrig<ContextValue<Value>>,
+  )[CONTEXT_VALUE];
   if (typeof process === 'object' && process.env.NODE_ENV !== 'production') {
     if (!contextValue) {
       throw new Error('useContextSelector requires special context');
@@ -135,28 +135,27 @@ export function useContextSelector<Value, Selected>(
     /* "l"isteners */ l: listeners,
   } = contextValue;
   const selected = selector(value);
-  const [, dispatch] = useReducer(
-    (prev: { value: Value; selected: Selected }, next: [number] | [number, Value]) => {
-      if (version < next[0]) {
-        try {
-          if (
-            next.length === 2
-            && (Object.is(prev.value, next[1]) || Object.is(prev.selected, selector(next[1])))
-          ) {
-            return prev; // do not update
-          }
-        } catch (e) {
-          // ignored (stale props or some other reason)
+  const [, dispatch] = useReducer((
+    prev: { value: Value; selected: Selected },
+    next: [number] | [number, Value],
+  ) => {
+    if (version < next[0]) {
+      try {
+        if (next.length === 2 && (
+          Object.is(prev.value, next[1]) || Object.is(prev.selected, selector(next[1])))
+        ) {
+          return prev; // do not update
         }
-        return { value, selected }; // schedule update
+      } catch (e) {
+        // ignored (stale props or some other reason)
       }
-      if (Object.is(prev.value, value) || Object.is(prev.selected, selected)) {
-        return prev; // bail out
-      }
-      return { value, selected };
-    },
-    { value, selected },
-  );
+      return { value, selected }; // schedule update
+    }
+    if (Object.is(prev.value, value) || Object.is(prev.selected, selected)) {
+      return prev; // bail out
+    }
+    return { value, selected };
+  }, { value, selected });
   useIsomorphicLayoutEffect(() => {
     listeners.add(dispatch);
     return () => {
@@ -191,9 +190,9 @@ export function useContext<Value>(context: Context<Value>) {
  * update(() => setState(...));
  */
 export function useContextUpdate<Value>(context: Context<Value>) {
-  const contextValue = useContextOrig((context as unknown) as ContextOrig<ContextValue<Value>>)[
-    CONTEXT_VALUE
-  ];
+  const contextValue = useContextOrig(
+    context as unknown as ContextOrig<ContextValue<Value>>,
+  )[CONTEXT_VALUE];
   if (typeof process === 'object' && process.env.NODE_ENV !== 'production') {
     if (!contextValue) {
       throw new Error('useContextUpdate requires special context');
@@ -220,7 +219,7 @@ export const BridgeProvider: FC<{
   context: Context<any>;
   value: any;
 }> = ({ context, value, children }) => {
-  const { [ORIGINAL_PROVIDER]: ProviderOrig } = (context as unknown) as {
+  const { [ORIGINAL_PROVIDER]: ProviderOrig } = context as unknown as {
     [ORIGINAL_PROVIDER]: Provider<unknown>;
   };
   if (typeof process === 'object' && process.env.NODE_ENV !== 'production') {
@@ -235,7 +234,7 @@ export const BridgeProvider: FC<{
  * This hook return a value for BridgeProvider
  */
 export const useBridgeValue = (context: Context<any>) => {
-  const bridgeValue = useContextOrig((context as unknown) as ContextOrig<ContextValue<unknown>>);
+  const bridgeValue = useContextOrig(context as unknown as ContextOrig<ContextValue<unknown>>);
   const contextValue = bridgeValue[CONTEXT_VALUE];
   if (typeof process === 'object' && process.env.NODE_ENV !== 'production') {
     if (!contextValue) {
