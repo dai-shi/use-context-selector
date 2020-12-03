@@ -66,18 +66,16 @@ const createProvider = <Value>(
       };
     }
     useIsomorphicLayoutEffect(() => {
-      if (!Object.is(valueRef.current, value)) {
-        valueRef.current = value;
-        versionRef.current += 1;
-        runWithPriority(NormalPriority, () => {
-          (contextValue.current as ContextValue<Value>)[
-            CONTEXT_VALUE
-          ].l.forEach((listener) => {
-            listener([versionRef.current, value]);
-          });
+      valueRef.current = value;
+      versionRef.current += 1;
+      runWithPriority(NormalPriority, () => {
+        (contextValue.current as ContextValue<Value>)[
+          CONTEXT_VALUE
+        ].l.forEach((listener) => {
+          listener([versionRef.current, value]);
         });
-      }
-    });
+      });
+    }, [value]);
     return createElement(
       ProviderOrig,
       { value: contextValue.current },
