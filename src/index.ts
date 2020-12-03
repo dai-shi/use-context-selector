@@ -69,18 +69,12 @@ const createProvider = <Value>(
       valueRef.current = value;
       versionRef.current += 1;
       runWithPriority(NormalPriority, () => {
-        (contextValue.current as ContextValue<Value>)[
-          CONTEXT_VALUE
-        ].l.forEach((listener) => {
+        (contextValue.current as ContextValue<Value>)[CONTEXT_VALUE].l.forEach((listener) => {
           listener([versionRef.current, value]);
         });
       });
     }, [value]);
-    return createElement(
-      ProviderOrig,
-      { value: contextValue.current },
-      children,
-    );
+    return createElement(ProviderOrig, { value: contextValue.current }, children);
   };
 
 const identity = <T>(x: T) => x;
@@ -130,7 +124,7 @@ export function useContextSelector<Value, Selected>(
   const contextValue = useContextOrig(
     context as unknown as ContextOrig<ContextValue<Value>>,
   )[CONTEXT_VALUE];
-  if (process.env.NODE_ENV !== 'production') {
+  if (typeof process === 'object' && process.env.NODE_ENV !== 'production') {
     if (!contextValue) {
       throw new Error('useContextSelector requires special context');
     }
@@ -142,14 +136,14 @@ export function useContextSelector<Value, Selected>(
   } = contextValue;
   const selected = selector(value);
   const [, dispatch] = useReducer((
-    prev: { value: Value, selected: Selected },
+    prev: { value: Value; selected: Selected },
     next: [number] | [number, Value],
   ) => {
     if (version < next[0]) {
       try {
         if (next.length === 2 && (
-          Object.is(prev.value, next[1])
-          || Object.is(prev.selected, selector(next[1])))) {
+          Object.is(prev.value, next[1]) || Object.is(prev.selected, selector(next[1])))
+        ) {
           return prev; // do not update
         }
       } catch (e) {
@@ -157,8 +151,7 @@ export function useContextSelector<Value, Selected>(
       }
       return { value, selected }; // schedule update
     }
-    if (Object.is(prev.value, value)
-      || Object.is(prev.selected, selected)) {
+    if (Object.is(prev.value, value) || Object.is(prev.selected, selected)) {
       return prev; // bail out
     }
     return { value, selected };
@@ -196,13 +189,11 @@ export function useContext<Value>(context: Context<Value>) {
  * const update = useContextUpdate();
  * update(() => setState(...));
  */
-export function useContextUpdate<Value>(
-  context: Context<Value>,
-) {
+export function useContextUpdate<Value>(context: Context<Value>) {
   const contextValue = useContextOrig(
     context as unknown as ContextOrig<ContextValue<Value>>,
   )[CONTEXT_VALUE];
-  if (process.env.NODE_ENV !== 'production') {
+  if (typeof process === 'object' && process.env.NODE_ENV !== 'production') {
     if (!contextValue) {
       throw new Error('useContextUpdate requires special context');
     }
@@ -231,7 +222,7 @@ export const BridgeProvider: FC<{
   const { [ORIGINAL_PROVIDER]: ProviderOrig } = context as unknown as {
     [ORIGINAL_PROVIDER]: Provider<unknown>;
   };
-  if (process.env.NODE_ENV !== 'production') {
+  if (typeof process === 'object' && process.env.NODE_ENV !== 'production') {
     if (!ProviderOrig) {
       throw new Error('BridgeProvider requires special context');
     }
@@ -243,18 +234,14 @@ export const BridgeProvider: FC<{
  * This hook return a value for BridgeProvider
  */
 export const useBridgeValue = (context: Context<any>) => {
-  const bridgeValue = useContextOrig(
-    context as unknown as ContextOrig<ContextValue<unknown>>,
-  );
+  const bridgeValue = useContextOrig(context as unknown as ContextOrig<ContextValue<unknown>>);
   const contextValue = bridgeValue[CONTEXT_VALUE];
-  if (process.env.NODE_ENV !== 'production') {
+  if (typeof process === 'object' && process.env.NODE_ENV !== 'production') {
     if (!contextValue) {
       throw new Error('useBridgeValue requires special context');
     }
   }
-  const {
-    l: listeners,
-  } = contextValue;
+  const { l: listeners } = contextValue;
   const [, forceUpdate] = useReducer((c) => c + 1, 0);
   useIsomorphicLayoutEffect(() => {
     listeners.add(forceUpdate);
