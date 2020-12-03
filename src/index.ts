@@ -170,7 +170,7 @@ export function useContext<Value, Selected>(
   const { [SOURCE_SYMBOL]: source } = useContextOrig(
     context as unknown as ContextOrig<ContextValue<Value>>,
   );
-  if (process.env.NODE_ENV !== 'production') {
+  if (typeof process === 'object' && process.env.NODE_ENV !== 'production') {
     if (!source) {
       throw new Error('This useContext requires special context for selector support');
     }
@@ -211,13 +211,11 @@ export function useContext<Value, Selected>(
  * const update = useContextUpdate();
  * update(() => setState(...));
  */
-export function useContextUpdate<Value>(
-  context: Context<Value>,
-) {
+export function useContextUpdate<Value>(context: Context<Value>) {
   const { [UPDATE_SYMBOL]: update } = useContextOrig(
     context as unknown as ContextOrig<ContextValue<Value>>,
   );
-  if (process.env.NODE_ENV !== 'production') {
+  if (typeof process === 'object' && process.env.NODE_ENV !== 'production') {
     if (!update) {
       throw new Error('This useContext requires special context for selector support');
     }
@@ -245,7 +243,7 @@ export const BridgeProvider: FC<{
   const { [ORIGINAL_PROVIDER]: ProviderOrig } = context as unknown as {
     [ORIGINAL_PROVIDER]: Provider<unknown>;
   };
-  if (process.env.NODE_ENV !== 'production') {
+  if (typeof process === 'object' && process.env.NODE_ENV !== 'production') {
     if (!ProviderOrig) {
       throw new Error('BridgeProvider requires special context');
     }

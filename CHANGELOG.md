@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## [1.3.1] - 2020-12-03
+### Changed
+- Refactor for efficiency and bundle size
+- Check typeof process for `NODE_ENV`
+
 ## [1.3.0] - 2020-12-01
 ### Changed
 - No longer depends on changedBits=0 behavior
