@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.3.2] - 2020-12-03
+### Changed
+- Fix useBridgeValue typing
+
 ## [1.3.1] - 2020-12-03
 ### Changed
 - Refactor for efficiency and bundle size

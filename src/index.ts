@@ -249,5 +249,5 @@ export const useBridgeValue = (context: Context<any>) => {
       listeners.delete(forceUpdate);
     };
   }, [listeners]);
-  return bridgeValue;
+  return bridgeValue as any;
 };
