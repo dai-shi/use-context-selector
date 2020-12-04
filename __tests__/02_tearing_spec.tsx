@@ -42,6 +42,9 @@ describe.skip('tearing spec', () => {
     );
     const { getAllByText } = render(<App />);
     expect(() => {
+      // It tears.
+      // The React app is actually failing,
+      // but we don't catch it.
       fireEvent.click(getAllByText('+1')[0]);
     }).not.toThrow();
   });
