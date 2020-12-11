@@ -135,7 +135,7 @@ export function useContextSelector<Value, Selected>(
     /* "l"isteners */ l: listeners,
   } = contextValue;
   const selected = selector(value);
-  const [, dispatch] = useReducer((
+  const [state, dispatch] = useReducer((
     prev: { value: Value; selected: Selected },
     next: [number] | [number, Value],
   ) => {
@@ -149,7 +149,7 @@ export function useContextSelector<Value, Selected>(
       } catch (e) {
         // ignored (stale props or some other reason)
       }
-      return { value, selected }; // schedule update
+      return { ...prev }; // schedule update
     }
     if (Object.is(prev.value, value) || Object.is(prev.selected, selected)) {
       return prev; // bail out
@@ -162,7 +162,7 @@ export function useContextSelector<Value, Selected>(
       listeners.delete(dispatch);
     };
   }, [listeners]);
-  return selected;
+  return state.selected;
 }
 
 /**
