@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.3.3] - 2020-12-11
+### Changed
+- Fix an edge case with render bail out (with useContextUpdate)
+
 ## [1.3.2] - 2020-12-03
 ### Changed
 - Fix useBridgeValue typing
