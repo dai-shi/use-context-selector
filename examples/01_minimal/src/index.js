@@ -1,9 +1,9 @@
-import React, { useReducer, StrictMode } from 'react';
+import React, { useCallback, useReducer, StrictMode } from 'react';
 import ReactDOM from 'react-dom';
 
 import {
   createContext,
-  useContextSelector,
+  useContext,
 } from 'use-context-selector';
 
 const initialState = {
@@ -23,8 +23,8 @@ const reducer = (state, action) => {
 const context = createContext(null);
 
 const Counter = () => {
-  const count = useContextSelector(context, (v) => v[0].count);
-  const dispatch = useContextSelector(context, (v) => v[1]);
+  const count = useContext(context, useCallback((v) => v[0].count, []));
+  const dispatch = useContext(context, useCallback((v) => v[1], []));
   return (
     <div>
       {Math.random()}
@@ -38,8 +38,8 @@ const Counter = () => {
 };
 
 const TextBox = () => {
-  const text = useContextSelector(context, (v) => v[0].text);
-  const dispatch = useContextSelector(context, (v) => v[1]);
+  const text = useContext(context, useCallback((v) => v[0].text, []));
+  const dispatch = useContext(context, useCallback((v) => v[1], []));
   return (
     <div>
       {Math.random()}

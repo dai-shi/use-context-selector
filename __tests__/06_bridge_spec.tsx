@@ -1,6 +1,7 @@
 import React, {
   Dispatch,
   SetStateAction,
+  useCallback,
   useState,
   StrictMode,
 } from 'react';
@@ -11,7 +12,7 @@ import {
 
 import {
   createContext,
-  useContextSelector,
+  useContext,
   useBridgeValue,
   BridgeProvider,
 } from '../src/index';
@@ -31,8 +32,8 @@ describe('Bridge spec', () => {
       [initialState, () => null],
     );
     const Counter = () => {
-      const count = useContextSelector(context, (v) => v[0].count);
-      const setState = useContextSelector(context, (v) => v[1]);
+      const count = useContext(context, useCallback((v) => v[0].count, []));
+      const setState = useContext(context, useCallback((v) => v[1], []));
       const increment = () => {
         setState((s) => ({
           ...s,
@@ -47,7 +48,7 @@ describe('Bridge spec', () => {
       );
     };
     const AnotherCounter = () => {
-      const count = useContextSelector(context, (v) => v[0].count);
+      const count = useContext(context, useCallback((v) => v[0].count, []));
       return (
         <div>
           <span data-testid="anothercounter">{count}</span>

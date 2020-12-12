@@ -1,8 +1,8 @@
-import React, { useReducer } from 'react';
+import React, { useCallback, useReducer } from 'react';
 
 import { render, fireEvent, cleanup } from '@testing-library/react';
 
-import { createContext, useContextSelector } from '../src/index';
+import { createContext, useContext } from '../src/index';
 
 describe.skip('stale props spec', () => {
   afterEach(cleanup);
@@ -10,16 +10,16 @@ describe.skip('stale props spec', () => {
   it('ignores transient errors in selector (e.g. due to stale props)', () => {
     const Context = createContext(0);
     const Parent: React.FC = () => {
-      const count = useContextSelector(Context, (c: number) => c);
+      const count = useContext(Context, useCallback((c: number) => c, []));
       return <Child parentCount={count} />;
     };
     const Child: React.FC<{ parentCount: number }> = ({ parentCount }) => {
-      const result = useContextSelector(Context, (c: number) => {
+      const result = useContext(Context, useCallback((c: number) => {
         if (c !== parentCount) {
           throw new Error();
         }
         return c + parentCount;
-      });
+      }, [parentCount]));
       return <div>{result}</div>;
     };
     const App: React.FC = () => {
@@ -43,14 +43,14 @@ describe.skip('stale props spec', () => {
     let selectorSawInconsistencies = false;
     const Context = createContext(0);
     const Parent: React.FC = () => {
-      const count = useContextSelector(Context, (c: number) => c);
+      const count = useContext(Context, useCallback((c: number) => c, []));
       return <Child parentCount={count} />;
     };
     const Child: React.FC<{ parentCount: number }> = ({ parentCount }) => {
-      const result = useContextSelector(Context, (c: number) => {
+      const result = useContext(Context, useCallback((c: number) => {
         selectorSawInconsistencies = selectorSawInconsistencies || c !== parentCount;
         return c + parentCount;
-      });
+      }, [parentCount]));
       return <div>{result}</div>;
     };
     const App: React.FC = () => {

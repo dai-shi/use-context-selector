@@ -1,8 +1,8 @@
-import React, { useState, StrictMode } from 'react';
+import React, { useCallback, useState, StrictMode } from 'react';
 
 import { render, fireEvent, cleanup } from '@testing-library/react';
 
-import { createContext, useContextSelector } from '../src/index';
+import { createContext, useContext } from '../src/index';
 
 describe.skip('tearing spec', () => {
   afterEach(cleanup);
@@ -13,7 +13,7 @@ describe.skip('tearing spec', () => {
     };
     const context = createContext(initialState);
     const Counter: React.FC<{ parentCount: number }> = ({ parentCount }) => {
-      const count = useContextSelector(context, (v) => v.count);
+      const count = useContext(context, useCallback((v) => v.count, []));
       if (parentCount !== count) throw new Error('tears!!!');
       return (
         <div>
@@ -22,7 +22,7 @@ describe.skip('tearing spec', () => {
         </div>
       );
     };
-    const Parent = () => {
+    const Parent: React.FC = () => {
       const [state, setState] = useState(initialState);
       const increment = () => setState((s) => ({
         ...s,

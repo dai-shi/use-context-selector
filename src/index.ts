@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+
 import {
   ComponentType,
   Context as ContextOrig,
@@ -6,81 +8,112 @@ import {
   Provider,
   createElement,
   createContext as createContextOrig,
+  // @ts-ignore
+  unstable_createMutableSource as createMutableSource,
+  useCallback,
   useContext as useContextOrig,
-  useEffect,
   useLayoutEffect,
-  useReducer,
+  useMemo,
+  // @ts-ignore
+  unstable_useMutableSource as useMutableSource,
   useRef,
 } from 'react';
 import {
+  unstable_UserBlockingPriority as UserBlockingPriority,
   unstable_NormalPriority as NormalPriority,
   unstable_runWithPriority as runWithPriority,
+  unstable_getCurrentPriorityLevel as getCurrentPriorityLevel,
 } from 'scheduler';
-
-import { batchedUpdates } from './batchedUpdates';
-
-const CONTEXT_VALUE = Symbol();
-const ORIGINAL_PROVIDER = Symbol();
 
 const isSSR = typeof window === 'undefined'
   || /ServerSideRendering/.test(window.navigator && window.navigator.userAgent);
 
-const useIsomorphicLayoutEffect = isSSR ? useEffect : useLayoutEffect;
+const useIsoLayoutEffect = isSSR
+  ? (fn: () => void) => fn()
+  : useLayoutEffect;
 
+const SOURCE_SYMBOL = Symbol();
+const UPDATE_SYMBOL = Symbol();
+
+const FUNCTION_SYMBOL = Symbol();
+// eslint-disable-next-line @typescript-eslint/ban-types
+const functionMap = new WeakMap<Function, { [FUNCTION_SYMBOL]: Function }>();
+
+const ORIGINAL_PROVIDER = Symbol();
+
+/* eslint-disable no-unused-vars, @typescript-eslint/no-unused-vars */
+// @ts-ignore
 type ContextValue<Value> = {
-  [CONTEXT_VALUE]: {
-    /* "v"alue     */ v: MutableRefObject<Value>;
-    /* versio"n"   */ n: MutableRefObject<number>;
-    /* "l"isteners */ l: Set<(action: [number] | [number, Value]) => void>;
-    /* "u"pdate    */ u: <T>(thunk: () => T) => void;
-  };
+  [SOURCE_SYMBOL]: any;
+  [UPDATE_SYMBOL]: <T>(thunk: () => T) => T;
 };
+/* eslint-enable no-unused-vars, @typescript-eslint/no-unused-vars */
+
+type RefValue<Value> = MutableRefObject<{
+  v: number; // "v" = version
+  p: Value; // "p" = primary value
+  s: Value; // "s" = secondary value
+  l: Set<() => void>; // "l" = listeners
+}>;
 
 export interface Context<Value> {
   Provider: ComponentType<{ value: Value }>;
   displayName?: string;
 }
 
-const createProvider = <Value>(
-  ProviderOrig: Provider<ContextValue<Value>>,
-): FC<{ value: Value }> => ({ value, children }) => {
-    const valueRef = useRef(value);
-    const versionRef = useRef(0);
-    const contextValue = useRef<ContextValue<Value>>();
-    if (!contextValue.current) {
-      const listeners = new Set<(action: [number] | [number, Value]) => void>();
-      const update = (thunk: () => void) => {
-        batchedUpdates(() => {
-          versionRef.current += 1;
-          listeners.forEach((listener) => listener([versionRef.current]));
-          thunk();
-        });
-      };
-      contextValue.current = {
-        [CONTEXT_VALUE]: {
-          /* "v"alue     */ v: valueRef,
-          /* versio"n"   */ n: versionRef,
-          /* "l"isteners */ l: listeners,
-          /* "u"pdate    */ u: update,
-        },
-      };
-    }
-    useIsomorphicLayoutEffect(() => {
-      valueRef.current = value;
-      versionRef.current += 1;
-      runWithPriority(NormalPriority, () => {
-        (contextValue.current as ContextValue<Value>)[CONTEXT_VALUE].l.forEach((listener) => {
-          listener([versionRef.current, value]);
-        });
+const createProvider = <Value>(ProviderOrig: Provider<ContextValue<Value>>) => {
+  const RefProvider: FC<{ value: Value }> = ({ value, children }) => {
+    const ref: RefValue<Value> = useRef({
+      v: 0, // "v" = version
+      p: value, // "p" = primary value
+      s: value, // "s" = secondary value
+      l: new Set<() => void>(), // "l" = listeners
+    });
+    const priorityRef = useRef(NormalPriority);
+    const contextValue = useMemo(() => ({
+      [SOURCE_SYMBOL]: createMutableSource(ref, () => ref.current.v),
+      [UPDATE_SYMBOL]: <T>(thunk: () => T) => {
+        priorityRef.current = getCurrentPriorityLevel();
+        return runWithPriority(UserBlockingPriority, thunk);
+      },
+    }), []);
+    useIsoLayoutEffect(() => {
+      if (contextValue[SOURCE_SYMBOL]._workInProgressVersionSecondary !== null) {
+        ref.current.s = value; // update secondary value
+      } else {
+        ref.current.p = value; // update primary value
+      }
+      ref.current.v += 1; // increment version
+      runWithPriority(priorityRef.current, () => {
+        ref.current.l.forEach((listener) => listener());
       });
-    }, [value]);
-    return createElement(ProviderOrig, { value: contextValue.current }, children);
+      priorityRef.current = NormalPriority;
+    });
+    return createElement(ProviderOrig, { value: contextValue }, children);
   };
+  return RefProvider;
+};
 
 const identity = <T>(x: T) => x;
 
+const createDefaultSource = <Value>(defaultValue: Value) => {
+  const ref: RefValue<Value> = {
+    current: {
+      v: -1, // "v" = version
+      p: defaultValue, // "p" = primary value
+      s: defaultValue, // "s" = secondary value
+      l: new Set<() => void>(), // "l" = listeners
+    },
+  };
+  return createMutableSource(ref, () => ref.current.v);
+};
+
 /**
- * This creates a special context for `useContextSelector`.
+ * This creates a special context for selector-enabled `useContext`.
+ *
+ * It doesn't pass its value but a ref of the value.
+ * Unlike the original context provider, this context provider
+ * expects the context value to be immutable and stable.
  *
  * @example
  * import { createContext } from 'use-context-selector';
@@ -89,12 +122,8 @@ const identity = <T>(x: T) => x;
  */
 export function createContext<Value>(defaultValue: Value) {
   const context = createContextOrig<ContextValue<Value>>({
-    [CONTEXT_VALUE]: {
-      /* "v"alue     */ v: { current: defaultValue },
-      /* versio"n"   */ n: { current: -1 },
-      /* "l"isteners */ l: new Set(),
-      /* "u"pdate    */ u: (f) => f(),
-    },
+    [SOURCE_SYMBOL]: createDefaultSource(defaultValue),
+    [UPDATE_SYMBOL]: (thunk) => thunk(),
   });
   (context as unknown as {
     [ORIGINAL_PROVIDER]: Provider<ContextValue<Value>>;
@@ -104,78 +133,71 @@ export function createContext<Value>(defaultValue: Value) {
   return context as unknown as Context<Value>;
 }
 
+const subscribe = (
+  ref: RefValue<unknown>,
+  callback: () => void,
+) => {
+  const listeners = ref.current.l;
+  listeners.add(callback);
+  return () => listeners.delete(callback);
+};
+
+export function useContext<Value>(context: Context<Value>): Value;
+export function useContext<Value, Selected>(
+  context: Context<Value>,
+  selector: (value: Value) => Selected,
+): Selected;
+
 /**
- * This hook returns context selected value by selector.
+ * This hook returns context value with optional selector.
  *
  * It will only accept context created by `createContext`.
  * It will trigger re-render if only the selected value is referentially changed.
+ * The selector must be stable.
+ * Either define selector outside render or wrap with `useCallback`.
  *
  * The selector should return referentially equal result for same input for better performance.
  *
  * @example
- * import { useContextSelector } from 'use-context-selector';
- *
- * const firstName = useContextSelector(PersonContext, state => state.firstName);
- */
-export function useContextSelector<Value, Selected>(
-  context: Context<Value>,
-  selector: (value: Value) => Selected,
-) {
-  const contextValue = useContextOrig(
-    context as unknown as ContextOrig<ContextValue<Value>>,
-  )[CONTEXT_VALUE];
-  if (typeof process === 'object' && process.env.NODE_ENV !== 'production') {
-    if (!contextValue) {
-      throw new Error('useContextSelector requires special context');
-    }
-  }
-  const {
-    /* "v"alue     */ v: { current: value },
-    /* versio"n"   */ n: { current: version },
-    /* "l"isteners */ l: listeners,
-  } = contextValue;
-  const selected = selector(value);
-  const [state, dispatch] = useReducer((
-    prev: { value: Value; selected: Selected },
-    next: [number] | [number, Value],
-  ) => {
-    if (version < next[0]) {
-      try {
-        if (next.length === 2 && (
-          Object.is(prev.value, next[1]) || Object.is(prev.selected, selector(next[1])))
-        ) {
-          return prev; // do not update
-        }
-      } catch (e) {
-        // ignored (stale props or some other reason)
-      }
-      return { ...prev }; // schedule update
-    }
-    if (Object.is(prev.value, value) || Object.is(prev.selected, selected)) {
-      return prev; // bail out
-    }
-    return { value, selected };
-  }, { value, selected });
-  useIsomorphicLayoutEffect(() => {
-    listeners.add(dispatch);
-    return () => {
-      listeners.delete(dispatch);
-    };
-  }, [listeners]);
-  return state.selected;
-}
-
-/**
- * This hook returns the entire context value.
- * Use this instead of React.useContext for consistent behavior.
- *
- * @example
  * import { useContext } from 'use-context-selector';
  *
- * const person = useContext(PersonContext);
+ * const firstName = useContext(PersonContext, state => state.firstName);
  */
-export function useContext<Value>(context: Context<Value>) {
-  return useContextSelector(context, identity);
+export function useContext<Value, Selected>(
+  context: Context<Value>,
+  selector: (value: Value) => Selected = identity as (value: Value) => Selected,
+) {
+  const { [SOURCE_SYMBOL]: source } = useContextOrig(
+    context as unknown as ContextOrig<ContextValue<Value>>,
+  );
+  if (typeof process === 'object' && process.env.NODE_ENV !== 'production') {
+    if (!source) {
+      throw new Error('This useContext requires special context for selector support');
+    }
+  }
+  const getSnapshot = useCallback(
+    (ref: RefValue<Value>) => {
+      const value = source._workInProgressVersionSecondary !== null
+        ? ref.current.s // "s" = secondary value
+        : ref.current.p; // "p" = primary value
+      const selected = selector(value);
+      if (typeof selected === 'function') {
+        if (functionMap.has(selected)) {
+          return functionMap.get(selected);
+        }
+        const wrappedFunction = { [FUNCTION_SYMBOL]: selected };
+        functionMap.set(selected, wrappedFunction);
+        return wrappedFunction;
+      }
+      return selected;
+    },
+    [selector, source],
+  );
+  const snapshot = useMutableSource(source, getSnapshot, subscribe);
+  if (snapshot && (snapshot as { [FUNCTION_SYMBOL]: unknown })[FUNCTION_SYMBOL]) {
+    return snapshot[FUNCTION_SYMBOL];
+  }
+  return snapshot;
 }
 
 /**
@@ -190,15 +212,14 @@ export function useContext<Value>(context: Context<Value>) {
  * update(() => setState(...));
  */
 export function useContextUpdate<Value>(context: Context<Value>) {
-  const contextValue = useContextOrig(
+  const { [UPDATE_SYMBOL]: update } = useContextOrig(
     context as unknown as ContextOrig<ContextValue<Value>>,
-  )[CONTEXT_VALUE];
+  );
   if (typeof process === 'object' && process.env.NODE_ENV !== 'production') {
-    if (!contextValue) {
-      throw new Error('useContextUpdate requires special context');
+    if (!update) {
+      throw new Error('This useContext requires special context for selector support');
     }
   }
-  const { u: update } = contextValue;
   return update;
 }
 
@@ -234,9 +255,11 @@ export const BridgeProvider: FC<{
  * This hook return a value for BridgeProvider
  */
 export const useBridgeValue = (context: Context<any>) => {
-  const bridgeValue = useContextOrig(context as unknown as ContextOrig<ContextValue<unknown>>);
+  const bridgeValue = useContextOrig(
+    context as unknown as ContextOrig<ContextValue<unknown>>,
+  );
   if (typeof process === 'object' && process.env.NODE_ENV !== 'production') {
-    if (!bridgeValue[CONTEXT_VALUE]) {
+    if (!bridgeValue[SOURCE_SYMBOL]) {
       throw new Error('useBridgeValue requires special context');
     }
   }

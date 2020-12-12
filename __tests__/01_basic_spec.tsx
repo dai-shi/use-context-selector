@@ -1,6 +1,7 @@
 import React, {
   Dispatch,
   SetStateAction,
+  useCallback,
   useRef,
   useState,
   StrictMode,
@@ -12,7 +13,7 @@ import {
 
 import {
   createContext,
-  useContextSelector,
+  useContext,
 } from '../src/index';
 
 describe('basic spec', () => {
@@ -31,8 +32,8 @@ describe('basic spec', () => {
       [initialState, () => null],
     );
     const Counter1 = () => {
-      const count1 = useContextSelector(context, (v) => v[0].count1);
-      const setState = useContextSelector(context, (v) => v[1]);
+      const count1 = useContext(context, useCallback((v) => v[0].count1, []));
+      const setState = useContext(context, useCallback((v) => v[1], []));
       const increment = () => setState((s) => ({
         ...s,
         count1: s.count1 + 1,
@@ -48,7 +49,7 @@ describe('basic spec', () => {
       );
     };
     const Counter2 = () => {
-      const count2 = useContextSelector(context, (v) => v[0].count2);
+      const count2 = useContext(context, useCallback((v) => v[0].count2, []));
       const renderCount = useRef(0);
       renderCount.current += 1;
       return (
