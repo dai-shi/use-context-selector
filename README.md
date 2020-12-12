@@ -197,7 +197,7 @@ Type: FC&lt;{context: Context&lt;any>, value: any}>
 #### Examples
 
 ```javascript
-const valueToBridge = useContext(PersonContext);
+const valueToBridge = useBridgeValue(PersonContext);
 return (
   <Renderer>
     <BridgeProvider context={PersonContext} value={valueToBridge}>
@@ -207,12 +207,20 @@ return (
 );
 ```
 
+### useBridgeValue
+
+This hook return a value for BridgeProvider
+
+#### Parameters
+
+-   `context` **Context&lt;any>** 
+
 ## Limitations
 
 -   In order to stop propagation, `children` of a context provider has to be either created outside of the provider or memoized with `React.memo`.
 -   Neither context consumers or class components are supported.
 -   The [stale props](https://react-redux.js.org/api/hooks#stale-props-and-zombie-children) issue can't be solved in userland.
--   Tearing is only avoided within the Provider tree. A value outside the Provider will tear. (`02_tearing_spec` fails)
+-   Tearing is only avoided if all consumers get data using `useContextSelector`. If you use both props and `use-context-selector` to pass the same data, they may provide inconsistence data for a brief moment. (`02_tearing_spec` fails)
 
 ## Examples
 

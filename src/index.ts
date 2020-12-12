@@ -227,7 +227,7 @@ export function useContextUpdate<Value>(context: Context<Value>) {
  * This is a Provider component for bridging multiple react roots
  *
  * @example
- * const valueToBridge = useContext(PersonContext);
+ * const valueToBridge = useBridgeValue(PersonContext);
  * return (
  *   <Renderer>
  *     <BridgeProvider context={PersonContext} value={valueToBridge}>
@@ -249,4 +249,19 @@ export const BridgeProvider: FC<{
     }
   }
   return createElement(ProviderOrig, { value }, children);
+};
+
+/**
+ * This hook return a value for BridgeProvider
+ */
+export const useBridgeValue = (context: Context<any>) => {
+  const bridgeValue = useContextOrig(
+    context as unknown as ContextOrig<ContextValue<unknown>>,
+  );
+  if (typeof process === 'object' && process.env.NODE_ENV !== 'production') {
+    if (!bridgeValue[SOURCE_SYMBOL]) {
+      throw new Error('useBridgeValue requires special context');
+    }
+  }
+  return bridgeValue as any;
 };

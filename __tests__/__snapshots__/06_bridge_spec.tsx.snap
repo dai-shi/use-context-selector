@@ -1,0 +1,45 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Bridge spec counter 1`] = `
+<div>
+  <div>
+    <span>
+      0
+    </span>
+    <button
+      type="button"
+    >
+      +1
+    </button>
+  </div>
+  <div>
+    <span
+      data-testid="anothercounter"
+    >
+      0
+    </span>
+  </div>
+</div>
+`;
+
+exports[`Bridge spec counter 2`] = `
+<div>
+  <div>
+    <span>
+      1
+    </span>
+    <button
+      type="button"
+    >
+      +1
+    </button>
+  </div>
+  <div>
+    <span
+      data-testid="anothercounter"
+    >
+      1
+    </span>
+  </div>
+</div>
+`;

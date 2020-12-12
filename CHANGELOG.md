@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+## [1.3.4] - 2020-12-12
+### Changed
+- Refactor useBridgeValue because it does not depend on changedBits=0
+
+## [1.3.3] - 2020-12-11
+### Changed
+- Fix an edge case with render bail out (with useContextUpdate)
+
+## [1.3.2] - 2020-12-03
+### Changed
+- Fix useBridgeValue typing
+
 ## [1.3.1] - 2020-12-03
 ### Changed
 - Refactor for efficiency and bundle size
