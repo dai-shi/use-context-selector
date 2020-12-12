@@ -235,19 +235,10 @@ export const BridgeProvider: FC<{
  */
 export const useBridgeValue = (context: Context<any>) => {
   const bridgeValue = useContextOrig(context as unknown as ContextOrig<ContextValue<unknown>>);
-  const contextValue = bridgeValue[CONTEXT_VALUE];
   if (typeof process === 'object' && process.env.NODE_ENV !== 'production') {
-    if (!contextValue) {
+    if (!bridgeValue[CONTEXT_VALUE]) {
       throw new Error('useBridgeValue requires special context');
     }
   }
-  const { l: listeners } = contextValue;
-  const [, forceUpdate] = useReducer((c) => c + 1, 0);
-  useIsomorphicLayoutEffect(() => {
-    listeners.add(forceUpdate);
-    return () => {
-      listeners.delete(forceUpdate);
-    };
-  }, [listeners]);
   return bridgeValue as any;
 };

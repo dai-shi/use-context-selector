@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Changed
+- Refactor useBridgeValue because it does not depend on changedBits=0
+
 ## [1.3.3] - 2020-12-11
 ### Changed
 - Fix an edge case with render bail out (with useContextUpdate)
