@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+## [1.3.4] - 2020-12-12
 ### Changed
 - Refactor useBridgeValue because it does not depend on changedBits=0
 
