@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- More strict type for useContextUpdate return value
 
 ## [1.3.4] - 2020-12-12
 ### Changed

@@ -32,7 +32,7 @@ type ContextValue<Value> = {
     /* "v"alue     */ v: MutableRefObject<Value>;
     /* versio"n"   */ n: MutableRefObject<number>;
     /* "l"isteners */ l: Set<(action: [number] | [number, Value]) => void>;
-    /* "u"pdate    */ u: <T>(thunk: () => T) => void;
+    /* "u"pdate    */ u: (thunk: () => void) => void;
   };
 };
 
