@@ -25,9 +25,16 @@ v1.3 no longer depends on this undocumented feature.
 
 ## Install
 
+This package requires some peer dependencies, which you need to install by yourself.
+
 ```bash
-npm install use-context-selector
+yarn add use-context-selector react scheduler
 ```
+
+Notes for library authors:
+
+Please do not forget to keep `"peerDependencies"` and
+note instructions to let users to install peer dependencies.
 
 ## Technical memo
 
@@ -223,7 +230,7 @@ The [examples](examples) folder contains working examples.
 You can run one of them with
 
 ```bash
-PORT=8080 npm run examples:01_minimal
+PORT=8080 yarn run examples:01_minimal
 ```
 
 and open <http://localhost:8080> in your web browser.
