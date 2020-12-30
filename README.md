@@ -3,6 +3,7 @@
 [![CI](https://img.shields.io/github/workflow/status/dai-shi/use-context-selector/CI)](https://github.com/dai-shi/use-context-selector/actions?query=workflow%3ACI)
 [![npm](https://img.shields.io/npm/v/use-context-selector)](https://www.npmjs.com/package/use-context-selector)
 [![size](https://img.shields.io/bundlephobia/minzip/use-context-selector)](https://bundlephobia.com/result?p=use-context-selector)
+[![discord](https://img.shields.io/discord/627656437971288081)](https://discord.gg/MrQdmzd)
 
 React useContextSelector hook in userland
 
