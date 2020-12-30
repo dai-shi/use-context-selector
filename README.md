@@ -239,7 +239,8 @@ You can also try them in codesandbox.io:
 [01](https://codesandbox.io/s/github/dai-shi/use-context-selector/tree/master/examples/01_minimal)
 [02](https://codesandbox.io/s/github/dai-shi/use-context-selector/tree/master/examples/02_typescript)
 
-## Related projects
+## Projects that use use-context-selector
 
 -   [react-tracked](https://github.com/dai-shi/react-tracked)
--   [reactive-react-redux](https://github.com/dai-shi/reactive-react-redux)
+-   [jotai](https://github.com/pmndrs/jotai)
+-   [formik v3.0.0-next.8](https://github.com/formium/formik/pull/2846)
