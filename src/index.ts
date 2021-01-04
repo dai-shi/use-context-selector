@@ -27,6 +27,11 @@ const isSSR = typeof window === 'undefined'
 
 const useIsomorphicLayoutEffect = isSSR ? useEffect : useLayoutEffect;
 
+// for preact that doesn't have runWithPriority
+const runWithNormalPriority = runWithPriority
+  ? (thunk: () => void) => runWithPriority(NormalPriority, thunk)
+  : (thunk: () => void) => thunk();
+
 type ContextValue<Value> = {
   [CONTEXT_VALUE]: {
     /* "v"alue     */ v: MutableRefObject<Value>;
@@ -68,7 +73,7 @@ const createProvider = <Value>(
     useIsomorphicLayoutEffect(() => {
       valueRef.current = value;
       versionRef.current += 1;
-      runWithPriority(NormalPriority, () => {
+      runWithNormalPriority(() => {
         (contextValue.current as ContextValue<Value>)[CONTEXT_VALUE].l.forEach((listener) => {
           listener([versionRef.current, value]);
         });
