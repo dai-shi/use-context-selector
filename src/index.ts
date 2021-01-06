@@ -27,6 +27,11 @@ const isSSR = typeof window === 'undefined'
 
 const useIsomorphicLayoutEffect = isSSR ? useEffect : useLayoutEffect;
 
+// for preact that doesn't have runWithPriority
+const runWithNormalPriority = runWithPriority
+  ? (thunk: () => void) => runWithPriority(NormalPriority, thunk)
+  : (thunk: () => void) => thunk();
+
 type ContextValue<Value> = {
   [CONTEXT_VALUE]: {
     /* "v"alue     */ v: MutableRefObject<Value>;
@@ -68,7 +73,7 @@ const createProvider = <Value>(
     useIsomorphicLayoutEffect(() => {
       valueRef.current = value;
       versionRef.current += 1;
-      runWithPriority(NormalPriority, () => {
+      runWithNormalPriority(() => {
         (contextValue.current as ContextValue<Value>)[CONTEXT_VALUE].l.forEach((listener) => {
           listener([versionRef.current, value]);
         });
@@ -141,10 +146,15 @@ export function useContextSelector<Value, Selected>(
   ) => {
     if (version < next[0]) {
       try {
-        if (next.length === 2 && (
-          Object.is(prev.value, next[1]) || Object.is(prev.selected, selector(next[1])))
-        ) {
-          return prev; // do not update
+        if (next.length === 2) {
+          if (Object.is(prev.value, next[1])) {
+            return prev; // do not update
+          }
+          const nextSelected = selector(next[1]);
+          if (Object.is(prev.selected, nextSelected)) {
+            return prev; // do not update
+          }
+          return { value: next[1], selected: nextSelected };
         }
       } catch (e) {
         // ignored (stale props or some other reason)
