@@ -146,10 +146,15 @@ export function useContextSelector<Value, Selected>(
   ) => {
     if (version < next[0]) {
       try {
-        if (next.length === 2 && (
-          Object.is(prev.value, next[1]) || Object.is(prev.selected, selector(next[1])))
-        ) {
-          return prev; // do not update
+        if (next.length === 2) {
+          if (Object.is(prev.value, next[1])) {
+            return prev; // do not update
+          }
+          const nextSelected = selector(next[1]);
+          if (Object.is(prev.selected, nextSelected)) {
+            return prev; // do not update
+          }
+          return { value: next[1], selected: nextSelected };
         }
       } catch (e) {
         // ignored (stale props or some other reason)
