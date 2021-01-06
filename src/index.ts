@@ -27,12 +27,10 @@ const isSSR = typeof window === 'undefined'
 
 const useIsomorphicLayoutEffect = isSSR ? useEffect : useLayoutEffect;
 
-// https://github.com/dai-shi/use-context-selector/pull/36
-const isPreact = !runWithPriority;
-
-const runWithNormalPriority = isPreact
-  ? (thunk: () => void) => thunk()
-  : (thunk: () => void) => runWithPriority(NormalPriority, thunk);
+// for preact that doesn't have runWithPriority
+const runWithNormalPriority = runWithPriority
+  ? (thunk: () => void) => runWithPriority(NormalPriority, thunk)
+  : (thunk: () => void) => thunk();
 
 type ContextValue<Value> = {
   [CONTEXT_VALUE]: {
@@ -169,7 +167,7 @@ export function useContextSelector<Value, Selected>(
       listeners.delete(dispatch);
     };
   }, [listeners]);
-  return isPreact ? selected : state.selected;
+  return state.selected;
 }
 
 /**
