@@ -1,9 +1,12 @@
 # Change Log
 
 ## [Unreleased]
+
+## [1.3.5] - 2021-01-06
 ### Changed
 - More strict type for useContextUpdate return value
-- Fallback missing runWithPriority for preact (#36)
+### Added
+- Preact support with scheduler=false (#36)
 
 ## [1.3.4] - 2020-12-12
 ### Changed
