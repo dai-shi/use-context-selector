@@ -149,27 +149,27 @@ export function useContextSelector<Value, Selected>(
     if (!next) {
       return [value, selected] as const;
     }
-    if (version < next[0]) {
-      try {
-        if (next.length === 2) {
-          if (Object.is(prev[0], next[1])) {
-            return prev; // do not update
-          }
-          const nextSelected = selector(next[1]);
-          if (Object.is(prev[1], nextSelected)) {
-            return prev; // do not update
-          }
-          return [next[1], nextSelected] as const;
-        }
-      } catch (e) {
-        // ignored (stale props or some other reason)
+    if (next[0] <= version) {
+      if (Object.is(prev[0], value) || Object.is(prev[1], selected)) {
+        return prev; // bail out
       }
-      return [...prev] as const; // schedule update
+      return [value, selected] as const;
     }
-    if (Object.is(prev[0], value) || Object.is(prev[1], selected)) {
-      return prev; // bail out
+    try {
+      if (next.length === 2) {
+        if (Object.is(prev[0], next[1])) {
+          return prev; // do not update
+        }
+        const nextSelected = selector(next[1]);
+        if (Object.is(prev[1], nextSelected)) {
+          return prev; // do not update
+        }
+        return [next[1], nextSelected] as const;
+      }
+    } catch (e) {
+      // ignored (stale props or some other reason)
     }
-    return [value, selected] as const;
+    return [...prev] as const; // schedule update
   }, [value, selected] as const);
   useIsomorphicLayoutEffect(() => {
     listeners.add(dispatch);
