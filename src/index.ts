@@ -141,7 +141,7 @@ export function useContextSelector<Value, Selected>(
   } = contextValue;
   const selected = selector(value);
   const [state, dispatch] = useReducer((
-    prev: { value: Value; selected: Selected },
+    prev: { version: number, value: Value; selected: Selected },
     next: [number] | [number, Value],
   ) => {
     if (version < next[0]) {
@@ -154,7 +154,7 @@ export function useContextSelector<Value, Selected>(
           if (Object.is(prev.selected, nextSelected)) {
             return prev; // do not update
           }
-          return { value: next[1], selected: nextSelected };
+          return { version: next[0], value: next[1], selected: nextSelected };
         }
       } catch (e) {
         // ignored (stale props or some other reason)
@@ -164,15 +164,15 @@ export function useContextSelector<Value, Selected>(
     if (Object.is(prev.value, value) || Object.is(prev.selected, selected)) {
       return prev; // bail out
     }
-    return { value, selected };
-  }, { value, selected });
+    return { version, value, selected };
+  }, { version, value, selected });
   useIsomorphicLayoutEffect(() => {
     listeners.add(dispatch);
     return () => {
       listeners.delete(dispatch);
     };
   }, [listeners]);
-  return state.selected;
+  return version <= state.version ? selected : state.selected;
 }
 
 /**
