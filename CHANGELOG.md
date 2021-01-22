@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## [1.3.6] - 2021-01-23
 ### Changed
 - Fix cases rendered from parent (#38)
 
