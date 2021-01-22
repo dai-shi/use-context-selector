@@ -143,34 +143,34 @@ export function useContextSelector<Value, Selected>(
   } = contextValue;
   const selected = selector(value);
   const [state, dispatch] = useReducer((
-    prev: readonly [Version, Value, Selected],
-    next: readonly [Version] | readonly [Version, Value] | readonly [Version, Value, Selected],
+    prev: readonly [Value, Selected],
+    next?: readonly [Version] | readonly [Version, Value],
   ) => {
-    if (next.length === 3) {
-      return next;
+    if (!next) {
+      return [value, selected] as const;
     }
     if (version < next[0]) {
       try {
         if (next.length === 2) {
-          if (Object.is(prev[1], next[1])) {
+          if (Object.is(prev[0], next[1])) {
             return prev; // do not update
           }
           const nextSelected = selector(next[1]);
-          if (Object.is(prev[2], nextSelected)) {
+          if (Object.is(prev[1], nextSelected)) {
             return prev; // do not update
           }
-          return [next[0], next[1], nextSelected] as const;
+          return [next[1], nextSelected] as const;
         }
       } catch (e) {
         // ignored (stale props or some other reason)
       }
       return [...prev] as const; // schedule update
     }
-    if (Object.is(prev[1], value) || Object.is(prev[2], selected)) {
+    if (Object.is(prev[0], value) || Object.is(prev[1], selected)) {
       return prev; // bail out
     }
-    return [version, value, selected] as const;
-  }, [version, value, selected] as const);
+    return [value, selected] as const;
+  }, [value, selected] as const);
   useIsomorphicLayoutEffect(() => {
     listeners.add(dispatch);
     return () => {
@@ -178,11 +178,11 @@ export function useContextSelector<Value, Selected>(
     };
   }, [listeners]);
   useIsomorphicLayoutEffect(() => {
-    if (!Object.is(state[2], selected)) {
-      dispatch([version, value, selected]);
+    if (!Object.is(state[1], selected)) {
+      dispatch();
     }
   });
-  return state[2];
+  return state[1];
 }
 
 /**
