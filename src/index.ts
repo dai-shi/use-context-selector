@@ -32,11 +32,13 @@ const runWithNormalPriority = runWithPriority
   ? (thunk: () => void) => runWithPriority(NormalPriority, thunk)
   : (thunk: () => void) => thunk();
 
+type Version = number;
+
 type ContextValue<Value> = {
   [CONTEXT_VALUE]: {
     /* "v"alue     */ v: MutableRefObject<Value>;
-    /* versio"n"   */ n: MutableRefObject<number>;
-    /* "l"isteners */ l: Set<(action: [number] | [number, Value]) => void>;
+    /* versio"n"   */ n: MutableRefObject<Version>;
+    /* "l"isteners */ l: Set<(action: readonly [Version] | readonly [Version, Value]) => void>;
     /* "u"pdate    */ u: (thunk: () => void) => void;
   };
 };
@@ -53,7 +55,7 @@ const createProvider = <Value>(
     const versionRef = useRef(0);
     const contextValue = useRef<ContextValue<Value>>();
     if (!contextValue.current) {
-      const listeners = new Set<(action: [number] | [number, Value]) => void>();
+      const listeners = new Set<(action: readonly [Version] | readonly [Version, Value]) => void>();
       const update = (thunk: () => void) => {
         batchedUpdates(() => {
           versionRef.current += 1;
@@ -141,38 +143,46 @@ export function useContextSelector<Value, Selected>(
   } = contextValue;
   const selected = selector(value);
   const [state, dispatch] = useReducer((
-    prev: { value: Value; selected: Selected },
-    next: [number] | [number, Value],
+    prev: readonly [Value, Selected],
+    next?: readonly [Version] | readonly [Version, Value],
   ) => {
-    if (version < next[0]) {
-      try {
-        if (next.length === 2) {
-          if (Object.is(prev.value, next[1])) {
-            return prev; // do not update
-          }
-          const nextSelected = selector(next[1]);
-          if (Object.is(prev.selected, nextSelected)) {
-            return prev; // do not update
-          }
-          return { value: next[1], selected: nextSelected };
-        }
-      } catch (e) {
-        // ignored (stale props or some other reason)
+    if (!next) {
+      return [value, selected] as const;
+    }
+    if (next[0] <= version) {
+      if (Object.is(prev[0], value) || Object.is(prev[1], selected)) {
+        return prev; // bail out
       }
-      return { ...prev }; // schedule update
+      return [value, selected] as const;
     }
-    if (Object.is(prev.value, value) || Object.is(prev.selected, selected)) {
-      return prev; // bail out
+    try {
+      if (next.length === 2) {
+        if (Object.is(prev[0], next[1])) {
+          return prev; // do not update
+        }
+        const nextSelected = selector(next[1]);
+        if (Object.is(prev[1], nextSelected)) {
+          return prev; // do not update
+        }
+        return [next[1], nextSelected] as const;
+      }
+    } catch (e) {
+      // ignored (stale props or some other reason)
     }
-    return { value, selected };
-  }, { value, selected });
+    return [...prev] as const; // schedule update
+  }, [value, selected] as const);
   useIsomorphicLayoutEffect(() => {
     listeners.add(dispatch);
     return () => {
       listeners.delete(dispatch);
     };
   }, [listeners]);
-  return state.selected;
+  useIsomorphicLayoutEffect(() => {
+    if (!Object.is(state[1], selected)) {
+      dispatch();
+    }
+  });
+  return state[1];
 }
 
 /**
