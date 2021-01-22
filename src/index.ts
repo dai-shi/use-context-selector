@@ -144,8 +144,11 @@ export function useContextSelector<Value, Selected>(
   const selected = selector(value);
   const [state, dispatch] = useReducer((
     prev: readonly [Version, Value, Selected],
-    next: readonly [Version] | readonly [Version, Value],
+    next: readonly [Version] | readonly [Version, Value] | readonly [Version, Value, Selected],
   ) => {
+    if (next.length === 3) {
+      return next;
+    }
     if (version < next[0]) {
       try {
         if (next.length === 2) {
@@ -174,7 +177,12 @@ export function useContextSelector<Value, Selected>(
       listeners.delete(dispatch);
     };
   }, [listeners]);
-  return state[0] < version ? state[2] : selected;
+  useIsomorphicLayoutEffect(() => {
+    if (!Object.is(state[2], selected)) {
+      dispatch([version, value, selected]);
+    }
+  });
+  return state[2];
 }
 
 /**
