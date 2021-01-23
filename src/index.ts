@@ -38,7 +38,7 @@ type ContextValue<Value> = {
   [CONTEXT_VALUE]: {
     /* "v"alue     */ v: MutableRefObject<Value>;
     /* versio"n"   */ n: MutableRefObject<Version>;
-    /* "l"isteners */ l: Set<(action: readonly [Version] | readonly [Version, Value]) => void>;
+    /* "l"isteners */ l: Set<(action: { n: Version } | { n: Version, v: Value }) => void>;
     /* "u"pdate    */ u: (thunk: () => void) => void;
   };
 };
@@ -53,13 +53,15 @@ const createProvider = <Value>(
 ): FC<{ value: Value }> => ({ value, children }) => {
     const valueRef = useRef(value);
     const versionRef = useRef(0);
+    const triggeredRef = useRef(false);
     const contextValue = useRef<ContextValue<Value>>();
     if (!contextValue.current) {
-      const listeners = new Set<(action: readonly [Version] | readonly [Version, Value]) => void>();
+      const listeners = new Set<(action: { n: Version } | { n: Version, v: Value }) => void>();
       const update = (thunk: () => void) => {
         batchedUpdates(() => {
           versionRef.current += 1;
-          listeners.forEach((listener) => listener([versionRef.current]));
+          triggeredRef.current = true;
+          listeners.forEach((listener) => listener({ n: versionRef.current }));
           thunk();
         });
       };
@@ -74,10 +76,14 @@ const createProvider = <Value>(
     }
     useIsomorphicLayoutEffect(() => {
       valueRef.current = value;
-      versionRef.current += 1;
+      if (triggeredRef.current) {
+        triggeredRef.current = false;
+      } else {
+        versionRef.current += 1;
+      }
       runWithNormalPriority(() => {
         (contextValue.current as ContextValue<Value>)[CONTEXT_VALUE].l.forEach((listener) => {
-          listener([versionRef.current, value]);
+          listener({ n: versionRef.current, v: value });
         });
       });
     }, [value]);
@@ -144,44 +150,47 @@ export function useContextSelector<Value, Selected>(
   const selected = selector(value);
   const [state, dispatch] = useReducer((
     prev: readonly [Value, Selected],
-    next?: readonly [Version] | readonly [Version, Value],
+    next:
+      | { n: Version } // from useUpdate
+      | { n: Version, v: Value } // from provider effect
+      | { v: Value, s: Selected }, // from render below
   ) => {
-    if (!next) {
-      return [value, selected] as const;
+    if ('s' in next) {
+      return [next.v, next.s] as const;
     }
-    if (next[0] <= version) {
+    if (next.n <= version) {
       if (Object.is(prev[0], value) || Object.is(prev[1], selected)) {
         return prev; // bail out
       }
       return [value, selected] as const;
     }
     try {
-      if (next.length === 2) {
-        if (Object.is(prev[0], next[1])) {
+      if ('v' in next) {
+        if (Object.is(prev[0], next.v)) {
           return prev; // do not update
         }
-        const nextSelected = selector(next[1]);
+        const nextSelected = selector(next.v);
         if (Object.is(prev[1], nextSelected)) {
           return prev; // do not update
         }
-        return [next[1], nextSelected] as const;
+        return [next.v, nextSelected] as const;
       }
     } catch (e) {
       // ignored (stale props or some other reason)
     }
     return [...prev] as const; // schedule update
   }, [value, selected] as const);
+  if (!Object.is(state[1], selected)) {
+    // schedule re-render
+    // this is safe because it's self contained
+    dispatch({ v: value, s: selected });
+  }
   useIsomorphicLayoutEffect(() => {
     listeners.add(dispatch);
     return () => {
       listeners.delete(dispatch);
     };
   }, [listeners]);
-  useIsomorphicLayoutEffect(() => {
-    if (!Object.is(state[1], selected)) {
-      dispatch();
-    }
-  });
   return state[1];
 }
 
