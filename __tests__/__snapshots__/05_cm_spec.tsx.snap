@@ -4,6 +4,7 @@ exports[`useContextUpdate spec counter 1`] = `
 <div>
   <div>
     <span>
+      count1: 
       0
     </span>
     <button
@@ -17,6 +18,7 @@ exports[`useContextUpdate spec counter 1`] = `
   </div>
   <div>
     <span>
+      count2: 
       0
     </span>
     <span
@@ -32,6 +34,7 @@ exports[`useContextUpdate spec counter 2`] = `
 <div>
   <div>
     <span>
+      count1: 
       1
     </span>
     <button
@@ -45,6 +48,7 @@ exports[`useContextUpdate spec counter 2`] = `
   </div>
   <div>
     <span>
+      count2: 
       0
     </span>
     <span
