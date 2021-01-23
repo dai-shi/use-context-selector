@@ -149,41 +149,50 @@ export function useContextSelector<Value, Selected>(
   } = contextValue;
   const selected = selector(value);
   const [state, dispatch] = useReducer((
-    prev: readonly [Value, Selected],
+    prev: readonly [Version, Value, Selected],
     next:
-      | { n: Version } // from useUpdate
+      | { n: Version } // from useContextUpdate
       | { n: Version, v: Value } // from provider effect
-      | { v: Value, s: Selected }, // from render below
+      | { n: Version, v: Value, s: Selected }, // from render below
   ) => {
     if ('s' in next) {
-      return [next.v, next.s] as const;
+      return [next.n, next.v, next.s] as const;
+    }
+    if (!('v' in next)) {
+      // if (next.n <= version) {
+      if (prev[0] <= version) {
+        if (Object.is(prev[1], value) || Object.is(prev[2], selected)) {
+          return prev; // bail out
+        }
+      }
+      return [...prev] as const; // schedule update
     }
     if (next.n <= version) {
-      if (Object.is(prev[0], value) || Object.is(prev[1], selected)) {
+      if (Object.is(prev[1], value) || Object.is(prev[2], selected)) {
         return prev; // bail out
       }
-      return [value, selected] as const;
+      return [version, value, selected] as const;
     }
     try {
       if ('v' in next) {
-        if (Object.is(prev[0], next.v)) {
+        if (Object.is(prev[1], next.v)) {
           return prev; // do not update
         }
         const nextSelected = selector(next.v);
-        if (Object.is(prev[1], nextSelected)) {
+        if (Object.is(prev[2], nextSelected)) {
           return prev; // do not update
         }
-        return [next.v, nextSelected] as const;
+        return [next.n, next.v, nextSelected] as const;
       }
     } catch (e) {
       // ignored (stale props or some other reason)
     }
     return [...prev] as const; // schedule update
-  }, [value, selected] as const);
-  if (!Object.is(state[1], selected)) {
+  }, [version, value, selected] as const);
+  if (!Object.is(state[2], selected)) {
     // schedule re-render
     // this is safe because it's self contained
-    dispatch({ v: value, s: selected });
+    dispatch({ n: version, v: value, s: selected });
   }
   useIsomorphicLayoutEffect(() => {
     listeners.add(dispatch);
@@ -191,7 +200,7 @@ export function useContextSelector<Value, Selected>(
       listeners.delete(dispatch);
     };
   }, [listeners]);
-  return state[1];
+  return state[2];
 }
 
 /**
