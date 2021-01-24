@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## [1.3.7] - 2021-01-24
 ### Changed
 - Fix extra commits introduced in v1.3.6 (#39)
 
