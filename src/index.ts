@@ -154,7 +154,7 @@ export function useContextSelector<Value, Selected>(
     }
     if (next.length === 1) {
       if (prev[0] <= version) {
-        if (Object.is(prev[1], value) || Object.is(prev[2], selected)) {
+        if (Object.is(prev[2], selected)) {
           return prev; // bail out
         }
       }
@@ -162,7 +162,7 @@ export function useContextSelector<Value, Selected>(
     }
     // next.length === 2
     if (next[0] <= version) {
-      if (Object.is(prev[1], value) || Object.is(prev[2], selected)) {
+      if (Object.is(prev[2], selected)) {
         return prev; // bail out
       }
       return [version, value, selected] as const;
