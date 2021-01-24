@@ -144,13 +144,15 @@ export function useContextSelector<Value, Selected>(
   const selected = selector(value);
   const [state, dispatch] = useReducer((
     prev: readonly [Value, Selected],
-    next?: readonly [Version] | readonly [Version, Value],
+    next?: // undefined from render below
+      | readonly [Version] // from useContextUpdate
+      | readonly [Version, Value], // from provider effect
   ) => {
     if (!next) {
       return [value, selected] as const;
     }
     if (next[0] <= version) {
-      if (Object.is(prev[0], value) || Object.is(prev[1], selected)) {
+      if (Object.is(prev[1], selected)) {
         return prev; // bail out
       }
       return [value, selected] as const;
@@ -171,17 +173,17 @@ export function useContextSelector<Value, Selected>(
     }
     return [...prev] as const; // schedule update
   }, [value, selected] as const);
+  if (!Object.is(state[1], selected)) {
+    // schedule re-render
+    // this is safe because it's self contained
+    dispatch();
+  }
   useIsomorphicLayoutEffect(() => {
     listeners.add(dispatch);
     return () => {
       listeners.delete(dispatch);
     };
   }, [listeners]);
-  useIsomorphicLayoutEffect(() => {
-    if (!Object.is(state[1], selected)) {
-      dispatch();
-    }
-  });
   return state[1];
 }
 

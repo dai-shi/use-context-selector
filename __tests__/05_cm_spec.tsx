@@ -45,7 +45,7 @@ describe('useContextUpdate spec', () => {
       renderCount.current += 1;
       return (
         <div>
-          <span>{count1}</span>
+          <span>count1: {count1}</span>
           <button type="button" onClick={increment}>+1</button>
           <span>{renderCount.current}</span>
         </div>
@@ -57,7 +57,7 @@ describe('useContextUpdate spec', () => {
       renderCount.current += 1;
       return (
         <div>
-          <span>{count2}</span>
+          <span>count2: {count2}</span>
           <span data-testid="counter2">{renderCount.current}</span>
         </div>
       );
