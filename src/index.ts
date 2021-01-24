@@ -53,14 +53,12 @@ const createProvider = <Value>(
 ): FC<{ value: Value }> => ({ value, children }) => {
     const valueRef = useRef(value);
     const versionRef = useRef(0);
-    const triggeredRef = useRef(false);
     const contextValue = useRef<ContextValue<Value>>();
     if (!contextValue.current) {
       const listeners = new Set<(action: { n: Version } | { n: Version, v: Value }) => void>();
       const update = (thunk: () => void) => {
         batchedUpdates(() => {
           versionRef.current += 1;
-          triggeredRef.current = true;
           listeners.forEach((listener) => listener({ n: versionRef.current }));
           thunk();
         });
@@ -76,11 +74,7 @@ const createProvider = <Value>(
     }
     useIsomorphicLayoutEffect(() => {
       valueRef.current = value;
-      if (triggeredRef.current) {
-        triggeredRef.current = false;
-      } else {
-        versionRef.current += 1;
-      }
+      versionRef.current += 1;
       runWithNormalPriority(() => {
         (contextValue.current as ContextValue<Value>)[CONTEXT_VALUE].l.forEach((listener) => {
           listener({ n: versionRef.current, v: value });
@@ -156,10 +150,9 @@ export function useContextSelector<Value, Selected>(
       | { n: Version, v: Value, s: Selected }, // from render below
   ) => {
     if ('s' in next) {
-      return [next.n, next.v, next.s] as const;
+      return [version, value, selected] as const;
     }
     if (!('v' in next)) {
-      // if (next.n <= version) {
       if (prev[0] <= version) {
         if (Object.is(prev[1], value) || Object.is(prev[2], selected)) {
           return prev; // bail out
