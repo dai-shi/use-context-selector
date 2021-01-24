@@ -38,7 +38,7 @@ type ContextValue<Value> = {
   [CONTEXT_VALUE]: {
     /* "v"alue     */ v: MutableRefObject<Value>;
     /* versio"n"   */ n: MutableRefObject<Version>;
-    /* "l"isteners */ l: Set<(action: { n: Version } | { n: Version, v: Value }) => void>;
+    /* "l"isteners */ l: Set<(action: [Version, Value] | [Version]) => void>;
     /* "u"pdate    */ u: (thunk: () => void) => void;
   };
 };
@@ -55,11 +55,11 @@ const createProvider = <Value>(
     const versionRef = useRef(0);
     const contextValue = useRef<ContextValue<Value>>();
     if (!contextValue.current) {
-      const listeners = new Set<(action: { n: Version } | { n: Version, v: Value }) => void>();
+      const listeners = new Set<(action: [Version, Value] | [Version]) => void>();
       const update = (thunk: () => void) => {
         batchedUpdates(() => {
           versionRef.current += 1;
-          listeners.forEach((listener) => listener({ n: versionRef.current }));
+          listeners.forEach((listener) => listener([versionRef.current]));
           thunk();
         });
       };
@@ -77,7 +77,7 @@ const createProvider = <Value>(
       versionRef.current += 1;
       runWithNormalPriority(() => {
         (contextValue.current as ContextValue<Value>)[CONTEXT_VALUE].l.forEach((listener) => {
-          listener({ n: versionRef.current, v: value });
+          listener([versionRef.current, value]);
         });
       });
     }, [value]);
@@ -145,14 +145,14 @@ export function useContextSelector<Value, Selected>(
   const [state, dispatch] = useReducer((
     prev: readonly [Version, Value, Selected],
     next:
-      | { n: Version } // from useContextUpdate
-      | { n: Version, v: Value } // from provider effect
-      | { n: Version, v: Value, s: Selected }, // from render below
+      | [Version, Value] // from provider effect
+      | [Version] // from useContextUpdate
+      | [], // from render below
   ) => {
-    if ('s' in next) {
+    if (next.length === 0) {
       return [version, value, selected] as const;
     }
-    if (!('v' in next)) {
+    if (next.length === 1) {
       if (prev[0] <= version) {
         if (Object.is(prev[1], value) || Object.is(prev[2], selected)) {
           return prev; // bail out
@@ -160,22 +160,22 @@ export function useContextSelector<Value, Selected>(
       }
       return [...prev] as const; // schedule update
     }
-    if (next.n <= version) {
+    if (next[0] <= version) {
       if (Object.is(prev[1], value) || Object.is(prev[2], selected)) {
         return prev; // bail out
       }
       return [version, value, selected] as const;
     }
     try {
-      if ('v' in next) {
-        if (Object.is(prev[1], next.v)) {
+      if (next.length === 2) {
+        if (Object.is(prev[1], next[1])) {
           return prev; // do not update
         }
-        const nextSelected = selector(next.v);
+        const nextSelected = selector(next[1]);
         if (Object.is(prev[2], nextSelected)) {
           return prev; // do not update
         }
-        return [next.n, next.v, nextSelected] as const;
+        return [next[0], next[1], nextSelected] as const;
       }
     } catch (e) {
       // ignored (stale props or some other reason)
@@ -185,7 +185,7 @@ export function useContextSelector<Value, Selected>(
   if (!Object.is(state[2], selected)) {
     // schedule re-render
     // this is safe because it's self contained
-    dispatch({ n: version, v: value, s: selected });
+    dispatch([]);
   }
   useIsomorphicLayoutEffect(() => {
     listeners.add(dispatch);
