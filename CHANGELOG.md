@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 ### Changed
-- Fix extra commits and improve overall behavior (#39)
+- Fix extra commits introduced in v1.3.6 (#39)
 
 ## [1.3.6] - 2021-01-23
 ### Changed

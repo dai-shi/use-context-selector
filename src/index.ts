@@ -143,37 +143,37 @@ export function useContextSelector<Value, Selected>(
   } = contextValue;
   const selected = selector(value);
   const [state, dispatch] = useReducer((
-    prev: readonly [Version, Value, Selected],
+    prev: readonly [Value, Selected],
     next?: // undefined from render below
       | readonly [Version] // from useContextUpdate
       | readonly [Version, Value], // from provider effect
   ) => {
     if (!next) {
-      return [version, value, selected] as const;
+      return [value, selected] as const;
     }
     if (next[0] <= version) {
-      if (Object.is(prev[2], selected)) {
+      if (Object.is(prev[1], selected)) {
         return prev; // bail out
       }
-      return [version, value, selected] as const;
+      return [value, selected] as const;
     }
     try {
       if (next.length === 2) {
-        if (Object.is(prev[1], next[1])) {
+        if (Object.is(prev[0], next[1])) {
           return prev; // do not update
         }
         const nextSelected = selector(next[1]);
-        if (Object.is(prev[2], nextSelected)) {
+        if (Object.is(prev[1], nextSelected)) {
           return prev; // do not update
         }
-        return [next[0], next[1], nextSelected] as const;
+        return [next[1], nextSelected] as const;
       }
     } catch (e) {
       // ignored (stale props or some other reason)
     }
     return [...prev] as const; // schedule update
-  }, [version, value, selected] as const);
-  if (!Object.is(state[2], selected)) {
+  }, [value, selected] as const);
+  if (!Object.is(state[1], selected)) {
     // schedule re-render
     // this is safe because it's self contained
     dispatch();
@@ -184,7 +184,7 @@ export function useContextSelector<Value, Selected>(
       listeners.delete(dispatch);
     };
   }, [listeners]);
-  return state[2];
+  return state[1];
 }
 
 /**
