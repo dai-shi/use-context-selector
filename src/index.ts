@@ -153,7 +153,8 @@ export function useContextSelector<Value, Selected>(
       return [version, value, selected] as const;
     }
     if (next.length === 1) {
-      if (prev[0] <= version) {
+      if (next[0] < version) {
+      // if (prev[0] <= version) {
         if (Object.is(prev[1], value) || Object.is(prev[2], selected)) {
           return prev; // bail out
         }
