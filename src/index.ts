@@ -38,7 +38,7 @@ type ContextValue<Value> = {
   [CONTEXT_VALUE]: {
     /* "v"alue     */ v: MutableRefObject<Value>;
     /* versio"n"   */ n: MutableRefObject<Version>;
-    /* "l"isteners */ l: Set<(action: readonly [Version, Value] | readonly [Version]) => void>;
+    /* "l"isteners */ l: Set<(action: readonly [Version] | readonly [Version, Value]) => void>;
     /* "u"pdate    */ u: (thunk: () => void) => void;
   };
 };
@@ -55,7 +55,7 @@ const createProvider = <Value>(
     const versionRef = useRef(0);
     const contextValue = useRef<ContextValue<Value>>();
     if (!contextValue.current) {
-      const listeners = new Set<(action: readonly [Version, Value] | readonly [Version]) => void>();
+      const listeners = new Set<(action: readonly [Version] | readonly [Version, Value]) => void>();
       const update = (thunk: () => void) => {
         batchedUpdates(() => {
           versionRef.current += 1;
@@ -145,8 +145,8 @@ export function useContextSelector<Value, Selected>(
   const [state, dispatch] = useReducer((
     prev: readonly [Version, Value, Selected],
     next?: // undefined from render below
-      | readonly [Version, Value] // from provider effect
-      | readonly [Version], // from useContextUpdate
+      | readonly [Version] // from useContextUpdate
+      | readonly [Version, Value], // from provider effect
   ) => {
     if (!next) {
       return [version, value, selected] as const;
