@@ -160,6 +160,7 @@ export function useContextSelector<Value, Selected>(
       }
       return [...prev] as const; // schedule update
     }
+    // next.length === 2
     if (next[0] <= version) {
       if (Object.is(prev[1], value) || Object.is(prev[2], selected)) {
         return prev; // bail out
@@ -167,16 +168,14 @@ export function useContextSelector<Value, Selected>(
       return [version, value, selected] as const;
     }
     try {
-      if (next.length === 2) {
-        if (Object.is(prev[1], next[1])) {
-          return prev; // do not update
-        }
-        const nextSelected = selector(next[1]);
-        if (Object.is(prev[2], nextSelected)) {
-          return prev; // do not update
-        }
-        return [next[0], next[1], nextSelected] as const;
+      if (Object.is(prev[1], next[1])) {
+        return prev; // do not update
       }
+      const nextSelected = selector(next[1]);
+      if (Object.is(prev[2], nextSelected)) {
+        return prev; // do not update
+      }
+      return [next[0], next[1], nextSelected] as const;
     } catch (e) {
       // ignored (stale props or some other reason)
     }
