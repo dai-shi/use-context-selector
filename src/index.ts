@@ -203,7 +203,9 @@ export function useContext<Value>(context: Context<Value>) {
 /**
  * This hook returns an update function that accepts a thunk function
  *
- * Use this for a function that will change a value.
+ * Use this for a function that will change a value in
+ * [Concurrent Mode](https://reactjs.org/docs/concurrent-mode-intro.html).
+ * Otherwise, there's no need to use this hook.
  *
  * @example
  * import { useContextUpdate } from 'use-context-selector';
