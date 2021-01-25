@@ -168,7 +168,9 @@ const person = useContext(PersonContext);
 
 This hook returns an update function that accepts a thunk function
 
-Use this for a function that will change a value.
+Use this for a function that will change a value in
+[Concurrent Mode](https://reactjs.org/docs/concurrent-mode-intro.html).
+Otherwise, there's no need to this hook.
 
 #### Parameters
 
