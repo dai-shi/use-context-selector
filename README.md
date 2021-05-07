@@ -245,5 +245,5 @@ You can also try them in codesandbox.io:
 ## Projects that use use-context-selector
 
 -   [react-tracked](https://github.com/dai-shi/react-tracked)
--   [jotai](https://github.com/pmndrs/jotai)
+-   [use-atom](https://github.com/dai-shi/use-atom)
 -   [formik v3.0.0-next.8](https://github.com/formium/formik/pull/2846)
