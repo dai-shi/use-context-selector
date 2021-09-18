@@ -25,11 +25,15 @@
     "postcompile:native": "rm -r src/native",
     "test": "run-s eslint tsc-test jest",
     "eslint": "eslint --ext .js,.ts,.tsx --ignore-pattern dist .",
-    "jest": "jest --preset ts-jest/presets/js-with-ts __tests__/*.tsx",
+    "jest": "jest",
     "tsc-test": "tsc --project . --noEmit",
     "apidoc": "documentation readme --section API --markdown-toc false --parse-extension ts src/*.ts",
     "examples:01_minimal": "DIR=01_minimal EXT=js webpack-dev-server",
     "examples:02_typescript": "DIR=02_typescript webpack-dev-server"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "preset": "ts-jest/presets/js-with-ts"
   },
   "keywords": [
     "react",
