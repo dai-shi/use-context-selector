@@ -5,7 +5,7 @@ const { DIR, EXT = 'ts' } = process.env;
 
 module.exports = {
   mode: 'development',
-  devtool: 'cheap-module-eval-source-map',
+  devtool: 'cheap-module-source-map',
   entry: `./examples/${DIR}/src/index.${EXT}`,
   output: {
     publicPath: '/',
@@ -33,7 +33,9 @@ module.exports = {
   },
   devServer: {
     port: process.env.PORT || '8080',
-    contentBase: `./examples/${DIR}/public`,
+    static: {
+      directory: `./examples/${DIR}/public`,
+    },
     historyApiFallback: true,
   },
 };
