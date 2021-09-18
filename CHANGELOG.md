@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## [1.3.8] - 2021-09-18
+### Changed
+- Fix package.json properly for ESM
+- Refactor version check with triple equal (#54)
+
 ## [1.3.7] - 2021-01-24
 ### Changed
 - Fix extra commits introduced in v1.3.6 (#39)
