@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- Fix build config (obsoleting v1.3.8 which isn't built correctly)
 
 ## [1.3.8] - 2021-09-18
 ### Changed
