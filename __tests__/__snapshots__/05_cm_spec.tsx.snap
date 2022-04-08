@@ -43,7 +43,7 @@ exports[`useContextUpdate spec counter 2`] = `
       +1
     </button>
     <span>
-      5
+      7
     </span>
   </div>
   <div>
