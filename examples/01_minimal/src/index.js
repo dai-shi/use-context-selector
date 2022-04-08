@@ -1,5 +1,5 @@
 import React, { useReducer, StrictMode } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 import {
   createContext,
@@ -51,14 +51,11 @@ const TextBox = () => {
   );
 };
 
-const Provider = ({ children }) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
-  return (
-    <context.Provider value={[state, dispatch]}>
-      {children}
-    </context.Provider>
-  );
-};
+const Provider = ({ children }) => (
+  <context.Provider value={useReducer(reducer, initialState)}>
+    {children}
+  </context.Provider>
+);
 
 const App = () => (
   <StrictMode>
@@ -75,5 +72,4 @@ const App = () => (
   </StrictMode>
 );
 
-// ReactDOM.unstable_createRoot(document.getElementById('app')).render(<App />);
-ReactDOM.render(<App />, document.getElementById('app'));
+createRoot(document.getElementById('app')).render(<App />);

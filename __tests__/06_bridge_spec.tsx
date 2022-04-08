@@ -1,5 +1,6 @@
 import React, {
   Dispatch,
+  ReactNode,
   SetStateAction,
   useState,
   StrictMode,
@@ -54,15 +55,12 @@ describe('Bridge spec', () => {
         </div>
       );
     };
-    const StateProvider: React.FC = ({ children }) => {
-      const [state, setState] = useState(initialState);
-      return (
-        <context.Provider value={[state, setState]}>
-          {children}
-        </context.Provider>
-      );
-    };
-    const DifferentRoot: React.FC = () => {
+    const StateProvider = ({ children }: { children: ReactNode }) => (
+      <context.Provider value={useState(initialState)}>
+        {children}
+      </context.Provider>
+    );
+    const DifferentRoot = () => {
       const bridgeValue = useBridgeValue(context);
       return (
         <BridgeProvider context={context} value={bridgeValue}>

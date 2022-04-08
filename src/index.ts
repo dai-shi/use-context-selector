@@ -1,9 +1,9 @@
 import {
   ComponentType,
   Context as ContextOrig,
-  FC,
   MutableRefObject,
   Provider,
+  ReactNode,
   createElement,
   createContext as createContextOrig,
   useContext as useContextOrig,
@@ -44,13 +44,14 @@ type ContextValue<Value> = {
 };
 
 export interface Context<Value> {
-  Provider: ComponentType<{ value: Value }>;
+  Provider: ComponentType<{ value: Value; children: ReactNode }>;
   displayName?: string;
 }
 
 const createProvider = <Value>(
   ProviderOrig: Provider<ContextValue<Value>>,
-): FC<{ value: Value }> => ({ value, children }) => {
+) => {
+  const ContextProvider = ({ value, children }: { value: Value; children: ReactNode }) => {
     const valueRef = useRef(value);
     const versionRef = useRef(0);
     const contextValue = useRef<ContextValue<Value>>();
@@ -83,6 +84,8 @@ const createProvider = <Value>(
     }, [value]);
     return createElement(ProviderOrig, { value: contextValue.current }, children);
   };
+  return ContextProvider;
+};
 
 const identity = <T>(x: T) => x;
 
@@ -239,10 +242,11 @@ export function useContextUpdate<Value>(context: Context<Value>) {
  *   </Renderer>
  * );
  */
-export const BridgeProvider: FC<{
+export const BridgeProvider = ({ context, value, children }:{
   context: Context<any>;
   value: any;
-}> = ({ context, value, children }) => {
+  children: ReactNode;
+}) => {
   const { [ORIGINAL_PROVIDER]: ProviderOrig } = context as unknown as {
     [ORIGINAL_PROVIDER]: Provider<unknown>;
   };

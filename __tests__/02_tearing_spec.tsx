@@ -12,7 +12,7 @@ describe.skip('tearing spec', () => {
       count: 0,
     };
     const context = createContext(initialState);
-    const Counter: React.FC<{ parentCount: number }> = ({ parentCount }) => {
+    const Counter = ({ parentCount }: { parentCount: number }) => {
       const count = useContextSelector(context, (v) => v.count);
       if (parentCount !== count) throw new Error('tears!!!');
       return (
