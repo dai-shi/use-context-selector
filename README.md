@@ -86,14 +86,11 @@ const Counter2 = () => {
   );
 };
 
-const StateProvider = ({ children }) => {
-  const [state, setState] = useState({ count1: 0, count2: 0 });
-  return (
-    <context.Provider value={[state, setState]}>
-      {children}
-    </context.Provider>
-  );
-};
+const StateProvider = ({ children }) => (
+  <context.Provider value={useState({ count1: 0, count2: 0 })}>
+    {children}
+  </context.Provider>
+);
 
 const App = () => (
   <StateProvider>
