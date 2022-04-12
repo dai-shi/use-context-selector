@@ -31,7 +31,8 @@
     "import/no-unresolved": ["error", { "ignore": ["use-context-selector"] }],
     "symbol-description": "off",
     "no-use-before-define": "off",
-    "no-unused-vars": "off"
+    "no-unused-vars": "off",
+    "react/function-component-definition": ["error", { "namedComponents": "arrow-function" }]
   },
   "overrides": [{
     "files": ["__tests__/**/*"],

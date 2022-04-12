@@ -86,14 +86,11 @@ const Counter2 = () => {
   );
 };
 
-const StateProvider = ({ children }) => {
-  const [state, setState] = useState({ count1: 0, count2: 0 });
-  return (
-    <context.Provider value={[state, setState]}>
-      {children}
-    </context.Provider>
-  );
-};
+const StateProvider = ({ children }) => (
+  <context.Provider value={useState({ count1: 0, count2: 0 })}>
+    {children}
+  </context.Provider>
+);
 
 const App = () => (
   <StateProvider>
@@ -115,7 +112,7 @@ This creates a special context for `useContextSelector`.
 
 #### Parameters
 
--   `defaultValue` **Value** 
+*   `defaultValue` **Value** 
 
 #### Examples
 
@@ -136,8 +133,8 @@ The selector should return referentially equal result for same input for better 
 
 #### Parameters
 
--   `context` **Context&lt;Value>** 
--   `selector` **function (value: Value): Selected** 
+*   `context` **Context\<Value>** 
+*   `selector` **function (value: Value): Selected** 
 
 #### Examples
 
@@ -154,7 +151,7 @@ Use this instead of React.useContext for consistent behavior.
 
 #### Parameters
 
--   `context` **Context&lt;Value>** 
+*   `context` **Context\<Value>** 
 
 #### Examples
 
@@ -174,7 +171,7 @@ Otherwise, there's no need to use this hook.
 
 #### Parameters
 
--   `context` **Context&lt;Value>** 
+*   `context` **Context\<Value>** 
 
 #### Examples
 
@@ -189,14 +186,13 @@ update(() => setState(...));
 
 This is a Provider component for bridging multiple react roots
 
-Type: FC&lt;{context: Context&lt;any>, value: any}>
-
 #### Parameters
 
--   `$0` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
-    -   `$0.context`  
-    -   `$0.value`  
-    -   `$0.children`  
+*   `$0` **{context: Context\<any>, value: any, children: ReactNode}** 
+
+    *   `$0.context`  
+    *   `$0.value`  
+    *   `$0.children`  
 
 #### Examples
 
@@ -217,15 +213,15 @@ This hook return a value for BridgeProvider
 
 #### Parameters
 
--   `context` **Context&lt;any>** 
+*   `context` **Context\<any>** 
 
 ## Limitations
 
--   In order to stop propagation, `children` of a context provider has to be either created outside of the provider or memoized with `React.memo`.
--   Provider trigger re-renders only if the context value is referentially changed.
--   Neither context consumers or class components are supported.
--   The [stale props](https://react-redux.js.org/api/hooks#stale-props-and-zombie-children) issue can't be solved in userland.
--   Tearing is only avoided if all consumers get data using `useContextSelector`. If you use both props and `use-context-selector` to pass the same data, they may provide inconsistence data for a brief moment. (`02_tearing_spec` fails)
+*   In order to stop propagation, `children` of a context provider has to be either created outside of the provider or memoized with `React.memo`.
+*   Provider trigger re-renders only if the context value is referentially changed.
+*   Neither context consumers or class components are supported.
+*   The [stale props](https://react-redux.js.org/api/hooks#stale-props-and-zombie-children) issue can't be solved in userland.
+*   Tearing is only avoided if all consumers get data using `useContextSelector`. If you use both props and `use-context-selector` to pass the same data, they may provide inconsistence data for a brief moment. (`02_tearing_spec` fails)
 
 ## Examples
 
@@ -239,11 +235,11 @@ PORT=8080 yarn run examples:01_minimal
 and open <http://localhost:8080> in your web browser.
 
 You can also try them in codesandbox.io:
-[01](https://codesandbox.io/s/github/dai-shi/use-context-selector/tree/master/examples/01_minimal)
-[02](https://codesandbox.io/s/github/dai-shi/use-context-selector/tree/master/examples/02_typescript)
+[01](https://codesandbox.io/s/github/dai-shi/use-context-selector/tree/master/examples/01\_minimal)
+[02](https://codesandbox.io/s/github/dai-shi/use-context-selector/tree/master/examples/02\_typescript)
 
 ## Projects that use use-context-selector
 
--   [react-tracked](https://github.com/dai-shi/react-tracked)
--   [use-atom](https://github.com/dai-shi/use-atom)
--   [formik v3.0.0-next.8](https://github.com/formium/formik/pull/2846)
+*   [react-tracked](https://github.com/dai-shi/react-tracked)
+*   [use-atom](https://github.com/dai-shi/use-atom)
+*   [formik v3.0.0-next.8](https://github.com/formium/formik/pull/2846)

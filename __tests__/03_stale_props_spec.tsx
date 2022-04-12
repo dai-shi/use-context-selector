@@ -9,11 +9,11 @@ describe.skip('stale props spec', () => {
 
   it('ignores transient errors in selector (e.g. due to stale props)', () => {
     const Context = createContext(0);
-    const Parent: React.FC = () => {
+    const Parent = () => {
       const count = useContextSelector(Context, (c: number) => c);
       return <Child parentCount={count} />;
     };
-    const Child: React.FC<{ parentCount: number }> = ({ parentCount }) => {
+    const Child = ({ parentCount }: { parentCount: number }) => {
       const result = useContextSelector(Context, (c: number) => {
         if (c !== parentCount) {
           throw new Error();
@@ -22,7 +22,7 @@ describe.skip('stale props spec', () => {
       });
       return <div>{result}</div>;
     };
-    const App: React.FC = () => {
+    const App = () => {
       const [count, dispatch] = useReducer((c: number) => c + 1, 0);
       return (
         <>
@@ -42,18 +42,18 @@ describe.skip('stale props spec', () => {
   it('ensures consistency of state and props in selector', () => {
     let selectorSawInconsistencies = false;
     const Context = createContext(0);
-    const Parent: React.FC = () => {
+    const Parent = () => {
       const count = useContextSelector(Context, (c: number) => c);
       return <Child parentCount={count} />;
     };
-    const Child: React.FC<{ parentCount: number }> = ({ parentCount }) => {
+    const Child = ({ parentCount }: { parentCount: number }) => {
       const result = useContextSelector(Context, (c: number) => {
         selectorSawInconsistencies = selectorSawInconsistencies || c !== parentCount;
         return c + parentCount;
       });
       return <div>{result}</div>;
     };
-    const App: React.FC = () => {
+    const App = () => {
       const [count, dispatch] = useReducer((c: number) => c + 1, 0);
       return (
         <>

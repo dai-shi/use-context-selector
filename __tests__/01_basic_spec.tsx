@@ -1,5 +1,6 @@
 import React, {
   Dispatch,
+  ReactNode,
   SetStateAction,
   useRef,
   useState,
@@ -58,14 +59,11 @@ describe('basic spec', () => {
         </div>
       );
     };
-    const StateProvider: React.FC = ({ children }) => {
-      const [state, setState] = useState(initialState);
-      return (
-        <context.Provider value={[state, setState]}>
-          {children}
-        </context.Provider>
-      );
-    };
+    const StateProvider = ({ children }: { children: ReactNode }) => (
+      <context.Provider value={useState(initialState)}>
+        {children}
+      </context.Provider>
+    );
     const App = () => (
       <StrictMode>
         <StateProvider>
