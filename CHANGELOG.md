@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.3.10] - 2022-04-12
+### Changed
+- Fix types for @types/react@18 (#75)
+
 ## [1.3.9] - 2021-09-20
 ### Changed
 - Fix build config (obsoleting v1.3.8 which isn't built correctly)
