@@ -270,3 +270,5 @@ export const useBridgeValue = (context: Context<any>) => {
   }
   return bridgeValue as any;
 };
+
+export { default as createProviderFromHook } from './createProviderFromHook';

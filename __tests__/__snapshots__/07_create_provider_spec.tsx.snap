@@ -1,0 +1,61 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`createProvider spec counter 1`] = `
+<div>
+  <div>
+    <span>
+      count1: 
+      0
+    </span>
+    <button
+      type="button"
+    >
+      +1
+    </button>
+    <span>
+      1
+    </span>
+  </div>
+  <div>
+    <span>
+      count2: 
+      0
+    </span>
+    <span
+      data-testid="counter2"
+    >
+      1
+    </span>
+  </div>
+</div>
+`;
+
+exports[`createProvider spec counter 2`] = `
+<div>
+  <div>
+    <span>
+      count1: 
+      1
+    </span>
+    <button
+      type="button"
+    >
+      +1
+    </button>
+    <span>
+      5
+    </span>
+  </div>
+  <div>
+    <span>
+      count2: 
+      0
+    </span>
+    <span
+      data-testid="counter2"
+    >
+      1
+    </span>
+  </div>
+</div>
+`;
