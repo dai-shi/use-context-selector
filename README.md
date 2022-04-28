@@ -235,8 +235,8 @@ PORT=8080 yarn run examples:01_minimal
 and open <http://localhost:8080> in your web browser.
 
 You can also try them in codesandbox.io:
-[01](https://codesandbox.io/s/github/dai-shi/use-context-selector/tree/master/examples/01\_minimal)
-[02](https://codesandbox.io/s/github/dai-shi/use-context-selector/tree/master/examples/02\_typescript)
+[01](https://codesandbox.io/s/github/dai-shi/use-context-selector/tree/main/examples/01\_minimal)
+[02](https://codesandbox.io/s/github/dai-shi/use-context-selector/tree/main/examples/02\_typescript)
 
 ## Projects that use use-context-selector
 
