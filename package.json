@@ -39,7 +39,8 @@
     "tsc-test": "tsc --project . --noEmit",
     "apidoc": "documentation readme --section API --markdown-toc false --parse-extension ts --require-extension ts src/*.ts",
     "examples:01_minimal": "DIR=01_minimal EXT=js webpack serve",
-    "examples:02_typescript": "DIR=02_typescript webpack serve"
+    "examples:02_typescript": "DIR=02_typescript webpack serve",
+    "examples:03_suspense": "DIR=03_suspense webpack serve"
   },
   "jest": {
     "testEnvironment": "jsdom",
