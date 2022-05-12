@@ -1,28 +1,40 @@
 import React, {
   ReactNode,
+  useCallback,
+  useRef,
   useState,
   // createContext,
   // useContext,
 } from 'react';
 
-import { createContext, useContext } from 'use-context-selector';
+import { createContext, useContext, useContextUpdate } from 'use-context-selector';
+
+// const useContextUpdate = () => (fn: any) => fn();
+
+type State = {
+  result: number;
+  promise: Promise<void> | null;
+};
 
 const useValue = () => {
-  const [state, setState] = useState<{
-    result: number;
-    promise: Promise<void> | null;
-  }>({ result: 1, promise: null });
-  const increment = () => {
-    const nextState = { ...state };
-    nextState.promise = new Promise<void>((resolve) => {
-      setTimeout(() => {
-        nextState.result += 1;
-        nextState.promise = null;
-        resolve();
-      }, 1000);
-    });
+  const countRef = useRef(0);
+  const [state, setState] = useState<State>({
+    result: countRef.current,
+    promise: null,
+  });
+  const increment = useCallback(() => {
+    countRef.current += 1;
+    const nextState: State = {
+      result: countRef.current,
+      promise: new Promise<void>((resolve) => {
+        setTimeout(() => {
+          nextState.promise = null;
+          resolve();
+        }, 1000);
+      }),
+    };
     setState(nextState);
-  };
+  }, []);
   return { state, increment };
 };
 
@@ -35,9 +47,15 @@ export const Provider = ({ children }: { children: ReactNode }) => (
 );
 
 export const useMyState = () => {
+  const update = useContextUpdate(MyContext);
   const value = useContext(MyContext);
   if (value === null) {
     throw new Error('Missing Provider');
   }
-  return value;
+  return {
+    state: value.state,
+    increment: useCallback(() => {
+      update(value.increment);
+    }, [update, value.increment]),
+  };
 };
