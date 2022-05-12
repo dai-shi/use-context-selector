@@ -45,7 +45,7 @@ describe.skip('tearing spec', () => {
       // It tears.
       // The React app is actually failing,
       // but we don't catch it.
-      fireEvent.click(getAllByText('+1')[0]);
+      fireEvent.click(getAllByText('+1')[0] as Element);
     }).not.toThrow();
   });
 });

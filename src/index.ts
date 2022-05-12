@@ -11,6 +11,7 @@ import {
   useLayoutEffect,
   useReducer,
   useRef,
+  useState,
 } from 'react';
 import {
   unstable_NormalPriority as NormalPriority,
@@ -33,13 +34,19 @@ const runWithNormalPriority = runWithPriority
   : (thunk: () => void) => thunk();
 
 type Version = number;
+type Listener<Value> = (
+  action:
+    | { n: Version }
+    | { n: Version, p?: Promise<Value> }
+    | { n: Version, v: Value }
+) => void
 
 type ContextValue<Value> = {
   [CONTEXT_VALUE]: {
     /* "v"alue     */ v: MutableRefObject<Value>;
     /* versio"n"   */ n: MutableRefObject<Version>;
-    /* "l"isteners */ l: Set<(action: readonly [Version] | readonly [Version, Value]) => void>;
-    /* "u"pdate    */ u: (thunk: () => void) => void;
+    /* "l"isteners */ l: Set<Listener<Value>>;
+    /* "u"pdate    */ u: (thunk: () => void, options?: { suspense: boolean }) => void;
   };
 };
 
@@ -54,13 +61,21 @@ const createProvider = <Value>(
   const ContextProvider = ({ value, children }: { value: Value; children: ReactNode }) => {
     const valueRef = useRef(value);
     const versionRef = useRef(0);
+    const [resolve, setResolve] = useState<((v: Value) => void) | null>(null);
+    resolve?.(value);
     const contextValue = useRef<ContextValue<Value>>();
     if (!contextValue.current) {
-      const listeners = new Set<(action: readonly [Version] | readonly [Version, Value]) => void>();
-      const update = (thunk: () => void) => {
+      const listeners = new Set<Listener<Value>>();
+      const update = (thunk: () => void, options?: { suspense: boolean }) => {
         batchedUpdates(() => {
           versionRef.current += 1;
-          listeners.forEach((listener) => listener([versionRef.current]));
+          const action = options?.suspense ? {
+            n: versionRef.current,
+            p: new Promise<Value>((r) => { setResolve(() => r); }),
+          } : {
+            n: versionRef.current,
+          };
+          listeners.forEach((listener) => listener(action));
           thunk();
         });
       };
@@ -78,7 +93,7 @@ const createProvider = <Value>(
       versionRef.current += 1;
       runWithNormalPriority(() => {
         (contextValue.current as ContextValue<Value>)[CONTEXT_VALUE].l.forEach((listener) => {
-          listener([versionRef.current, value]);
+          listener({ n: versionRef.current, v: value });
         });
       });
     }, [value]);
@@ -144,32 +159,44 @@ export function useContextSelector<Value, Selected>(
     /* versio"n"   */ n: { current: version },
     /* "l"isteners */ l: listeners,
   } = contextValue;
-  const selected = selector(value);
+  const resolvedRef = useRef<{ v?: Value }>({});
+  useIsomorphicLayoutEffect(() => {
+    delete resolvedRef.current.v;
+  });
+  const selected = selector(
+    'v' in resolvedRef.current ? resolvedRef.current.v : value,
+  );
   const [state, dispatch] = useReducer((
     prev: readonly [Value, Selected],
-    next?: // undefined from render below
-      | readonly [Version] // from useContextUpdate
-      | readonly [Version, Value], // from provider effect
+    next?: Parameters<Listener<Value>>[0],
   ) => {
     if (!next) {
+      // case for `dispatch()` below
       return [value, selected] as const;
     }
-    if (next[0] === version) {
+    if ('p' in next) {
+      throw next.p.then((v) => {
+        resolvedRef.current.v = v;
+        // eslint-disable-next-line no-param-reassign
+        delete next.p;
+      });
+    }
+    if (next.n === version) {
       if (Object.is(prev[1], selected)) {
         return prev; // bail out
       }
       return [value, selected] as const;
     }
     try {
-      if (next.length === 2) {
-        if (Object.is(prev[0], next[1])) {
+      if ('v' in next) {
+        if (Object.is(prev[0], next.v)) {
           return prev; // do not update
         }
-        const nextSelected = selector(next[1]);
+        const nextSelected = selector(next.v);
         if (Object.is(prev[1], nextSelected)) {
           return prev; // do not update
         }
-        return [next[1], nextSelected] as const;
+        return [next.v, nextSelected] as const;
       }
     } catch (e) {
       // ignored (stale props or some other reason)
@@ -214,7 +241,12 @@ export function useContext<Value>(context: Context<Value>) {
  * import { useContextUpdate } from 'use-context-selector';
  *
  * const update = useContextUpdate();
+ *
+ * // Wrap set state function
  * update(() => setState(...));
+ *
+ * // Experimental suspense mode
+ * update(() => setState(...), { suspense: true });
  */
 export function useContextUpdate<Value>(context: Context<Value>) {
   const contextValue = useContextOrig(
