@@ -69,12 +69,18 @@ const createProvider = <Value>(
       const update = (thunk: () => void, options?: { suspense: boolean }) => {
         batchedUpdates(() => {
           versionRef.current += 1;
-          const action = options?.suspense ? {
-            n: versionRef.current,
-            p: new Promise<Value>((r) => { setResolve(() => r); }),
-          } : {
+          const action: { n: Version; p?: Promise<Value>; } = {
             n: versionRef.current,
           };
+          if (options?.suspense) {
+            const promise = new Promise<Value>((r) => {
+              setResolve(() => r);
+            });
+            promise.then(() => {
+              delete action.p;
+            });
+            action.p = promise;
+          }
           listeners.forEach((listener) => listener(action));
           thunk();
         });
@@ -177,8 +183,6 @@ export function useContextSelector<Value, Selected>(
     if ('p' in next) {
       throw next.p.then((v) => {
         resolvedRef.current.v = v;
-        // eslint-disable-next-line no-param-reassign
-        delete next.p;
       });
     }
     if (next.n === version) {
