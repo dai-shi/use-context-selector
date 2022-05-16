@@ -62,7 +62,10 @@ const createProvider = <Value>(
     const valueRef = useRef(value);
     const versionRef = useRef(0);
     const [resolve, setResolve] = useState<((v: Value) => void) | null>(null);
-    resolve?.(value);
+    if (resolve) {
+      resolve(value);
+      setResolve(null);
+    }
     const contextValue = useRef<ContextValue<Value>>();
     if (!contextValue.current) {
       const listeners = new Set<Listener<Value>>();
