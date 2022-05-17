@@ -249,4 +249,4 @@ You can also try them in codesandbox.io:
 
 *   [react-tracked](https://github.com/dai-shi/react-tracked)
 *   [use-atom](https://github.com/dai-shi/use-atom)
-*   [formik v3.0.0-next.8](https://github.com/formium/formik/pull/2846)
+*   [react-hooks-fetch](https://github.com/dai-shi/react-hooks-fetch)
