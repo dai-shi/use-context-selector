@@ -166,7 +166,7 @@ const person = useContext(PersonContext);
 This hook returns an update function that accepts a thunk function
 
 Use this for a function that will change a value in
-[Concurrent Mode](https://reactjs.org/docs/concurrent-mode-intro.html).
+concurrent rendering in React 18.
 Otherwise, there's no need to use this hook.
 
 #### Parameters
@@ -179,7 +179,12 @@ Otherwise, there's no need to use this hook.
 import { useContextUpdate } from 'use-context-selector';
 
 const update = useContextUpdate();
+
+// Wrap set state function
 update(() => setState(...));
+
+// Experimental suspense mode
+update(() => setState(...), { suspense: true });
 ```
 
 ### BridgeProvider
