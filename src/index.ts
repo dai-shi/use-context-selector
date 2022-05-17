@@ -74,16 +74,13 @@ const createProvider = <Value>(
           };
           if (options?.suspense) {
             action.n *= -1; // this is intentional to make it temporary version
-            const promise = new Promise<Value>((r) => {
+            action.p = new Promise<Value>((r) => {
               setResolve(() => (v: Value) => {
                 action.v = v;
+                delete action.p;
                 r(v);
               });
             });
-            promise.then(() => {
-              delete action.p;
-            });
-            action.p = promise;
           }
           listeners.forEach((listener) => listener(action));
           thunk();
@@ -234,7 +231,7 @@ export function useContext<Value>(context: Context<Value>) {
  * This hook returns an update function that accepts a thunk function
  *
  * Use this for a function that will change a value in
- * [Concurrent Mode](https://reactjs.org/docs/concurrent-mode-intro.html).
+ * concurrent rendering in React 18.
  * Otherwise, there's no need to use this hook.
  *
  * @example
