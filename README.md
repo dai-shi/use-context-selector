@@ -41,6 +41,7 @@ note instructions to let users to install peer dependencies.
 
 To make it work like original React context, it uses
 [useReducer cheat mode](https://overreacted.io/a-complete-guide-to-useeffect/#why-usereducer-is-the-cheat-mode-of-hooks) intentionally.
+
 It also requires `useContextUpdate` to behave better in concurrent rendering.
 Its usage is optional and only required if the default behavior is unexpected.
 
