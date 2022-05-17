@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- experimental suspense/transition support #80
 
 ## [1.3.10] - 2022-04-12
 ### Changed

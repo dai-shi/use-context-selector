@@ -11,6 +11,7 @@ import {
   useLayoutEffect,
   useReducer,
   useRef,
+  useState,
 } from 'react';
 import {
   unstable_NormalPriority as NormalPriority,
@@ -33,13 +34,16 @@ const runWithNormalPriority = runWithPriority
   : (thunk: () => void) => thunk();
 
 type Version = number;
+type Listener<Value> = (
+  action: { n: Version, p?: Promise<Value>, v?: Value }
+) => void
 
 type ContextValue<Value> = {
   [CONTEXT_VALUE]: {
     /* "v"alue     */ v: MutableRefObject<Value>;
     /* versio"n"   */ n: MutableRefObject<Version>;
-    /* "l"isteners */ l: Set<(action: readonly [Version] | readonly [Version, Value]) => void>;
-    /* "u"pdate    */ u: (thunk: () => void) => void;
+    /* "l"isteners */ l: Set<Listener<Value>>;
+    /* "u"pdate    */ u: (thunk: () => void, options?: { suspense: boolean }) => void;
   };
 };
 
@@ -54,13 +58,31 @@ const createProvider = <Value>(
   const ContextProvider = ({ value, children }: { value: Value; children: ReactNode }) => {
     const valueRef = useRef(value);
     const versionRef = useRef(0);
+    const [resolve, setResolve] = useState<((v: Value) => void) | null>(null);
+    if (resolve) {
+      resolve(value);
+      setResolve(null);
+    }
     const contextValue = useRef<ContextValue<Value>>();
     if (!contextValue.current) {
-      const listeners = new Set<(action: readonly [Version] | readonly [Version, Value]) => void>();
-      const update = (thunk: () => void) => {
+      const listeners = new Set<Listener<Value>>();
+      const update = (thunk: () => void, options?: { suspense: boolean }) => {
         batchedUpdates(() => {
           versionRef.current += 1;
-          listeners.forEach((listener) => listener([versionRef.current]));
+          const action: Parameters<Listener<Value>>[0] = {
+            n: versionRef.current,
+          };
+          if (options?.suspense) {
+            action.n *= -1; // this is intentional to make it temporary version
+            action.p = new Promise<Value>((r) => {
+              setResolve(() => (v: Value) => {
+                action.v = v;
+                delete action.p;
+                r(v);
+              });
+            });
+          }
+          listeners.forEach((listener) => listener(action));
           thunk();
         });
       };
@@ -78,7 +100,7 @@ const createProvider = <Value>(
       versionRef.current += 1;
       runWithNormalPriority(() => {
         (contextValue.current as ContextValue<Value>)[CONTEXT_VALUE].l.forEach((listener) => {
-          listener([versionRef.current, value]);
+          listener({ n: versionRef.current, v: value });
         });
       });
     }, [value]);
@@ -147,29 +169,31 @@ export function useContextSelector<Value, Selected>(
   const selected = selector(value);
   const [state, dispatch] = useReducer((
     prev: readonly [Value, Selected],
-    next?: // undefined from render below
-      | readonly [Version] // from useContextUpdate
-      | readonly [Version, Value], // from provider effect
+    action?: Parameters<Listener<Value>>[0],
   ) => {
-    if (!next) {
+    if (!action) {
+      // case for `dispatch()` below
       return [value, selected] as const;
     }
-    if (next[0] === version) {
+    if ('p' in action) {
+      throw action.p;
+    }
+    if (action.n === version) {
       if (Object.is(prev[1], selected)) {
         return prev; // bail out
       }
       return [value, selected] as const;
     }
     try {
-      if (next.length === 2) {
-        if (Object.is(prev[0], next[1])) {
+      if ('v' in action) {
+        if (Object.is(prev[0], action.v)) {
           return prev; // do not update
         }
-        const nextSelected = selector(next[1]);
+        const nextSelected = selector(action.v);
         if (Object.is(prev[1], nextSelected)) {
           return prev; // do not update
         }
-        return [next[1], nextSelected] as const;
+        return [action.v, nextSelected] as const;
       }
     } catch (e) {
       // ignored (stale props or some other reason)
@@ -207,14 +231,19 @@ export function useContext<Value>(context: Context<Value>) {
  * This hook returns an update function that accepts a thunk function
  *
  * Use this for a function that will change a value in
- * [Concurrent Mode](https://reactjs.org/docs/concurrent-mode-intro.html).
+ * concurrent rendering in React 18.
  * Otherwise, there's no need to use this hook.
  *
  * @example
  * import { useContextUpdate } from 'use-context-selector';
  *
  * const update = useContextUpdate();
+ *
+ * // Wrap set state function
  * update(() => setState(...));
+ *
+ * // Experimental suspense mode
+ * update(() => setState(...), { suspense: true });
  */
 export function useContextUpdate<Value>(context: Context<Value>) {
   const contextValue = useContextOrig(

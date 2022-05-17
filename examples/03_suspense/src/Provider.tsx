@@ -55,7 +55,7 @@ export const useMyState = () => {
   return {
     state: value.state,
     increment: useCallback(() => {
-      update(value.increment);
+      update(value.increment, { suspense: true });
     }, [update, value.increment]),
   };
 };
