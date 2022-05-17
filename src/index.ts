@@ -35,10 +35,7 @@ const runWithNormalPriority = runWithPriority
 
 type Version = number;
 type Listener<Value> = (
-  action:
-    | { n: Version }
-    | { n: Version, p?: Promise<Value> }
-    | { n: Version, v: Value }
+  action: { n: Version, p?: Promise<Value>, v?: Value }
 ) => void
 
 type ContextValue<Value> = {
@@ -72,12 +69,16 @@ const createProvider = <Value>(
       const update = (thunk: () => void, options?: { suspense: boolean }) => {
         batchedUpdates(() => {
           versionRef.current += 1;
-          const action: { n: Version; p?: Promise<Value>; } = {
+          const action: Parameters<Listener<Value>>[0] = {
             n: versionRef.current,
           };
           if (options?.suspense) {
+            action.n *= -1; // this is intentional to make it temporary version
             const promise = new Promise<Value>((r) => {
-              setResolve(() => r);
+              setResolve(() => (v: Value) => {
+                action.v = v;
+                r(v);
+              });
             });
             promise.then(() => {
               delete action.p;
@@ -168,13 +169,7 @@ export function useContextSelector<Value, Selected>(
     /* versio"n"   */ n: { current: version },
     /* "l"isteners */ l: listeners,
   } = contextValue;
-  const resolvedRef = useRef<{ v?: Value }>({});
-  useIsomorphicLayoutEffect(() => {
-    delete resolvedRef.current.v;
-  });
-  const selected = selector(
-    'v' in resolvedRef.current ? resolvedRef.current.v : value,
-  );
+  const selected = selector(value);
   const [state, dispatch] = useReducer((
     prev: readonly [Value, Selected],
     next?: Parameters<Listener<Value>>[0],
@@ -184,9 +179,7 @@ export function useContextSelector<Value, Selected>(
       return [value, selected] as const;
     }
     if ('p' in next) {
-      throw next.p.then((v) => {
-        resolvedRef.current.v = v;
-      });
+      throw next.p;
     }
     if (next.n === version) {
       if (Object.is(prev[1], selected)) {
