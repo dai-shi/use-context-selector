@@ -169,31 +169,31 @@ export function useContextSelector<Value, Selected>(
   const selected = selector(value);
   const [state, dispatch] = useReducer((
     prev: readonly [Value, Selected],
-    next?: Parameters<Listener<Value>>[0],
+    action?: Parameters<Listener<Value>>[0],
   ) => {
-    if (!next) {
+    if (!action) {
       // case for `dispatch()` below
       return [value, selected] as const;
     }
-    if ('p' in next) {
-      throw next.p;
+    if ('p' in action) {
+      throw action.p;
     }
-    if (next.n === version) {
+    if (action.n === version) {
       if (Object.is(prev[1], selected)) {
         return prev; // bail out
       }
       return [value, selected] as const;
     }
     try {
-      if ('v' in next) {
-        if (Object.is(prev[0], next.v)) {
+      if ('v' in action) {
+        if (Object.is(prev[0], action.v)) {
           return prev; // do not update
         }
-        const nextSelected = selector(next.v);
+        const nextSelected = selector(action.v);
         if (Object.is(prev[1], nextSelected)) {
           return prev; // do not update
         }
-        return [next.v, nextSelected] as const;
+        return [action.v, nextSelected] as const;
       }
     } catch (e) {
       // ignored (stale props or some other reason)
