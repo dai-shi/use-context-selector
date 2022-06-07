@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- fix(build): build script for React Native #83
 
 ## [1.4.0] - 2022-05-17
 ### Added
