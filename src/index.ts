@@ -156,7 +156,7 @@ export function useContextSelector<Value, Selected>(
   const contextValue = useContextOrig(
     context as unknown as ContextOrig<ContextValue<Value>>,
   )[CONTEXT_VALUE];
-  if (typeof process === 'object' && process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== 'production') {
     if (!contextValue) {
       throw new Error('useContextSelector requires special context');
     }
@@ -249,7 +249,7 @@ export function useContextUpdate<Value>(context: Context<Value>) {
   const contextValue = useContextOrig(
     context as unknown as ContextOrig<ContextValue<Value>>,
   )[CONTEXT_VALUE];
-  if (typeof process === 'object' && process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== 'production') {
     if (!contextValue) {
       throw new Error('useContextUpdate requires special context');
     }
@@ -279,7 +279,7 @@ export const BridgeProvider = ({ context, value, children }:{
   const { [ORIGINAL_PROVIDER]: ProviderOrig } = context as unknown as {
     [ORIGINAL_PROVIDER]: Provider<unknown>;
   };
-  if (typeof process === 'object' && process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== 'production') {
     if (!ProviderOrig) {
       throw new Error('BridgeProvider requires special context');
     }
@@ -292,7 +292,7 @@ export const BridgeProvider = ({ context, value, children }:{
  */
 export const useBridgeValue = (context: Context<any>) => {
   const bridgeValue = useContextOrig(context as unknown as ContextOrig<ContextValue<unknown>>);
-  if (typeof process === 'object' && process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== 'production') {
     if (!bridgeValue[CONTEXT_VALUE]) {
       throw new Error('useBridgeValue requires special context');
     }
