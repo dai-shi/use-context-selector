@@ -29,7 +29,7 @@
   "scripts": {
     "compile": "run-s compile:*",
     "compile:dom": "microbundle build -f modern,umd --globals react=React,react-dom=ReactDOM",
-    "postcompile:dom": "cp dist/index.modern.js dist/index.modern.mjs && cp dist/index.modern.js.map dist/index.modern.mjs.map",
+    "postcompile:dom": "cp dist/index.modern.mjs dist/index.modern.js && cp dist/index.modern.mjs.map dist/index.modern.js.map",
     "precompile:native": "mkdir src/native && cp src/index.ts src/native/index.ts && cp src/batchedUpdates.native.ts src/native/batchedUpdates.ts",
     "compile:native": "microbundle build -f modern,umd -i ./src/native/index.ts -o ./dist/index.native.js",
     "postcompile:native": "rm -r src/native",
