@@ -1,21 +1,21 @@
 {
   "compilerOptions": {
     "strict": true,
-    "target": "es5",
+    "target": "esnext",
+    "downlevelIteration": true,
     "esModuleInterop": true,
     "module": "es2015",
     "moduleResolution": "node",
-    "jsx": "react",
+    "skipLibCheck": true,
     "allowJs": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
-    "sourceMap": true,
+    "jsx": "react",
     "baseUrl": ".",
     "paths": {
       "use-context-selector": ["./src"]
-    },
-    "outDir": "./dist"
+    }
   }
 }
