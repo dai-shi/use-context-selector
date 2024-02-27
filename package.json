@@ -28,10 +28,10 @@
   ],
   "scripts": {
     "compile": "run-s compile:*",
-    "compile:dom": "microbundle build -f modern,umd --globals react=React,react-dom=ReactDOM",
+    "compile:dom": "microbundle build -f modern,umd --globals react=React,react-dom=ReactDOM --no-compress",
     "postcompile:dom": "cp dist/index.modern.mjs dist/index.modern.js && cp dist/index.modern.mjs.map dist/index.modern.js.map",
     "precompile:native": "mkdir src/native && cp src/index.ts src/native/index.ts && cp src/batchedUpdates.native.ts src/native/batchedUpdates.ts",
-    "compile:native": "microbundle build -f modern,umd -i ./src/native/index.ts -o ./dist/index.native.js",
+    "compile:native": "microbundle build -f modern,umd -i ./src/native/index.ts -o ./dist/index.native.js --no-compress",
     "postcompile:native": "rm -r src/native",
     "test": "run-s eslint tsc-test jest",
     "eslint": "eslint --ext .js,.ts,.tsx --ignore-pattern dist .",
