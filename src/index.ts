@@ -30,8 +30,17 @@ const useIsomorphicLayoutEffect = isSSR ? useEffect : useLayoutEffect;
 
 // for preact that doesn't have runWithPriority
 const runWithNormalPriority = runWithPriority
-  ? (thunk: () => void) => runWithPriority(NormalPriority, thunk)
-  : (thunk: () => void) => thunk();
+  ? (thunk: () => void) => {
+    try {
+      runWithPriority(NormalPriority, thunk);
+    } catch (e: any) {
+      if (e.message === 'Not implemented.') {
+        thunk();
+      } else {
+        throw e;
+      }
+    }
+  } : (thunk: () => void) => thunk();
 
 type Version = number;
 type Listener<Value> = (
