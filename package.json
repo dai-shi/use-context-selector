@@ -1,7 +1,7 @@
 {
   "name": "use-context-selector",
   "description": "React useContextSelector hook in userland",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "author": "Daishi Kato",
   "repository": {
     "type": "git",
@@ -16,7 +16,6 @@
     "./package.json": "./package.json",
     ".": {
       "types": "./dist/src/index.d.ts",
-      "module": "./dist/index.modern.js",
       "import": "./dist/index.modern.mjs",
       "default": "./dist/index.umd.js"
     }

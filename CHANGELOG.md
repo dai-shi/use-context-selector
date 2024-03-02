@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## [1.4.2] - 2024-03-02
 ### Changed
 - fix: unimplemented scheduler like RN #114
 
