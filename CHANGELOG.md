@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.4.3] - 2024-03-06
+### Changed
+- fix: react-native entry point #116
+
 ## [1.4.2] - 2024-03-02
 ### Changed
 - fix: unimplemented scheduler like RN #114
