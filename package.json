@@ -10,6 +10,7 @@
   "source": "./src/index.ts",
   "main": "./dist/index.umd.js",
   "module": "./dist/index.modern.js",
+  "react-native": "./dist/index.native.modern.mjs",
   "types": "./dist/src/index.d.ts",
   "exports": {
     "./package.json": "./package.json",

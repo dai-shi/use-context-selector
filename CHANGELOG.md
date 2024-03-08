@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+- fix(react-native): metro without exports support #118
 
 ## [1.4.3] - 2024-03-06
 ### Changed
