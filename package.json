@@ -30,7 +30,7 @@
     "compile": "run-s compile:*",
     "compile:dom": "microbundle build -f modern,umd --globals react=React,react-dom=ReactDOM --no-compress",
     "postcompile:dom": "cp dist/index.modern.mjs dist/index.modern.js && cp dist/index.modern.mjs.map dist/index.modern.js.map",
-    "precompile:native": "mkdir src/native && cp src/index.ts src/native/index.ts && cp src/batchedUpdates.native.ts src/native/batchedUpdates.ts",
+    "precompile:native": "mkdir src/native && cp src/index.ts src/native/index.ts",
     "compile:native": "microbundle build -f modern,umd -i ./src/native/index.ts -o ./dist/index.native.js --no-compress",
     "postcompile:native": "rm -r src/native",
     "test": "run-s eslint tsc-test jest",
@@ -84,17 +84,7 @@
     "webpack-dev-server": "^5.0.2"
   },
   "peerDependencies": {
-    "react": ">=16.8.0",
-    "react-dom": "*",
-    "react-native": "*",
+    "react": ">=18.0.0",
     "scheduler": ">=0.19.0"
-  },
-  "peerDependenciesMeta": {
-    "react-dom": {
-      "optional": true
-    },
-    "react-native": {
-      "optional": true
-    }
   }
 }
