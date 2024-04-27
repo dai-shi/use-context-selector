@@ -18,8 +18,6 @@ import {
   unstable_runWithPriority as runWithPriority,
 } from 'scheduler';
 
-import { batchedUpdates } from './batchedUpdates';
-
 const CONTEXT_VALUE = Symbol();
 const ORIGINAL_PROVIDER = Symbol();
 
@@ -30,17 +28,17 @@ const useIsomorphicLayoutEffect = isSSR ? useEffect : useLayoutEffect;
 
 // for preact that doesn't have runWithPriority
 const runWithNormalPriority = runWithPriority
-  ? (thunk: () => void) => {
+  ? (fn: () => void) => {
     try {
-      runWithPriority(NormalPriority, thunk);
+      runWithPriority(NormalPriority, fn);
     } catch (e: any) {
       if (e.message === 'Not implemented.') {
-        thunk();
+        fn();
       } else {
         throw e;
       }
     }
-  } : (thunk: () => void) => thunk();
+  } : (fn: () => void) => fn();
 
 type Version = number;
 type Listener<Value> = (
@@ -52,7 +50,7 @@ type ContextValue<Value> = {
     /* "v"alue     */ v: MutableRefObject<Value>;
     /* versio"n"   */ n: MutableRefObject<Version>;
     /* "l"isteners */ l: Set<Listener<Value>>;
-    /* "u"pdate    */ u: (thunk: () => void, options?: { suspense: boolean }) => void;
+    /* "u"pdate    */ u: (fn: () => void, options?: { suspense: boolean }) => void;
   };
 };
 
@@ -75,25 +73,23 @@ const createProvider = <Value>(
     const contextValue = useRef<ContextValue<Value>>();
     if (!contextValue.current) {
       const listeners = new Set<Listener<Value>>();
-      const update = (thunk: () => void, options?: { suspense: boolean }) => {
-        batchedUpdates(() => {
-          versionRef.current += 1;
-          const action: Parameters<Listener<Value>>[0] = {
-            n: versionRef.current,
-          };
-          if (options?.suspense) {
-            action.n *= -1; // this is intentional to make it temporary version
-            action.p = new Promise<Value>((r) => {
-              setResolve(() => (v: Value) => {
-                action.v = v;
-                delete action.p;
-                r(v);
-              });
+      const update = (fn: () => void, options?: { suspense: boolean }) => {
+        versionRef.current += 1;
+        const action: Parameters<Listener<Value>>[0] = {
+          n: versionRef.current,
+        };
+        if (options?.suspense) {
+          action.n *= -1; // this is intentional to make it temporary version
+          action.p = new Promise<Value>((r) => {
+            setResolve(() => (v: Value) => {
+              action.v = v;
+              delete action.p;
+              r(v);
             });
-          }
-          listeners.forEach((listener) => listener(action));
-          thunk();
-        });
+          });
+        }
+        listeners.forEach((listener) => listener(action));
+        fn();
       };
       contextValue.current = {
         [CONTEXT_VALUE]: {
@@ -237,7 +233,7 @@ export function useContext<Value>(context: Context<Value>) {
 }
 
 /**
- * This hook returns an update function that accepts a thunk function
+ * This hook returns an update function to wrap an updating function
  *
  * Use this for a function that will change a value in
  * concurrent rendering in React 18.

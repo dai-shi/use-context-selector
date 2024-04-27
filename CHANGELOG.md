@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Removed
+- Breaking: drop react < 18 support
+
 ## [1.4.4] - 2024-03-08
 ### Changed
 - fix(react-native): metro without exports support #118
