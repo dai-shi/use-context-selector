@@ -48,40 +48,46 @@ Its usage is optional and only required if the default behavior is unexpected.
 ## Usage
 
 ```javascript
-import React, { useState } from 'react';
-import ReactDOM from 'react-dom';
+import { useState } from 'react';
+import { createRoot } from 'react-dom/client';
 
 import { createContext, useContextSelector } from 'use-context-selector';
 
 const context = createContext(null);
 
 const Counter1 = () => {
-  const count1 = useContextSelector(context, v => v[0].count1);
-  const setState = useContextSelector(context, v => v[1]);
-  const increment = () => setState(s => ({
-    ...s,
-    count1: s.count1 + 1,
-  }));
+  const count1 = useContextSelector(context, (v) => v[0].count1);
+  const setState = useContextSelector(context, (v) => v[1]);
+  const increment = () =>
+    setState((s) => ({
+      ...s,
+      count1: s.count1 + 1,
+    }));
   return (
     <div>
       <span>Count1: {count1}</span>
-      <button type="button" onClick={increment}>+1</button>
+      <button type="button" onClick={increment}>
+        +1
+      </button>
       {Math.random()}
     </div>
   );
 };
 
 const Counter2 = () => {
-  const count2 = useContextSelector(context, v => v[0].count2);
-  const setState = useContextSelector(context, v => v[1]);
-  const increment = () => setState(s => ({
-    ...s,
-    count2: s.count2 + 1,
-  }));
+  const count2 = useContextSelector(context, (v) => v[0].count2);
+  const setState = useContextSelector(context, (v) => v[1]);
+  const increment = () =>
+    setState((s) => ({
+      ...s,
+      count2: s.count2 + 1,
+    }));
   return (
     <div>
       <span>Count2: {count2}</span>
-      <button type="button" onClick={increment}>+1</button>
+      <button type="button" onClick={increment}>
+        +1
+      </button>
       {Math.random()}
     </div>
   );
@@ -100,7 +106,7 @@ const App = () => (
   </StateProvider>
 );
 
-ReactDOM.render(<App />, document.getElementById('app'));
+createRoot(document.getElementById('app')).render(<App />);
 ```
 
 ## API
@@ -113,7 +119,7 @@ This creates a special context for `useContextSelector`.
 
 #### Parameters
 
-*   `defaultValue` **Value** 
+*   `defaultValue` **Value**&#x20;
 
 #### Examples
 
@@ -134,15 +140,15 @@ The selector should return referentially equal result for same input for better 
 
 #### Parameters
 
-*   `context` **Context\<Value>** 
-*   `selector` **function (value: Value): Selected** 
+*   `context` **Context\<Value>**&#x20;
+*   `selector` **function (value: Value): Selected**&#x20;
 
 #### Examples
 
 ```javascript
 import { useContextSelector } from 'use-context-selector';
 
-const firstName = useContextSelector(PersonContext, state => state.firstName);
+const firstName = useContextSelector(PersonContext, (state) => state.firstName);
 ```
 
 ### useContext
@@ -152,7 +158,7 @@ Use this instead of React.useContext for consistent behavior.
 
 #### Parameters
 
-*   `context` **Context\<Value>** 
+*   `context` **Context\<Value>**&#x20;
 
 #### Examples
 
@@ -164,7 +170,7 @@ const person = useContext(PersonContext);
 
 ### useContextUpdate
 
-This hook returns an update function that accepts a thunk function
+This hook returns an update function to wrap an updating function
 
 Use this for a function that will change a value in
 concurrent rendering in React 18.
@@ -172,7 +178,7 @@ Otherwise, there's no need to use this hook.
 
 #### Parameters
 
-*   `context` **Context\<Value>** 
+*   `context` **Context\<Value>**&#x20;
 
 #### Examples
 
@@ -194,11 +200,11 @@ This is a Provider component for bridging multiple react roots
 
 #### Parameters
 
-*   `$0` **{context: Context\<any>, value: any, children: ReactNode}** 
+*   `$0` **{context: Context\<any>, value: any, children: ReactNode}**&#x20;
 
-    *   `$0.context`  
-    *   `$0.value`  
-    *   `$0.children`  
+    *   `$0.context` &#x20;
+    *   `$0.value` &#x20;
+    *   `$0.children` &#x20;
 
 #### Examples
 
@@ -219,7 +225,7 @@ This hook return a value for BridgeProvider
 
 #### Parameters
 
-*   `context` **Context\<any>** 
+*   `context` **Context\<any>**&#x20;
 
 ## Limitations
 
@@ -235,15 +241,15 @@ The [examples](examples) folder contains working examples.
 You can run one of them with
 
 ```bash
-PORT=8080 yarn run examples:01_minimal
+PORT=8080 yarn run examples:01_counter
 ```
 
 and open <http://localhost:8080> in your web browser.
 
 You can also try them in codesandbox.io:
-[01](https://codesandbox.io/s/github/dai-shi/use-context-selector/tree/main/examples/01\_minimal)
-[02](https://codesandbox.io/s/github/dai-shi/use-context-selector/tree/main/examples/02\_typescript)
-[03](https://codesandbox.io/s/github/dai-shi/use-context-selector/tree/main/examples/03\_suspense)
+[01](https://codesandbox.io/s/github/dai-shi/use-context-selector/tree/main/examples/01_counter)
+[02](https://codesandbox.io/s/github/dai-shi/use-context-selector/tree/main/examples/02_person)
+[03](https://codesandbox.io/s/github/dai-shi/use-context-selector/tree/main/examples/03_suspense)
 
 ## Projects that use use-context-selector
 

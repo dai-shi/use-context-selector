@@ -1,21 +1,20 @@
 {
   "compilerOptions": {
     "strict": true,
-    "target": "esnext",
+    "target": "es2018",
     "downlevelIteration": true,
     "esModuleInterop": true,
-    "module": "es2015",
-    "moduleResolution": "node",
+    "module": "nodenext",
     "skipLibCheck": true,
     "allowJs": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "verbatimModuleSyntax": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
-    "jsx": "react",
+    "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "use-context-selector": ["./src"]
+      "use-context-selector": ["./src/index.js"]
     }
-  }
+  },
+  "exclude": ["dist", "examples"]
 }
