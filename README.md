@@ -119,7 +119,7 @@ This creates a special context for `useContextSelector`.
 
 #### Parameters
 
-- `defaultValue` **Value**&#x20;
+*   `defaultValue` **Value**&#x20;
 
 #### Examples
 
@@ -140,8 +140,8 @@ The selector should return referentially equal result for same input for better 
 
 #### Parameters
 
-- `context` **Context\<Value>**&#x20;
-- `selector` **function (value: Value): Selected**&#x20;
+*   `context` **Context\<Value>**&#x20;
+*   `selector` **function (value: Value): Selected**&#x20;
 
 #### Examples
 
@@ -158,7 +158,7 @@ Use this instead of React.useContext for consistent behavior.
 
 #### Parameters
 
-- `context` **Context\<Value>**&#x20;
+*   `context` **Context\<Value>**&#x20;
 
 #### Examples
 
@@ -178,7 +178,7 @@ Otherwise, there's no need to use this hook.
 
 #### Parameters
 
-- `context` **Context\<Value>**&#x20;
+*   `context` **Context\<Value>**&#x20;
 
 #### Examples
 
@@ -200,11 +200,11 @@ This is a Provider component for bridging multiple react roots
 
 #### Parameters
 
-- `$0` **{context: Context\<any>, value: any, children: ReactNode}**&#x20;
+*   `$0` **{context: Context\<any>, value: any, children: ReactNode}**&#x20;
 
-  - `$0.context` &#x20;
-  - `$0.value` &#x20;
-  - `$0.children` &#x20;
+    *   `$0.context` &#x20;
+    *   `$0.value` &#x20;
+    *   `$0.children` &#x20;
 
 #### Examples
 
@@ -225,15 +225,15 @@ This hook return a value for BridgeProvider
 
 #### Parameters
 
-- `context` **Context\<any>**&#x20;
+*   `context` **Context\<any>**&#x20;
 
 ## Limitations
 
-- In order to stop propagation, `children` of a context provider has to be either created outside of the provider or memoized with `React.memo`.
-- Provider trigger re-renders only if the context value is referentially changed.
-- Neither context consumers or class components are supported.
-- The [stale props](https://react-redux.js.org/api/hooks#stale-props-and-zombie-children) issue can't be solved in userland.
-- Tearing is only avoided if all consumers get data using `useContextSelector`. If you use both props and `use-context-selector` to pass the same data, they may provide inconsistence data for a brief moment. (`02_tearing_spec` fails)
+*   In order to stop propagation, `children` of a context provider has to be either created outside of the provider or memoized with `React.memo`.
+*   Provider trigger re-renders only if the context value is referentially changed.
+*   Neither context consumers or class components are supported.
+*   The [stale props](https://react-redux.js.org/api/hooks#stale-props-and-zombie-children) issue can't be solved in userland.
+*   Tearing is only avoided if all consumers get data using `useContextSelector`. If you use both props and `use-context-selector` to pass the same data, they may provide inconsistence data for a brief moment. (`02_tearing_spec` fails)
 
 ## Examples
 
@@ -253,6 +253,6 @@ You can also try them in codesandbox.io:
 
 ## Projects that use use-context-selector
 
-- [react-tracked](https://github.com/dai-shi/react-tracked)
-- [use-atom](https://github.com/dai-shi/use-atom)
-- [react-hooks-fetch](https://github.com/dai-shi/react-hooks-fetch)
+*   [react-tracked](https://github.com/dai-shi/react-tracked)
+*   [use-atom](https://github.com/dai-shi/use-atom)
+*   [react-hooks-fetch](https://github.com/dai-shi/react-hooks-fetch)

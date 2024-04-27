@@ -175,7 +175,7 @@ export function createContext<Value>(defaultValue: Value) {
  * @example
  * import { useContextSelector } from 'use-context-selector';
  *
- * const firstName = useContextSelector(PersonContext, state => state.firstName);
+ * const firstName = useContextSelector(PersonContext, (state) => state.firstName);
  */
 export function useContextSelector<Value, Selected>(
   context: Context<Value>,
