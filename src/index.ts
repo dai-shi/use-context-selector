@@ -233,7 +233,7 @@ export function useContext<Value>(context: Context<Value>) {
 }
 
 /**
- * This hook returns an update function that accepts a fn function
+ * This hook returns an update function to wrap an updating function
  *
  * Use this for a function that will change a value in
  * concurrent rendering in React 18.
