@@ -2,9 +2,13 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Module-first setup #125
+
 ### Removed
 
-- Breaking: drop react < 18 support
+- Breaking: drop react < 18 support #124
 
 ## [1.4.4] - 2024-03-08
 

@@ -119,7 +119,7 @@ This creates a special context for `useContextSelector`.
 
 #### Parameters
 
-- `defaultValue` **Value**
+- `defaultValue` **Value**&#x20;
 
 #### Examples
 
@@ -140,8 +140,8 @@ The selector should return referentially equal result for same input for better 
 
 #### Parameters
 
-- `context` **Context\<Value>**
-- `selector` **function (value: Value): Selected**
+- `context` **Context\<Value>**&#x20;
+- `selector` **function (value: Value): Selected**&#x20;
 
 #### Examples
 
@@ -158,7 +158,7 @@ Use this instead of React.useContext for consistent behavior.
 
 #### Parameters
 
-- `context` **Context\<Value>**
+- `context` **Context\<Value>**&#x20;
 
 #### Examples
 
@@ -170,7 +170,7 @@ const person = useContext(PersonContext);
 
 ### useContextUpdate
 
-This hook returns an update function that accepts a thunk function
+This hook returns an update function to wrap an updating function
 
 Use this for a function that will change a value in
 concurrent rendering in React 18.
@@ -178,7 +178,7 @@ Otherwise, there's no need to use this hook.
 
 #### Parameters
 
-- `context` **Context\<Value>**
+- `context` **Context\<Value>**&#x20;
 
 #### Examples
 
@@ -200,11 +200,11 @@ This is a Provider component for bridging multiple react roots
 
 #### Parameters
 
-- `$0` **{context: Context\<any>, value: any, children: ReactNode}**
+- `$0` **{context: Context\<any>, value: any, children: ReactNode}**&#x20;
 
-  - `$0.context`
-  - `$0.value`
-  - `$0.children`
+  - `$0.context` &#x20;
+  - `$0.value` &#x20;
+  - `$0.children` &#x20;
 
 #### Examples
 
@@ -225,7 +225,7 @@ This hook return a value for BridgeProvider
 
 #### Parameters
 
-- `context` **Context\<any>**
+- `context` **Context\<any>**&#x20;
 
 ## Limitations
 
