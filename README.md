@@ -29,7 +29,7 @@ v1.3 no longer depends on this undocumented feature.
 This package requires some peer dependencies, which you need to install by yourself.
 
 ```bash
-yarn add use-context-selector react scheduler
+npm install use-context-selector react scheduler
 ```
 
 Notes for library authors:
@@ -44,6 +44,8 @@ To make it work like original React context, it uses
 
 It also requires `useContextUpdate` to behave better in concurrent rendering.
 Its usage is optional and only required if the default behavior is unexpected.
+
+If you need a simpler solution, you can use `useSyncExternalStore` without any libraries. See [an example](https://github.com/dai-shi/use-context-selector/issues/109#issuecomment-1785147682).
 
 ## Usage
 
