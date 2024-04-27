@@ -1,9 +1,4 @@
 import {
-  ComponentType,
-  Context as ContextOrig,
-  MutableRefObject,
-  Provider,
-  ReactNode,
   createElement,
   createContext as createContextOrig,
   useContext as useContextOrig,
@@ -13,6 +8,13 @@ import {
   useRef,
   useState,
 } from 'react';
+import type {
+  ComponentType,
+  Context as ContextOrig,
+  MutableRefObject,
+  Provider,
+  ReactNode,
+} from 'react';
 import {
   unstable_NormalPriority as NormalPriority,
   unstable_runWithPriority as runWithPriority,
@@ -21,36 +23,43 @@ import {
 const CONTEXT_VALUE = Symbol();
 const ORIGINAL_PROVIDER = Symbol();
 
-const isSSR = typeof window === 'undefined'
-  || /ServerSideRendering/.test(window.navigator && window.navigator.userAgent);
+const isSSR =
+  typeof window === 'undefined' ||
+  /ServerSideRendering/.test(window.navigator && window.navigator.userAgent);
 
 const useIsomorphicLayoutEffect = isSSR ? useEffect : useLayoutEffect;
 
 // for preact that doesn't have runWithPriority
 const runWithNormalPriority = runWithPriority
   ? (fn: () => void) => {
-    try {
-      runWithPriority(NormalPriority, fn);
-    } catch (e: any) {
-      if (e.message === 'Not implemented.') {
-        fn();
-      } else {
-        throw e;
+      try {
+        runWithPriority(NormalPriority, fn);
+      } catch (e) {
+        if ((e as { message: unknown }).message === 'Not implemented.') {
+          fn();
+        } else {
+          throw e;
+        }
       }
     }
-  } : (fn: () => void) => fn();
+  : (fn: () => void) => fn();
 
 type Version = number;
-type Listener<Value> = (
-  action: { n: Version, p?: Promise<Value>, v?: Value }
-) => void
+type Listener<Value> = (action: {
+  n: Version;
+  p?: Promise<Value>;
+  v?: Value;
+}) => void;
 
 type ContextValue<Value> = {
   [CONTEXT_VALUE]: {
     /* "v"alue     */ v: MutableRefObject<Value>;
     /* versio"n"   */ n: MutableRefObject<Version>;
     /* "l"isteners */ l: Set<Listener<Value>>;
-    /* "u"pdate    */ u: (fn: () => void, options?: { suspense: boolean }) => void;
+    /* "u"pdate    */ u: (
+      fn: () => void,
+      options?: { suspense: boolean },
+    ) => void;
   };
 };
 
@@ -59,10 +68,14 @@ export interface Context<Value> {
   displayName?: string;
 }
 
-const createProvider = <Value>(
-  ProviderOrig: Provider<ContextValue<Value>>,
-) => {
-  const ContextProvider = ({ value, children }: { value: Value; children: ReactNode }) => {
+const createProvider = <Value>(ProviderOrig: Provider<ContextValue<Value>>) => {
+  const ContextProvider = ({
+    value,
+    children,
+  }: {
+    value: Value;
+    children: ReactNode;
+  }) => {
     const valueRef = useRef(value);
     const versionRef = useRef(0);
     const [resolve, setResolve] = useState<((v: Value) => void) | null>(null);
@@ -104,12 +117,18 @@ const createProvider = <Value>(
       valueRef.current = value;
       versionRef.current += 1;
       runWithNormalPriority(() => {
-        (contextValue.current as ContextValue<Value>)[CONTEXT_VALUE].l.forEach((listener) => {
-          listener({ n: versionRef.current, v: value });
-        });
+        (contextValue.current as ContextValue<Value>)[CONTEXT_VALUE].l.forEach(
+          (listener) => {
+            listener({ n: versionRef.current, v: value });
+          },
+        );
       });
     }, [value]);
-    return createElement(ProviderOrig, { value: contextValue.current }, children);
+    return createElement(
+      ProviderOrig,
+      { value: contextValue.current },
+      children,
+    );
   };
   return ContextProvider;
 };
@@ -133,11 +152,15 @@ export function createContext<Value>(defaultValue: Value) {
       /* "u"pdate    */ u: (f) => f(),
     },
   });
-  (context as unknown as {
-    [ORIGINAL_PROVIDER]: Provider<ContextValue<Value>>;
-  })[ORIGINAL_PROVIDER] = context.Provider;
-  (context as unknown as Context<Value>).Provider = createProvider(context.Provider);
-  delete (context as any).Consumer; // no support for Consumer
+  (
+    context as unknown as {
+      [ORIGINAL_PROVIDER]: Provider<ContextValue<Value>>;
+    }
+  )[ORIGINAL_PROVIDER] = context.Provider;
+  (context as unknown as Context<Value>).Provider = createProvider(
+    context.Provider,
+  );
+  delete (context as { Consumer: unknown }).Consumer; // no support for Consumer
   return context as unknown as Context<Value>;
 }
 
@@ -172,39 +195,42 @@ export function useContextSelector<Value, Selected>(
     /* "l"isteners */ l: listeners,
   } = contextValue;
   const selected = selector(value);
-  const [state, dispatch] = useReducer((
-    prev: readonly [Value, Selected],
-    action?: Parameters<Listener<Value>>[0],
-  ) => {
-    if (!action) {
-      // case for `dispatch()` below
-      return [value, selected] as const;
-    }
-    if ('p' in action) {
-      throw action.p;
-    }
-    if (action.n === version) {
-      if (Object.is(prev[1], selected)) {
-        return prev; // bail out
+  const [state, dispatch] = useReducer(
+    (
+      prev: readonly [Value, Selected],
+      action?: Parameters<Listener<Value>>[0],
+    ) => {
+      if (!action) {
+        // case for `dispatch()` below
+        return [value, selected] as const;
       }
-      return [value, selected] as const;
-    }
-    try {
-      if ('v' in action) {
-        if (Object.is(prev[0], action.v)) {
-          return prev; // do not update
-        }
-        const nextSelected = selector(action.v);
-        if (Object.is(prev[1], nextSelected)) {
-          return prev; // do not update
-        }
-        return [action.v, nextSelected] as const;
+      if ('p' in action) {
+        throw action.p;
       }
-    } catch (e) {
-      // ignored (stale props or some other reason)
-    }
-    return [...prev] as const; // schedule update
-  }, [value, selected] as const);
+      if (action.n === version) {
+        if (Object.is(prev[1], selected)) {
+          return prev; // bail out
+        }
+        return [value, selected] as const;
+      }
+      try {
+        if ('v' in action) {
+          if (Object.is(prev[0], action.v)) {
+            return prev; // do not update
+          }
+          const nextSelected = selector(action.v);
+          if (Object.is(prev[1], nextSelected)) {
+            return prev; // do not update
+          }
+          return [action.v, nextSelected] as const;
+        }
+      } catch (_e) {
+        // ignored (stale props or some other reason)
+      }
+      return [...prev] as const; // schedule update
+    },
+    [value, selected] as const,
+  );
   if (!Object.is(state[1], selected)) {
     // schedule re-render
     // this is safe because it's self contained
@@ -263,6 +289,8 @@ export function useContextUpdate<Value>(context: Context<Value>) {
   return update;
 }
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 /**
  * This is a Provider component for bridging multiple react roots
  *
@@ -276,9 +304,13 @@ export function useContextUpdate<Value>(context: Context<Value>) {
  *   </Renderer>
  * );
  */
-export const BridgeProvider = ({ context, value, children }:{
+export const BridgeProvider = ({
+  context,
+  value,
+  children,
+}: {
   context: Context<any>;
-  value: any;
+  value: unknown;
   children: ReactNode;
 }) => {
   const { [ORIGINAL_PROVIDER]: ProviderOrig } = context as unknown as {
@@ -296,7 +328,9 @@ export const BridgeProvider = ({ context, value, children }:{
  * This hook return a value for BridgeProvider
  */
 export const useBridgeValue = (context: Context<any>) => {
-  const bridgeValue = useContextOrig(context as unknown as ContextOrig<ContextValue<unknown>>);
+  const bridgeValue = useContextOrig(
+    context as unknown as ContextOrig<ContextValue<unknown>>,
+  );
   if (typeof process === 'object' && process.env.NODE_ENV !== 'production') {
     if (!bridgeValue[CONTEXT_VALUE]) {
       throw new Error('useBridgeValue requires special context');

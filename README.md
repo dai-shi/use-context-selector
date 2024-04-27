@@ -48,40 +48,46 @@ Its usage is optional and only required if the default behavior is unexpected.
 ## Usage
 
 ```javascript
-import React, { useState } from 'react';
-import ReactDOM from 'react-dom';
+import { useState } from 'react';
+import { createRoot } from 'react-dom/client';
 
 import { createContext, useContextSelector } from 'use-context-selector';
 
 const context = createContext(null);
 
 const Counter1 = () => {
-  const count1 = useContextSelector(context, v => v[0].count1);
-  const setState = useContextSelector(context, v => v[1]);
-  const increment = () => setState(s => ({
-    ...s,
-    count1: s.count1 + 1,
-  }));
+  const count1 = useContextSelector(context, (v) => v[0].count1);
+  const setState = useContextSelector(context, (v) => v[1]);
+  const increment = () =>
+    setState((s) => ({
+      ...s,
+      count1: s.count1 + 1,
+    }));
   return (
     <div>
       <span>Count1: {count1}</span>
-      <button type="button" onClick={increment}>+1</button>
+      <button type="button" onClick={increment}>
+        +1
+      </button>
       {Math.random()}
     </div>
   );
 };
 
 const Counter2 = () => {
-  const count2 = useContextSelector(context, v => v[0].count2);
-  const setState = useContextSelector(context, v => v[1]);
-  const increment = () => setState(s => ({
-    ...s,
-    count2: s.count2 + 1,
-  }));
+  const count2 = useContextSelector(context, (v) => v[0].count2);
+  const setState = useContextSelector(context, (v) => v[1]);
+  const increment = () =>
+    setState((s) => ({
+      ...s,
+      count2: s.count2 + 1,
+    }));
   return (
     <div>
       <span>Count2: {count2}</span>
-      <button type="button" onClick={increment}>+1</button>
+      <button type="button" onClick={increment}>
+        +1
+      </button>
       {Math.random()}
     </div>
   );
@@ -100,7 +106,7 @@ const App = () => (
   </StateProvider>
 );
 
-ReactDOM.render(<App />, document.getElementById('app'));
+createRoot(document.getElementById('app')).render(<App />);
 ```
 
 ## API
@@ -113,7 +119,7 @@ This creates a special context for `useContextSelector`.
 
 #### Parameters
 
-*   `defaultValue` **Value** 
+- `defaultValue` **Value**
 
 #### Examples
 
@@ -134,15 +140,15 @@ The selector should return referentially equal result for same input for better 
 
 #### Parameters
 
-*   `context` **Context\<Value>** 
-*   `selector` **function (value: Value): Selected** 
+- `context` **Context\<Value>**
+- `selector` **function (value: Value): Selected**
 
 #### Examples
 
 ```javascript
 import { useContextSelector } from 'use-context-selector';
 
-const firstName = useContextSelector(PersonContext, state => state.firstName);
+const firstName = useContextSelector(PersonContext, (state) => state.firstName);
 ```
 
 ### useContext
@@ -152,7 +158,7 @@ Use this instead of React.useContext for consistent behavior.
 
 #### Parameters
 
-*   `context` **Context\<Value>** 
+- `context` **Context\<Value>**
 
 #### Examples
 
@@ -172,7 +178,7 @@ Otherwise, there's no need to use this hook.
 
 #### Parameters
 
-*   `context` **Context\<Value>** 
+- `context` **Context\<Value>**
 
 #### Examples
 
@@ -194,11 +200,11 @@ This is a Provider component for bridging multiple react roots
 
 #### Parameters
 
-*   `$0` **{context: Context\<any>, value: any, children: ReactNode}** 
+- `$0` **{context: Context\<any>, value: any, children: ReactNode}**
 
-    *   `$0.context`  
-    *   `$0.value`  
-    *   `$0.children`  
+  - `$0.context`
+  - `$0.value`
+  - `$0.children`
 
 #### Examples
 
@@ -219,15 +225,15 @@ This hook return a value for BridgeProvider
 
 #### Parameters
 
-*   `context` **Context\<any>** 
+- `context` **Context\<any>**
 
 ## Limitations
 
-*   In order to stop propagation, `children` of a context provider has to be either created outside of the provider or memoized with `React.memo`.
-*   Provider trigger re-renders only if the context value is referentially changed.
-*   Neither context consumers or class components are supported.
-*   The [stale props](https://react-redux.js.org/api/hooks#stale-props-and-zombie-children) issue can't be solved in userland.
-*   Tearing is only avoided if all consumers get data using `useContextSelector`. If you use both props and `use-context-selector` to pass the same data, they may provide inconsistence data for a brief moment. (`02_tearing_spec` fails)
+- In order to stop propagation, `children` of a context provider has to be either created outside of the provider or memoized with `React.memo`.
+- Provider trigger re-renders only if the context value is referentially changed.
+- Neither context consumers or class components are supported.
+- The [stale props](https://react-redux.js.org/api/hooks#stale-props-and-zombie-children) issue can't be solved in userland.
+- Tearing is only avoided if all consumers get data using `useContextSelector`. If you use both props and `use-context-selector` to pass the same data, they may provide inconsistence data for a brief moment. (`02_tearing_spec` fails)
 
 ## Examples
 
@@ -241,12 +247,12 @@ PORT=8080 yarn run examples:01_minimal
 and open <http://localhost:8080> in your web browser.
 
 You can also try them in codesandbox.io:
-[01](https://codesandbox.io/s/github/dai-shi/use-context-selector/tree/main/examples/01\_minimal)
-[02](https://codesandbox.io/s/github/dai-shi/use-context-selector/tree/main/examples/02\_typescript)
-[03](https://codesandbox.io/s/github/dai-shi/use-context-selector/tree/main/examples/03\_suspense)
+[01](https://codesandbox.io/s/github/dai-shi/use-context-selector/tree/main/examples/01_minimal)
+[02](https://codesandbox.io/s/github/dai-shi/use-context-selector/tree/main/examples/02_typescript)
+[03](https://codesandbox.io/s/github/dai-shi/use-context-selector/tree/main/examples/03_suspense)
 
 ## Projects that use use-context-selector
 
-*   [react-tracked](https://github.com/dai-shi/react-tracked)
-*   [use-atom](https://github.com/dai-shi/use-atom)
-*   [react-hooks-fetch](https://github.com/dai-shi/react-hooks-fetch)
+- [react-tracked](https://github.com/dai-shi/react-tracked)
+- [use-atom](https://github.com/dai-shi/use-atom)
+- [react-hooks-fetch](https://github.com/dai-shi/react-hooks-fetch)
