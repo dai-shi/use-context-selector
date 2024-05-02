@@ -43,7 +43,7 @@
     "test:types": "tsc -p . --noEmit",
     "test:types:examples": "tsc -p examples --noEmit",
     "test:spec": "vitest run",
-    "apidoc": "documentation readme src/index.ts --section API --markdown-toc false --parse-extension ts --require-extension ts",
+    "apidoc": "documentation readme src --section API --markdown-toc false --parse-extension ts",
     "examples:01_counter": "DIR=01_counter vite",
     "examples:02_person": "DIR=02_person vite",
     "examples:03_suspense": "DIR=03_suspense vite"
