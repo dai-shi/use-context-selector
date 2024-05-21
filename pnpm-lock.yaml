@@ -77,6 +77,9 @@ devDependencies:
   typescript:
     specifier: ^5.4.5
     version: 5.4.5
+  use-context-selector:
+    specifier: link:.
+    version: 'link:'
   vite:
     specifier: ^5.2.11
     version: 5.2.11(@types/node@20.12.10)

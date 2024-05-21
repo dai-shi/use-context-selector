@@ -2,20 +2,19 @@
   "name": "example",
   "version": "0.0.0",
   "private": true,
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
-    "@types/react": "latest",
-    "@types/react-dom": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "react-scripts": "latest",
-    "typescript": "latest",
     "use-context-selector": "latest"
   },
+  "devDependencies": {
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "typescript": "latest",
+    "vite": "latest"
+  },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "dev": "vite"
   }
 }
