@@ -3,17 +3,12 @@
     "strict": true,
     "target": "es2018",
     "esModuleInterop": true,
-    "module": "nodenext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "skipLibCheck": true,
     "allowJs": true,
-    "verbatimModuleSyntax": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
-    "jsx": "react-jsx",
-    "baseUrl": ".",
-    "paths": {
-      "use-context-selector": ["./src/index.js"]
-    }
-  },
-  "exclude": ["dist", "examples"]
+    "jsx": "react-jsx"
+  }
 }
