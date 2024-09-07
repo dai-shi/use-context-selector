@@ -78,7 +78,7 @@ devDependencies:
     specifier: ^5.5.4
     version: 5.5.4
   use-context-selector:
-    specifier: 'link:'
+    specifier: link:.
     version: 'link:'
   vite:
     specifier: ^5.4.3
