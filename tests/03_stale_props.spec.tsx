@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
 import { createContext, useContextSelector } from 'use-context-selector';
 
-describe.skip('stale props spec', () => {
+describe('stale props spec', () => {
   afterEach(cleanup);
 
   it('ignores transient errors in selector (e.g. due to stale props)', () => {
