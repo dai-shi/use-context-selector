@@ -2,17 +2,18 @@
 
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 const { DIR, PORT = '8080' } = process.env;
 
 export default defineConfig(({ mode }) => {
   if (mode === 'test') {
     return {
-      resolve: { alias: { 'use-context-selector': resolve('src') } },
       test: {
         environment: 'happy-dom',
-        setupFiles: ['./tests/vitest-setup.js'],
+        setupFiles: ['./tests/vitest-setup.ts'],
       },
+      plugins: [tsconfigPaths()],
     };
   }
   if (!DIR) {
@@ -21,6 +22,6 @@ export default defineConfig(({ mode }) => {
   return {
     root: resolve('examples', DIR),
     server: { port: Number(PORT) },
-    resolve: { alias: { 'use-context-selector': resolve('src') } },
+    plugins: [tsconfigPaths({ root: resolve('.') })],
   };
 });
