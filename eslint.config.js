@@ -8,7 +8,7 @@ import react from 'eslint-plugin-react';
 const compat = new FlatCompat();
 
 export default tseslint.config(
-  { ignores: ['dist/'] },
+  { ignores: ['dist/', 'website/'] },
   eslint.configs.recommended,
   tseslint.configs.recommended,
   importPlugin.flatConfigs.recommended,
