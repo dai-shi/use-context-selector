@@ -1,3 +1,5 @@
+/* eslint-disable react-compiler/react-compiler */
+
 import {
   createElement,
   createContext as createContextOrig,
@@ -11,7 +13,7 @@ import {
 import type {
   ComponentType,
   Context as ContextOrig,
-  MutableRefObject,
+  RefObject,
   Provider,
   ReactNode,
 } from 'react';
@@ -53,8 +55,8 @@ type Listener<Value> = (action: {
 
 type ContextValue<Value> = {
   [CONTEXT_VALUE]: {
-    /* "v"alue     */ v: MutableRefObject<Value>;
-    /* versio"n"   */ n: MutableRefObject<Version>;
+    /* "v"alue     */ v: RefObject<Value>;
+    /* versio"n"   */ n: RefObject<Version>;
     /* "l"isteners */ l: Set<Listener<Value>>;
     /* "u"pdate    */ u: (
       fn: () => void,
@@ -83,7 +85,7 @@ const createProvider = <Value>(ProviderOrig: Provider<ContextValue<Value>>) => {
       resolve(value);
       setResolve(null);
     }
-    const contextValue = useRef<ContextValue<Value>>();
+    const contextValue = useRef<ContextValue<Value>>(undefined);
     if (!contextValue.current) {
       const listeners = new Set<Listener<Value>>();
       const update = (fn: () => void, options?: { suspense: boolean }) => {
@@ -224,7 +226,7 @@ export function useContextSelector<Value, Selected>(
           }
           return [action.v, nextSelected] as const;
         }
-      } catch (_e) {
+      } catch {
         // ignored (stale props or some other reason)
       }
       return [...prev] as const; // schedule update

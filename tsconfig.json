@@ -12,7 +12,7 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "use-context-selector": ["./src/index.js"]
+      "use-context-selector": ["./src/index.ts"]
     }
   },
   "exclude": ["dist", "examples"]
