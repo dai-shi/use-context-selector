@@ -1,3 +1,5 @@
+/* eslint-disable react-compiler/react-compiler */
+
 import { useRef, useState, StrictMode } from 'react';
 import type { Dispatch, ReactNode, SetStateAction } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
