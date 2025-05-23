@@ -1,5 +1,3 @@
-/* eslint-disable react-compiler/react-compiler */
-
 import {
   useCallback,
   useRef,

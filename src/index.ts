@@ -1,5 +1,3 @@
-/* eslint-disable react-compiler/react-compiler */
-
 import {
   createElement,
   createContext as createContextOrig,
