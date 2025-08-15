@@ -14,6 +14,7 @@ React useContextSelector hook in userland
 > - [Zustand](https://github.com/pmndrs/zustand)
 > - [A naive implementation with useSyncExternalStore](https://github.com/dai-shi/use-context-selector/issues/109#issuecomment-1785147682)
 > - [Experimental react18-use](https://github.com/dai-shi/react18-use)
+> 
 > [Learn more](https://github.com/dai-shi/use-context-selector/issues/149)
 
 ## Introduction
