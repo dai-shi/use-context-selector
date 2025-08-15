@@ -7,6 +7,15 @@
 
 React useContextSelector hook in userland
 
+> [!IMPORTANT]
+> The goal of this library is to emulate the behavior of the React Context API with Concurrent React.
+> Many users try to use this library to avoid re-renders without needing to consider Concurrent React.
+> If you simply want to avoid re-renders, we recommend one of the following:
+> - [Zustand](https://github.com/pmndrs/zustand)
+> - [A naive implementation with useSyncExternalStore](https://github.com/dai-shi/use-context-selector/issues/109#issuecomment-1785147682)
+> - [Experimental react18-use](https://github.com/dai-shi/react18-use)
+> [Learn more](https://github.com/dai-shi/use-context-selector/issues/149)
+
 ## Introduction
 
 React Context and useContext is often used to avoid prop drilling,
@@ -44,8 +53,6 @@ To make it work like original React context, it uses
 
 It also requires `useContextUpdate` to behave better in concurrent rendering.
 Its usage is optional and only required if the default behavior is unexpected.
-
-If you need a simpler solution, you can use `useSyncExternalStore` without any libraries. See [an example](https://github.com/dai-shi/use-context-selector/issues/109#issuecomment-1785147682).
 
 ## Usage
 
