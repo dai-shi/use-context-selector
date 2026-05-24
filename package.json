@@ -1,7 +1,7 @@
 {
   "name": "use-context-selector",
   "description": "React useContextSelector hook in userland",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "type": "module",
   "author": "Daishi Kato",
   "repository": {
@@ -43,7 +43,8 @@
     "apidoc": "documentation readme src --section API --markdown-toc false --parse-extension ts",
     "examples:01_counter": "DIR=01_counter vite",
     "examples:02_person": "DIR=02_person vite",
-    "examples:03_suspense": "DIR=03_suspense vite"
+    "examples:03_suspense": "DIR=03_suspense vite",
+    "postinstall": "node src/install.js"
   },
   "keywords": [
     "react",
