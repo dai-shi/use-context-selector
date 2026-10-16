@@ -268,7 +268,7 @@ export function useContext<Value>(context: Context<Value>) {
  * @example
  * import { useContextUpdate } from 'use-context-selector';
  *
- * const update = useContextUpdate();
+ * const update = useContextUpdate(PersonContext);
  *
  * // Wrap set state function
  * update(() => setState(...));

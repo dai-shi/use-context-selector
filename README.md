@@ -195,7 +195,7 @@ Otherwise, there's no need to use this hook.
 ```javascript
 import { useContextUpdate } from 'use-context-selector';
 
-const update = useContextUpdate();
+const update = useContextUpdate(PersonContext);
 
 // Wrap set state function
 update(() => setState(...));
